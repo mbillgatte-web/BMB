@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState } from "react";
 
 export default function LoginForm() {
@@ -122,15 +124,15 @@ export default function LoginForm() {
             </div>
 
             {/* Bouton principal */}
-            <button
-              type="submit"
+            <Link
+              href="/dashboard"
               className="w-full py-sm px-md rounded-lg font-label-md text-label-md text-on-primary bg-gradient-to-r from-primary to-[#4F46E5] hover:from-[#4F46E5] hover:to-primary shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-xs"
             >
               Se connecter
               <span className="material-symbols-outlined text-[18px]">
                 arrow_forward
               </span>
-            </button>
+            </Link>
 
             {/* Séparateur */}
             <div className="relative py-sm">

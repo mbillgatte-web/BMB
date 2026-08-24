@@ -3,19 +3,11 @@ export default function TopNav() {
     <header className="bg-surface/80 backdrop-blur-md border-b border-outline-variant shadow-sm top-0 z-40 h-16 flex-shrink-0">
       <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-full">
         <div className="font-headline-md text-headline-md font-extrabold text-primary lg:hidden">
-          AI Business Builder
+          Build My Business
         </div>
 
         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-lg border border-outline-variant cursor-pointer hover:bg-surface-container-high transition-colors">
-          <span className="material-symbols-outlined text-on-surface-variant text-[20px]">
-            domain
-          </span>
-          <span className="font-label-md text-label-md text-on-surface">
-            Campus Style Yaoundé
-          </span>
-          <span className="material-symbols-outlined text-on-surface-variant text-[20px]">
-            expand_more
-          </span>
+          
         </div>
 
         <div className="flex items-center gap-4">

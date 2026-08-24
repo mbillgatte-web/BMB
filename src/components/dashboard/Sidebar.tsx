@@ -29,12 +29,10 @@ export default function Sidebar() {
             isCollapsed ? "justify-center" : "justify-between gap-3 px-4"
           }`}
         >
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary font-headline-md">
-            AI
-          </div>
+          
           {!isCollapsed && <div className="min-w-0">
             <h1 className="font-headline-md text-headline-md font-bold text-primary">
-              AI Business Builder
+              Build My Business
             </h1>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Strategic Suite

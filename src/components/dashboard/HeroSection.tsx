@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function HeroSection() {
   return (
     <section className="relative bg-surface-container-lowest rounded-[24px] border border-outline-variant shadow-sm overflow-hidden p-2xl min-h-[400px] flex items-center justify-center">
@@ -17,14 +18,17 @@ export default function HeroSection() {
           </p>
         </div>
 
-        <button className="pulse-soft shimmer relative overflow-hidden group bg-gradient-to-r from-primary to-[#4F46E5] text-white px-12 py-6 rounded-[24px] shadow-[0_8px_30px_rgb(99,102,241,0.3)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_40px_rgb(99,102,241,0.4)]">
+        <Link
+          href="/BuildEntreprise"
+          className="pulse-soft shimmer relative overflow-hidden group bg-gradient-to-r from-primary to-[#4F46E5] text-white px-12 py-6 rounded-[24px] shadow-[0_8px_30px_rgb(99,102,241,0.3)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_40px_rgb(99,102,241,0.4)]"
+        >
           <span className="relative z-10 flex items-center gap-3 font-headline-md text-headline-md">
             <span className="material-symbols-outlined text-[32px]">
              
             </span>
             Créer votre entreprise ici
           </span>
-        </button>
+        </Link>
       </div>
 
       
