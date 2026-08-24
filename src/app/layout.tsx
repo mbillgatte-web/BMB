@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI Business Builder",
-  description: "Plateforme de création de sites web par IA",
+  title: "Build My Business",
+  description: "Plateforme de création d'entreprise propulsée par l'IA",
 };
 
 export default function RootLayout({

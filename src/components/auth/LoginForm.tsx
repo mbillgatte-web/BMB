@@ -22,10 +22,10 @@ export default function LoginForm() {
           {/* Logo */}
           <div className="mb-xl flex items-center gap-xs">
             <span className="material-symbols-outlined text-primary text-headline-lg font-headline-lg">
-              rocket_launch
+              Logo
             </span>
             <span className="font-headline-md text-headline-md font-extrabold text-primary">
-              AI Business Builder
+              Build My Businessa
             </span>
           </div>
 
@@ -187,14 +187,14 @@ export default function LoginForm() {
       </div>
 
       {/* Colonne droite : visuel */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-primary-container via-surface-tint to-primary overflow-hidden items-center justify-center p-2xl">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-primary-container via-surface-tint to-primary overflow-hidden items-center justify-center p-3xl">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary-fixed rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-secondary-fixed rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
           <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-inverse-primary rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
 
-        <div className="relative z-10 max-w-lg text-center backdrop-blur-sm bg-surface/10 p-lg rounded-2xl border border-surface/20 shadow-lg">
+        <div className="relative z-10 w-full max-w-[560px] text-center backdrop-blur-sm bg-surface/10 p-lg rounded-2xl border border-surface/20 shadow-lg">
           <span className="material-symbols-outlined text-on-primary text-[48px] mb-sm block opacity-80">
             format_quote
           </span>
