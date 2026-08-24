@@ -1,5 +1,3 @@
-import AICharacter3D from "./AICharacter3D";
-
 export default function HeroSection() {
   return (
     <section className="relative bg-surface-container-lowest rounded-[24px] border border-outline-variant shadow-sm overflow-hidden p-2xl min-h-[400px] flex items-center justify-center">
@@ -29,21 +27,8 @@ export default function HeroSection() {
         </button>
       </div>
 
-      {/* Personnage 3D + bulle de dialogue */}
-      <div className="absolute bottom-8 right-8 w-64 h-64 hidden md:block">
-        <AICharacter3D />
-
-        <div
-          className="absolute -top-16 -left-32 w-64 glass-card p-4 rounded-2xl shadow-lg animate-bounce"
-          style={{ animationDuration: "3s" }}
-        >
-          <p className="font-body-sm text-body-sm text-on-surface">
-            Bonjour ! Lisez ce message : il est temps de passer de l&apos;idée
-            à l&apos;action. Cliquez sur le bouton central.
-          </p>
-          <div className="absolute bottom-[-10px] right-8 w-0 h-0 border-l-[10px] border-l-transparent border-t-[10px] border-t-white/70 border-r-[10px] border-r-transparent"></div>
-        </div>
-      </div>
+      
+      
     </section>
   );
 }
