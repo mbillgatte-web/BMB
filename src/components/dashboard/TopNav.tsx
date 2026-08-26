@@ -1,6 +1,6 @@
 export default function TopNav() {
   return (
-    <header className="bg-surface/80 backdrop-blur-md border-b border-outline-variant shadow-sm top-0 z-40 h-16 flex-shrink-0">
+    <header className="top-0 z-40 h-16 flex-shrink-0 border-b border-outline-variant/70 bg-surface/95 shadow-[0_4px_16px_rgba(27,27,35,0.04)] backdrop-blur-md">
       <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-full">
         <div className="font-headline-md text-headline-md font-extrabold text-primary lg:hidden">
           Build My Business

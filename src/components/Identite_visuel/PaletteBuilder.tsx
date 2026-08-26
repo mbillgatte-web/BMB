@@ -255,7 +255,7 @@ export default function PaletteBuilder({
               auto_awesome
             </span>
             <h3 className="text-label-md font-label-md font-bold text-on-surface">
-              Generate with AI
+              Generate withnnn AI
             </h3>
           </div>
           <div className="relative z-10 flex flex-col gap-3">

@@ -17,14 +17,14 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: "Overview", active: true , link: '/dashboard'},
+  { icon: LayoutDashboard, label: "Overview", active: true, link: "/dashboard" },
   { icon: Folder, label: "Projects" },
   { icon: BrainCircuit, label: "Etude de faisabilité" },
   { icon: ListChecks, label: "Business Plan" },
   { icon: ClipboardList, label: "Taches" },
   { icon: FileText, label: "Livrables " },
   { icon: ChartNoAxesCombined, label: "Demarche administrative" },
-  {icon: Folder, label :  'Identité visuelle', link: '/Identite_visuel/PaletteBuilder'},
+  { icon: Folder, label: "Identité visuelle", link: "/PaletteColor" },
 ];
 
 export default function Sidebar() {
@@ -32,7 +32,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`bg-surface border border-outline-variant h-[calc(100vh-24px)] flex-col hidden lg:flex shrink-0 sticky top-0 left-0 m-3 rounded-2xl shadow-[0_10px_30px_rgba(27,27,35,0.08)] transition-all duration-300 ${
+      className={`bg-surface border-r border-outline-variant h-screen flex-col hidden lg:flex shrink-0 sticky top-0 left-0 rounded-r-2xl shadow-[8px_0_24px_rgba(27,27,35,0.06)] transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-72"
       }`}
       id="sidebar"
@@ -76,16 +76,16 @@ export default function Sidebar() {
             return (
               <a
                 key={item.label}
-                href="#"
+                href={item.link ?? "#"}
                 className={`${
                   item.active
-                    ? "flex items-center gap-3 rounded-xl border-r-4 border-primary bg-primary-container/10 px-4 py-3 text-primary"
+                    ? "relative flex items-center gap-3 rounded-xl bg-primary/10 px-4 py-3 font-semibold text-primary shadow-sm before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-r-full before:bg-primary"
                     : "flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary"
                 } ${isCollapsed ? "justify-center px-0" : ""}`}
                 title={isCollapsed ? item.label : undefined}
               >
                 <Icon
-                  className="h-5 w-5 shrink-0"
+                  className={`h-5 w-5 shrink-0 ${item.active ? "text-primary" : ""}`}
                   size={20}
                   strokeWidth={item.active ? 2.4 : 1.8}
                   aria-hidden="true"
