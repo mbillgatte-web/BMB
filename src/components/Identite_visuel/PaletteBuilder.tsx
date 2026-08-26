@@ -1,4 +1,6 @@
+"use client";  
 import React, { useState, useMemo } from "react";
+  
 
 /**
  * PaletteBuilder
@@ -19,7 +21,7 @@ import React, { useState, useMemo } from "react";
 type PaletteMode = 2 | 3;
 
 interface Palette {
-  id: string;
+  id: string;        
   name: string;
   background: string;
   primary: string;
@@ -119,8 +121,7 @@ export default function PaletteBuilder({
           Live Preview
         </h2>
 
-        <div className="bg-surface-container-lowest rounded-xl border border-surface-variant canvas-shadow overflow-hidden flex-1 min-h-[500px] flex flex-col relative transition-colors duration-500">
-          {/* Barre de navigateur factice */}
+         <div className="relative flex min-h-[560px] flex-1 flex-col overflow-hidden rounded-xl border border-surface-variant bg-surface-container-lowest shadow-sm">          {/* Barre de navigateur factice */}
           <div className="h-10 bg-surface border-b border-surface-variant flex items-center px-4 gap-2">
             <div className="w-3 h-3 rounded-full bg-surface-variant" />
             <div className="w-3 h-3 rounded-full bg-surface-variant" />
