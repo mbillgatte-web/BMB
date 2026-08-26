@@ -2,7 +2,7 @@ const steps = ["Palette", "Typographie", "Logo", "Kit de marque"];
 
 export default function BrandProgressStepper({ currentStep = 1 }) {
   return (
-    <div className="mb-8 flex w-full items-center">
+    <div className="mb-10 flex w-full items-start justify-between">
       {steps.map((step, index) => {
         const stepNumber = index + 1;
         const active = stepNumber === currentStep;

@@ -1,27 +1,13 @@
-"use client";  
-import React, { useState, useMemo } from "react";
-  
+"use client";
 
-/**
- * PaletteBuilder
- * ---------------
- * Étape "Palette" du module d'identité visuelle (Brand Builder).
- * - L'utilisateur choisit entre 2 ou 3 couleurs.
- * - Il peut sélectionner une palette prédéfinie, ajuster manuellement,
- *   ou générer une palette via IA (placeholder pour l'instant).
- * - Un aperçu live (Live Preview) reflète le choix en temps réel.
- *
- * Prérequis Tailwind : le thème custom (colors, spacing, fontFamily,
- * fontSize) défini dans le prompt Stitch doit être ajouté à
- * tailwind.config.js du projet. Voir le bloc `theme.extend` fourni
- * précédemment. La police "Material Symbols Outlined" et "Inter"
- * doivent être chargées globalement (index.html ou _document).
- */
+import React, { useState, useMemo } from "react";
+
+
 
 type PaletteMode = 2 | 3;
 
 interface Palette {
-  id: string;        
+  id: string;
   name: string;
   background: string;
   primary: string;
@@ -114,14 +100,17 @@ export default function PaletteBuilder({
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-xl pb-24">
+    // relative + isolate : sert de repère de positionnement local pour le
+    // bouton "Continue" (sticky) plus bas, indépendamment du reste de la page.
+    <div className="relative isolate grid grid-cols-1 items-start gap-6 pb-8 xl:grid-cols-[minmax(0,1fr)_320px]">
       {/* Colonne gauche : aperçu live */}
-      <div className="flex-1 flex flex-col gap-md">
+      <div className="flex min-w-0 flex-col gap-md">
         <h2 className="text-headline-sm font-headline-sm text-on-surface">
           Live Preview
         </h2>
 
-         <div className="relative flex min-h-[560px] flex-1 flex-col overflow-hidden rounded-xl border border-surface-variant bg-surface-container-lowest shadow-sm">          {/* Barre de navigateur factice */}
+        <div className="relative flex min-h-[560px] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-surface-variant bg-surface-container-lowest shadow-sm">
+          {/* Barre de navigateur factice */}
           <div className="h-10 bg-surface border-b border-surface-variant flex items-center px-4 gap-2">
             <div className="w-3 h-3 rounded-full bg-surface-variant" />
             <div className="w-3 h-3 rounded-full bg-surface-variant" />
@@ -131,28 +120,28 @@ export default function PaletteBuilder({
 
           {/* Contenu de l'aperçu */}
           <div
-            className="p-xl flex-1 flex flex-col justify-center relative overflow-hidden transition-colors duration-500"
+            className="relative flex flex-1 flex-col justify-center overflow-hidden px-6 py-10 transition-colors duration-500 lg:px-8"
             style={{ backgroundColor: selectedPalette.background }}
           >
             <div
               className="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-10 blur-3xl transition-colors duration-500"
               style={{ backgroundColor: selectedPalette.primary }}
             />
-            <div className="max-w-md relative z-10">
+            <div className="relative z-10 flex w-full max-w-none flex-col gap-5">
               <h1
-                className="text-headline-xl font-headline-xl mb-sm transition-colors duration-500"
+                className="w-full text-3xl font-extrabold leading-tight sm:text-4xl"
                 style={{ color: selectedPalette.headingText }}
               >
                 Elevate your brand identity.
               </h1>
               <p
-                className="text-body-lg font-body-lg mb-lg transition-colors duration-500"
+                className="w-full text-base leading-7 sm:text-lg"
                 style={{ color: selectedPalette.bodyText }}
               >
                 Create cohesive, stunning visual systems in minutes with
                 intelligent color curation.
               </p>
-              <div className="flex gap-sm">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   className="px-6 py-3 rounded-lg font-label-md text-label-md shadow-sm transition-all duration-500"
                   style={{
@@ -184,8 +173,8 @@ export default function PaletteBuilder({
         </div>
       </div>
 
-      {/* Colonne droite : contrôles */}
-      <div className="w-full xl:w-[450px] flex flex-col gap-lg">
+      {/* Colonne droite : contrôles (largeur pilotée par la piste de grid, plus de w-[450px] en dur) */}
+      <div className="flex min-w-0 w-full flex-col gap-lg">
         {/* Palettes prédéfinies */}
         <div className="bg-surface-container-lowest rounded-xl border border-surface-variant canvas-shadow p-lg">
           <div className="flex justify-between items-center mb-md">
@@ -246,7 +235,7 @@ export default function PaletteBuilder({
                     )}
                   </div>
                   <div
-                    className={`text-label-sm font-label-sm text-center ${
+                    className={`truncate text-label-sm font-label-sm text-center ${
                       isActive ? "text-on-surface" : "text-secondary"
                     }`}
                   >
@@ -319,11 +308,12 @@ export default function PaletteBuilder({
         </div>
       </div>
 
-      {/* Bouton flottant Continue */}
-      <div className="fixed bottom-lg right-lg z-50">
+      {/* Barre d'action "Continue" : sticky au bas du composant, jamais
+          ancrée au viewport global (contrairement à `fixed`). */}
+      <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
         <button
           onClick={() => onContinue?.({ palette: selectedPalette, mode })}
-          className="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-primary transition-all shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] flex items-center gap-2"
+          className="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-primary transition-all shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] flex items-center gap-2"
         >
           Continue to Typography
           <span className="material-symbols-outlined text-[18px]">
@@ -346,9 +336,9 @@ function ColorField({
   onChange: (hex: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <label className="relative w-8 h-8 rounded border border-surface-variant overflow-hidden cursor-pointer">
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <label className="relative w-8 h-8 shrink-0 rounded border border-surface-variant overflow-hidden cursor-pointer">
           <span
             className="absolute inset-0"
             style={{ backgroundColor: hexValue }}
@@ -360,11 +350,11 @@ function ColorField({
             className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
           />
         </label>
-        <span className="text-body-sm font-body-sm text-on-surface">
+        <span className="truncate text-body-sm font-body-sm text-on-surface">
           {label}
         </span>
       </div>
-      <span className="text-label-sm font-label-sm text-secondary font-mono uppercase">
+      <span className="shrink-0 text-label-sm font-label-sm text-secondary font-mono uppercase">
         {hexValue}
       </span>
     </div>

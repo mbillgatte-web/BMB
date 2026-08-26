@@ -17,14 +17,14 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: "Overview", active: true },
+  { icon: LayoutDashboard, label: "Overview", active: true , link: '/dashboard'},
   { icon: Folder, label: "Projects" },
-  { icon: BrainCircuit, label: "AI Diagnostic" },
-  { icon: Bot, label: "AI Assistant" },
-  { icon: ListChecks, label: "Action Plan" },
-  { icon: ClipboardList, label: "Tasks" },
-  { icon: FileText, label: "Documents" },
-  { icon: ChartNoAxesCombined, label: "Market Validation" },
+  { icon: BrainCircuit, label: "Etude de faisabilité" },
+  { icon: ListChecks, label: "Business Plan" },
+  { icon: ClipboardList, label: "Taches" },
+  { icon: FileText, label: "Livrables " },
+  { icon: ChartNoAxesCombined, label: "Demarche administrative" },
+  {icon: Folder, label :  'Identité visuelle', link: '/Identite_visuel/PaletteBuilder'},
 ];
 
 export default function Sidebar() {
