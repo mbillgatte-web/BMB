@@ -6,12 +6,11 @@ export default function HeroSection() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
-      <div className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto space-y-8">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-on-surface mb-4">
+      <div className="relative z-10 flex w-full max-w-4xl flex-col items-center space-y-8 px-4 text-center">        <div>
+          <h2 className="mb-4 font-display-lg text-[clamp(2rem,5vw,3rem)] leading-tight text-on-surface">
             Bienvenue dans votre espace
           </h2>
-          <p className="font-body-lg text-body-lg text-on-surface-variant">
+          <p className="w-full max-w-3xl font-body-lg text-body-lg text-on-surface-variant">
             Prêt à transformer votre vision en réalité ? Notre intelligence
             artificielle est là pour vous guider à chaque étape du processus
             entrepreneurial.

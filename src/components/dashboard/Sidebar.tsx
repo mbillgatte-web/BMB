@@ -1,16 +1,30 @@
 "use client";
 
 import { useState } from "react";
+import {
+  LayoutDashboard,
+  Folder,
+  BrainCircuit,
+  Bot,
+  ListChecks,
+  ClipboardList,
+  FileText,
+  ChartNoAxesCombined,
+  Settings,
+  Sparkles,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
 
 const NAV_ITEMS = [
-  { icon: "dashboard", label: "Overview", active: true },
-  { icon: "folder", label: "Projects" },
-  { icon: "psychology", label: "AI Diagnostic" },
-  { icon: "smart_toy", label: "AI Assistant" },
-  { icon: "timeline", label: "Action Plan" },
-  { icon: "assignment", label: "Tasks" },
-  { icon: "description", label: "Documents" },
-  { icon: "analytics", label: "Market Validation" },
+  { icon: LayoutDashboard, label: "Overview", active: true },
+  { icon: Folder, label: "Projects" },
+  { icon: BrainCircuit, label: "AI Diagnostic" },
+  { icon: Bot, label: "AI Assistant" },
+  { icon: ListChecks, label: "Action Plan" },
+  { icon: ClipboardList, label: "Tasks" },
+  { icon: FileText, label: "Documents" },
+  { icon: ChartNoAxesCombined, label: "Market Validation" },
 ];
 
 export default function Sidebar() {
@@ -18,7 +32,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`bg-surface border-r border-outline-variant h-screen flex-col hidden lg:flex sticky top-0 left-0 transition-all duration-300 ${
+      className={`bg-surface border border-outline-variant h-[calc(100vh-24px)] flex-col hidden lg:flex shrink-0 sticky top-0 left-0 m-3 rounded-2xl shadow-[0_10px_30px_rgba(27,27,35,0.08)] transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-72"
       }`}
       id="sidebar"
@@ -29,15 +43,16 @@ export default function Sidebar() {
             isCollapsed ? "justify-center" : "justify-between gap-3 px-4"
           }`}
         >
-          
-          {!isCollapsed && <div className="min-w-0">
-            <h1 className="font-headline-md text-headline-md font-bold text-primary">
-              Build My Business
-            </h1>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Strategic Suite
-            </p>
-          </div>}
+          {!isCollapsed && (
+            <div className="min-w-0">
+              <h1 className="font-headline-md text-headline-md font-bold text-primary">
+                Build My Business
+              </h1>
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                Strategic Suite
+              </p>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setIsCollapsed((collapsed) => !collapsed)}
@@ -46,57 +61,65 @@ export default function Sidebar() {
             aria-expanded={!isCollapsed}
             title={isCollapsed ? "Développer la barre latérale" : "Réduire la barre latérale"}
           >
-            <span className="material-symbols-outlined">
-              {isCollapsed ? "keyboard_double_arrow_right" : "keyboard_double_arrow_left"}
-            </span>
+            {isCollapsed ? (
+              <PanelLeftOpen size={20} aria-hidden="true" />
+            ) : (
+              <PanelLeftClose size={20} aria-hidden="true" />
+            )}
           </button>
         </div>
 
-        <nav className="flex-1 space-y-2 overflow-y-auto pr-2">
-          {NAV_ITEMS.map((item) => (
-            <a
-              key={item.label}
-              href="#"
-              className={`${
-                item.active
-                  ? "flex items-center gap-3 px-4 py-3 text-primary bg-primary-container/10 border-r-4 border-primary rounded-l-lg transition-transform duration-150"
-                  : "flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all rounded-lg"
-              } ${isCollapsed ? "justify-center px-0" : ""}`}
-              title={isCollapsed ? item.label : undefined}
-            >
-              <span
-                className={
+        <nav className="sidebar-nav flex-1 space-y-2 overflow-y-auto pr-2">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <a
+                key={item.label}
+                href="#"
+                className={`${
                   item.active
-                    ? "material-symbols-outlined fill-1"
-                    : "material-symbols-outlined"
-                }
+                    ? "flex items-center gap-3 rounded-xl border-r-4 border-primary bg-primary-container/10 px-4 py-3 text-primary"
+                    : "flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary"
+                } ${isCollapsed ? "justify-center px-0" : ""}`}
+                title={isCollapsed ? item.label : undefined}
               >
-                {item.icon}
-              </span>
-              {!isCollapsed && <span className="font-label-md text-label-md">{item.label}</span>}
-            </a>
-          ))}
+                <Icon
+                  className="h-5 w-5 shrink-0"
+                  size={20}
+                  strokeWidth={item.active ? 2.4 : 1.8}
+                  aria-hidden="true"
+                />
+
+                {!isCollapsed && (
+                  <span className="font-label-md text-label-md">
+                    {item.label}
+                  </span>
+                )}
+              </a>
+            );
+          })}
 
           <a
             href="#"
-            className={`flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all rounded-lg mt-auto ${
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-all mt-auto ${
               isCollapsed ? "justify-center px-0" : ""
             }`}
             title={isCollapsed ? "Settings" : undefined}
           >
-            <span className="material-symbols-outlined">settings</span>
+            <Settings className="h-5 w-5 shrink-0" size={20} aria-hidden="true" />
             {!isCollapsed && <span className="font-label-md text-label-md">Settings</span>}
           </a>
         </nav>
 
         <div className="mt-8 pt-4 border-t border-outline-variant">
           <button
-            className={`w-full py-3 px-4 bg-primary text-on-primary font-label-md text-label-md rounded-lg shadow-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 ${
+            className={`w-full py-3 px-4 bg-primary text-on-primary font-label-md text-label-md rounded-xl shadow-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 ${
               isCollapsed ? "px-0" : ""
             }`}
             title={isCollapsed ? "Upgrade to Pro" : undefined}
           >
-            <span className="material-symbols-outlined text-[18px]">upgrade</span>
+            <Sparkles className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
             {!isCollapsed && "Upgrade to Pro"}
           </button>
         </div>
