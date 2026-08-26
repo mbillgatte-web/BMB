@@ -25,6 +25,7 @@ const NAV_ITEMS = [
   { icon: FileText, label: "Livrables " },
   { icon: ChartNoAxesCombined, label: "Demarche administrative" },
   { icon: Folder, label: "Identité visuelle", link: "/PaletteColor" },
+  {icon: Folder, label: "Typographie", link: "/Typographie"},
 ];
 
 export default function Sidebar() {
@@ -32,7 +33,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`bg-surface border-r border-outline-variant h-screen flex-col hidden lg:flex shrink-0 sticky top-0 left-0 rounded-r-2xl shadow-[8px_0_24px_rgba(27,27,35,0.06)] transition-all duration-300 ${
+      className={`bg-surface  border-r border-outline-variant h-screen flex-col hidden lg:flex shrink-0 sticky top-0 left-0 rounded-r-2xl shadow-[8px_0_24px_rgba(27,27,35,0.06)] transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-72"
       }`}
       id="sidebar"

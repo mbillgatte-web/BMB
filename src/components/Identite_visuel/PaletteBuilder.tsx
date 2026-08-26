@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-
+import Link from "next/link";
 
 
 type PaletteMode = 2 | 3;
@@ -255,7 +255,7 @@ export default function PaletteBuilder({
               auto_awesome
             </span>
             <h3 className="text-label-md font-label-md font-bold text-on-surface">
-              Generate withnnn AI
+              Generer avec l'IA
             </h3>
           </div>
           <div className="relative z-10 flex flex-col gap-3">
@@ -270,7 +270,7 @@ export default function PaletteBuilder({
               disabled={!aiPrompt.trim()}
               className="self-end bg-surface text-on-surface border border-surface-variant font-label-sm text-label-sm px-4 py-2 rounded-md hover:bg-surface-variant transition-colors shadow-sm flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Generate
+              Generere
             </button>
           </div>
         </div>
@@ -278,7 +278,7 @@ export default function PaletteBuilder({
         {/* Ajustements manuels */}
         <div className="bg-surface-container-lowest rounded-xl border border-surface-variant canvas-shadow p-lg">
           <h3 className="text-label-md font-label-md text-on-surface mb-md">
-            Manual Adjustments
+            Editer manuellement les couleurs
           </h3>
           <div className="space-y-4">
             <ColorField
@@ -311,17 +311,19 @@ export default function PaletteBuilder({
       {/* Barre d'action "Continue" : sticky au bas du composant, jamais
           ancrée au viewport global (contrairement à `fixed`). */}
       <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
-        <button
-          onClick={() => onContinue?.({ palette: selectedPalette, mode })}
-          className="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-primary transition-all shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] flex items-center gap-2"
-        >
-          Continue to Typography
-          <span className="material-symbols-outlined text-[18px]">
-            arrow_forward
-          </span>
-        </button>
+      
+        
+          <Link href="/Typographie" className="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-primary transition-all shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] flex items-center gap-2">
+            Continuez vers la typographie
+            <span className="material-symbols-outlined text-[18px]">
+              arrow_forward
+            </span>
+          </Link>
+
       </div>
-    </div>
+  </div>
+
+
   );
 }
 
