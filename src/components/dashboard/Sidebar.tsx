@@ -26,6 +26,7 @@ const NAV_ITEMS = [
   { icon: ChartNoAxesCombined, label: "Demarche administrative" },
   { icon: Folder, label: "Identité visuelle", link: "/PaletteColor" },
   {icon: Folder, label: "Typographie", link: "/Typographie"},
+  {icon: Folder, label: "Logo", link: "/Logo"},
 ];
 
 export default function Sidebar() {
