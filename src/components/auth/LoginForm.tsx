@@ -3,17 +3,40 @@
 import Link from "next/link";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router =  useRouter()
 
-  function handleSubmit(e: React.FormEvent) {
+ const handleSubmit =  async (e: React.FormEvent) => {
     e.preventDefault();
-    // Branchement Supabase Auth à faire ici plus tard
-    console.log({ email, password, rememberMe });
+    setLoading(true)
+    setError('')
+
+    const res =  await fetch ('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type' : 'application/json '}, 
+      body: JSON.stringify({email, password }),
+    })
+
+    const data = await res.json()
+    setLoading(false)
+    
+
+    if (!res.ok) {
+      setError(data.error || 'Erreur de connexio')
+      return 
+    }
+
+
+    console.log ('Connecté avec succes', data.user)
+    router.push('/dashboard')
   }
 
   return (
@@ -124,7 +147,7 @@ export default function LoginForm() {
             </div>
 
             {/* Bouton principal */}
-            <Link
+            {/* <Link
               href="/dashboard"
               className="w-full py-sm px-md rounded-lg font-label-md text-label-md text-on-primary bg-gradient-to-r from-primary to-[#4F46E5] hover:from-[#4F46E5] hover:to-primary shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-xs"
             >
@@ -132,7 +155,18 @@ export default function LoginForm() {
               <span className="material-symbols-outlined text-[18px]">
                 arrow_forward
               </span>
-            </Link>
+            </Link> */
+            }
+
+
+
+            {error &&  <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
+            <button type="submit" disabled={loading} className="w-full py-sm px-md rounded-lg font-label-md text-label-md text-on-primary bg-gradient-to-r from-primary to-[#4F46E5] hover:from-[#4F46E5] hover:to-primary shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-xs">
+              {loading ? 'Connexion...' : 'Se connecter'} 
+               <span className="material-symbols-outlined text-[18px]">
+                arrow_forward
+               </span>
+            </button>
 
             {/* Séparateur */}
             <div className="relative py-sm">
