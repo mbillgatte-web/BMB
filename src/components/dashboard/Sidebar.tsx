@@ -13,7 +13,7 @@ import {
   Settings,
   Sparkles,
   PanelLeftClose,
-  PanelLeftOpen,
+  PanelLeftOpen, 
 } from "lucide-react";
 
 const NAV_ITEMS = [
