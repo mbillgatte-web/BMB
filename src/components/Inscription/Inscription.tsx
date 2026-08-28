@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 export default function RegisterForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [prenom, setPrenom] = useState("");
+  const [contact, setContact] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,7 +31,7 @@ export default function RegisterForm() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, prenom, contact }),
     });
 
     const data = await res.json();
@@ -78,7 +80,7 @@ export default function RegisterForm() {
               id="name"
               name="name"
               type="text"
-              placeholder="Jean Dupont"
+              placeholder="Mbeppa"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -86,6 +88,60 @@ export default function RegisterForm() {
             />
           </div>
         </div>
+
+
+        {/* PreNom */}
+        <div className="space-y-1.5">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-on-surface-variant"
+          >
+            Prenom
+          </label>
+          <div className="relative">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] text-outline">
+              person
+            </span>
+            <input
+              id="prenom"
+              name="prenom"
+              type="text"
+              placeholder="Bill"
+              required
+              value={prenom}
+              onChange={(e) => setPrenom(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
+            />
+          </div>
+        </div>
+
+
+                {/* Contact*/}
+        <div className="space-y-1.5">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-on-surface-variant"
+          >
+            Tel
+          </label>
+          <div className="relative">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] text-outline">
+              phone
+            </span>
+            <input
+              id="contact"
+              name="contact"
+              type="int"
+              placeholder="(+237) 6 XXX"
+              required
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
+            />
+          </div>
+        </div>
+
+
 
         {/* Email */}
         <div className="space-y-1.5">
@@ -253,7 +309,7 @@ export default function RegisterForm() {
         <p className="text-sm text-on-surface-variant">
           Vous avez déjà un compte ?{" "}
           <Link
-            href="/login"
+            href="/"
             className="font-semibold text-primary hover:text-[#4F46E5] transition-colors"
           >
             Se connecter
