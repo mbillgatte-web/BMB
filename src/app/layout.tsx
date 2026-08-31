@@ -65,7 +65,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${playfair.variable} ${montserrat.variable} ${openSans.variable} ${merriweather.variable} ${lato.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${montserrat.variable} ${openSans.variable} ${merriweather.variable} ${lato.variable} ${manrope.variable}`}
     >
       <head>
         {/* Material Symbols n'a pas d'équivalent next/font officiel */}

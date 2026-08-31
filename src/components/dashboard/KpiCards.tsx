@@ -1,3 +1,5 @@
+import Button from "@/components/ui/Button";
+
 const KPIS = [
   {
     label: "Indice de maturité",
@@ -92,9 +94,10 @@ export default function KpiCards() {
         <h4 className="font-headline-md text-body-lg font-bold text-on-surface line-clamp-2 mt-2">
           Valider le Business Model Canvas
         </h4>
-        <button className="mt-2 text-primary font-label-md text-label-md hover:underline flex items-center gap-1">
-          Commencer <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-        </button>
+        <Button variant="ghost" size="sm" className="mt-2 -ml-3 text-primary">
+          Commencer
+          <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+        </Button>
       </div>
     </section>
   );

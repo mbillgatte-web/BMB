@@ -8,6 +8,11 @@
   --font-family-open-sans: var(--font-open-sans), sans-serif;
   --font-family-merriweather: var(--font-merriweather), serif;
   --font-family-lato: var(--font-lato), sans-serif;
+  --font-family-manrope: var(--font-manrope), sans-serif;
+}
+
+body {
+  font-family: var(--font-inter), sans-serif;
 }
 
 

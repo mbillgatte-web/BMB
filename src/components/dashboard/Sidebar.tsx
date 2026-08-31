@@ -13,8 +13,10 @@ import {
   Settings,
   Sparkles,
   PanelLeftClose,
-  PanelLeftOpen, 
+  PanelLeftOpen,
 } from "lucide-react";
+import Button from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Overview", active: true, link: "/dashboard" },
@@ -55,10 +57,9 @@ export default function Sidebar() {
               </p>
             </div>
           )}
-          <button
-            type="button"
+          <Button
+            variant="icon"
             onClick={() => setIsCollapsed((collapsed) => !collapsed)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-colors"
             aria-label={isCollapsed ? "Développer la barre latérale" : "Réduire la barre latérale"}
             aria-expanded={!isCollapsed}
             title={isCollapsed ? "Développer la barre latérale" : "Réduire la barre latérale"}
@@ -68,7 +69,7 @@ export default function Sidebar() {
             ) : (
               <PanelLeftClose size={20} aria-hidden="true" />
             )}
-          </button>
+          </Button>
         </div>
 
         <nav className="sidebar-nav flex-1 space-y-2 overflow-y-auto pr-2">
@@ -115,15 +116,16 @@ export default function Sidebar() {
         </nav>
 
         <div className="mt-8 pt-4 border-t border-outline-variant">
-          <button
-            className={`w-full py-3 px-4 bg-primary text-on-primary font-label-md text-label-md rounded-xl shadow-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 ${
-              isCollapsed ? "px-0" : ""
-            }`}
-            title={isCollapsed ? "Upgrade to Pro" : undefined}
+          <Button
+            arrows={false}
+            size={isCollapsed ? "sm" : "md"}
+            className={cn("w-full", isCollapsed && "px-0")}
+            title="Passer à la version Pro"
+            aria-label={isCollapsed ? "Passer à la version Pro" : undefined}
           >
             <Sparkles className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-            {!isCollapsed && "Upgrade to Pro"}
-          </button>
+            {!isCollapsed && "Passer à Pro"}
+          </Button>
         </div>
       </div>
     </aside>
