@@ -53,9 +53,10 @@ export default function RegisterForm() {
         
 
         <div className="space-y-2">
-          <h1 className="font-headline-lg text-headline-lg text-on-surface hidden md:block">
+          <h1 className="font-headline-lg text-headline-lg text-on-surface hidden md:block lg:hidden">
             Créez votre compte
           </h1>
+
           <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface block md:hidden">
             Créez votre compte
           </h1>
@@ -81,8 +82,8 @@ export default function RegisterForm() {
               person
             </span>
             <input
-              id="name"
-              name="name"
+              id="nom"
+              name="nom"
               type="text"
               placeholder="Mbeppa"
               required

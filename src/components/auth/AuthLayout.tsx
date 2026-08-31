@@ -13,13 +13,13 @@ export default function AuthLayout({ children, mode }: AuthLayoutProps) {
   const isLogin = mode === "login";
 
   return (
-    <div className="flex w-full h-full">
+    <div className="flex w-full h-screen">
       {/* Panneau formulaire */}
       <motion.div
         layout
         layoutId="form-panel"
         transition={{ type: "spring", stiffness: 200, damping: 25 }}
-        className={`w-full lg:w-1/2 flex items-center justify-center p-md md:p-2xl bg-surface-container-lowest ${isLogin ? "order-1" : "order-2"}`}
+        className={`w-full lg:w-1/2 flex items-center justify-center overflow-y-auto scrollbar-hide p-md md:p-2xl bg-surface-container-lowest ${isLogin ? "order-1" : "order-2"}`}
       >
         {children}
       </motion.div>
@@ -52,6 +52,25 @@ export default function AuthLayout({ children, mode }: AuthLayoutProps) {
             </span>
           </div>
         </div>
+
+        {/* Titre contextuel de la page */}
+        <div className="relative z-10 mb-lg max-w-[480px] text-center">
+          <h1 className="font-headline-lg text-headline-lg text-on-primary mb-sm">
+            {isLogin ? "Bienvenue dans votre espace entrepreneurial" : "Créez votre compte"}
+          </h1>
+          <p className="font-body-md text-body-md text-on-primary/70">
+            {isLogin
+              ? "Connectez-vous pour continuer à bâtir votre avenir."
+              : "Rejoignez des milliers d'entrepreneurs et commencez à bâtir votre projet dès aujourd'hui."}
+          </p>
+        </div>
+
+
+
+
+
+
+
 
         {/* Citation */}
         <div className="relative z-10 w-full max-w-[560px] text-center backdrop-blur-sm bg-surface/10 p-lg rounded-2xl border border-surface/20 shadow-lg">
