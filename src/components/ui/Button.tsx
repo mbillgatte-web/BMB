@@ -51,7 +51,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
     "active:scale-[0.95] focus-visible:outline-none focus-visible:ring-4 " +
     "focus-visible:ring-primary/25 disabled:pointer-events-none disabled:opacity-50",
   icon:
-    "group relative inline-flex shrink-0 cursor-pointer items-center justify-center " +
+    "group inline-flex shrink-0 cursor-pointer items-center justify-center " +
     "rounded-full text-on-surface-variant transition-all duration-300 " +
     "hover:bg-primary/10 hover:text-primary active:scale-[0.95] " +
     "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/25 " +
