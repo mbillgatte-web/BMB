@@ -40,6 +40,10 @@ body {
   .form-section > div:last-child > :nth-child(4) {
     animation-delay: 260ms;
   }
+
+  .form-section > div:last-child > :nth-child(5) {
+    animation-delay: 320ms;
+  }
 }
 
 @keyframes form-rise {

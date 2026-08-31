@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -31,6 +32,16 @@ export default function LoginForm() {
     if (!res.ok) {
       setError(data.error || "Erreur de connexion");
       return;
+    }
+
+    // /api/login authentifie côté serveur ; on doit répliquer la session
+    // dans le client Supabase du navigateur pour que les autres pages
+    // (ex: création d'entreprise) puissent savoir qui est connecté.
+    if (data.session) {
+      await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
     }
 
     router.push("/dashboard");

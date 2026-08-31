@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function RegisterForm() {
   const [name, setName] = useState("");
@@ -32,7 +33,9 @@ export default function RegisterForm() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, prenom, contact }),
+      // route.ts lit "nom" (pas "name") pour la colonne "nom" de la table
+      // "compte" : la clé JSON doit correspondre à ce que route.ts attend.
+      body: JSON.stringify({ nom: name, email, password, prenom, contact }),
     });
 
     const data = await res.json();
@@ -41,6 +44,16 @@ export default function RegisterForm() {
     if (!res.ok) {
       setError(data.error || "Erreur lors de l'inscription");
       return;
+    }
+
+    // Si la confirmation d'email est désactivée dans Supabase, signUp
+    // renvoie directement une session : on la réplique dans le client
+    // du navigateur pour que l'utilisateur soit connecté tout de suite.
+    if (data.session) {
+      await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
     }
 
     router.push("/dashboard");
