@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Police from "@/components/Identite_visuel/police";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopNav from "@/components/dashboard/TopNav";
@@ -70,7 +71,9 @@ export default function PolicePage() {
 
             <BrandProgressStepper currentStep={2} />
 
-            <Police />
+            <Suspense fallback={null}>
+              <Police />
+            </Suspense>
           </div>
         </main>
       </div>

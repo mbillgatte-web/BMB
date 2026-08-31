@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopNav from "@/components/dashboard/TopNav";
 import PaletteBuilder from "@/components/Identite_visuel/PaletteBuilder";
@@ -70,7 +71,9 @@ export default function PaletteColorPage() {
 
             <BrandProgressStepper currentStep={1} />
 
-            <PaletteBuilder />
+            <Suspense fallback={null}>
+              <PaletteBuilder />
+            </Suspense>
           </div>
         </main>
       </div>

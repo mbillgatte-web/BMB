@@ -54,9 +54,7 @@ export default function EntrepriseForm() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Le token de l'utilisateur connecté : route.ts s'en sert pour
-        // s'authentifier auprès de Supabase avant d'insérer, sinon la
-        // policy RLS voit un utilisateur anonyme et bloque l'insertion.
+       
         Authorization: `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({
@@ -77,7 +75,11 @@ export default function EntrepriseForm() {
       return;
     }
 
-    router.push("/PaletteColor");
+    // data.entreprise = la ligne insérée renvoyée par route.ts (.select().single()).
+    // On transmet son id dans l'URL : les 3 pages de l'identité visuelle
+    // (Palette -> Typographie -> Logo) en ont besoin pour savoir à quelle
+    // entreprise rattacher ce qu'elles enregistreront.
+    router.push(`/PaletteColor?entrepriseId=${data.entreprise.id}`);
   };
 
   return (

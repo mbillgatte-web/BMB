@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 interface LogoBuilderProps {
   /** Appelé quand un fichier logo valide est importé (drag & drop ou input) */
@@ -15,6 +16,14 @@ export default function LogoBuilder({
   onLogoUploaded,
   onGenerateWithAI,
 }: LogoBuilderProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Id transmis depuis /PaletteColor -> /Typographie -> ici. C'est la
+  // dernière étape : on en a besoin pour savoir sur quelle entreprise
+  // rattacher l'identité visuelle, et pour relire palette/typographie
+  // que les deux pages précédentes ont laissées dans localStorage.
+  const entrepriseId = searchParams.get("entrepriseId");
+
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -23,6 +32,8 @@ export default function LogoBuilder({
     "Minimaliste",
     "Géométrique",
   ]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -65,6 +76,92 @@ export default function LogoBuilder({
     if (aiPrompt.trim()) {
       onGenerateWithAI?.(aiPrompt.trim(), selectedStyles);
     }
+  };
+
+  const handleFinish = async () => {
+    if (!entrepriseId) {
+      setError("Entreprise introuvable, recommence depuis la création d'entreprise.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+
+    // Relit ce que PaletteBuilder.tsx et police.tsx ont mis de côté dans
+    // localStorage à leurs étapes respectives (rien n'a encore été
+    // envoyé en base avant ce point).
+    const paletteRaw = localStorage.getItem(`identite:${entrepriseId}:palette`);
+    const typographieRaw = localStorage.getItem(
+      `identite:${entrepriseId}:typographie`
+    );
+    const palette = paletteRaw ? JSON.parse(paletteRaw) : null;
+    const typographie = typographieRaw ? JSON.parse(typographieRaw) : null;
+
+    let logoUrl: string | null = null;
+
+    if (logoFile) {
+      const extension = logoFile.name.split(".").pop() ?? "png";
+      // Chemin dans le bucket "logos" : un dossier par entreprise pour
+      // éviter les collisions de noms entre utilisateurs.
+      const path = `${entrepriseId}/logo.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("logos")
+        .upload(path, logoFile, { upsert: true });
+
+      if (uploadError) {
+        setSaving(false);
+        setError(`Échec de l'envoi du logo : ${uploadError.message}`);
+        return;
+      }
+
+      logoUrl = supabase.storage.from("logos").getPublicUrl(path).data.publicUrl;
+    }
+
+    // Même mécanisme que EntrepriseForm.tsx : on a besoin du jeton de
+    // l'utilisateur connecté pour que la policy RLS de identite_visuelle
+    // laisse passer l'insertion côté serveur.
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      setSaving(false);
+      setError("Vous devez être connecté.");
+      return;
+    }
+
+    const res = await fetch("/api/identite-visuelle", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        entrepriseId,               // -> colonne entreprise_id (clé étrangère)
+        paletteMode: palette?.mode ?? null,          // -> palette_mode
+        couleurPrimaire: palette?.primary ?? null,   // -> couleur_primaire
+        couleurFond: palette?.background ?? null,    // -> couleur_fond
+        couleurAccent: palette?.accent ?? null,       // -> couleur_accent
+        policeTitre: typographie?.policeTitre ?? null, // -> police_titre
+        policeTexte: typographie?.policeTexte ?? null, // -> police_texte
+        logoUrl,                    // -> logo_url
+      }),
+    });
+
+    const data = await res.json();
+    setSaving(false);
+
+    if (!res.ok) {
+      setError(data.error || "Erreur lors de l'enregistrement de l'identité visuelle");
+      return;
+    }
+
+    // Les brouillons locaux ne servent plus une fois enregistrés en base.
+    localStorage.removeItem(`identite:${entrepriseId}:palette`);
+    localStorage.removeItem(`identite:${entrepriseId}:typographie`);
+
+    router.push("/dashboard");
   };
 
   return (
@@ -261,6 +358,25 @@ export default function LogoBuilder({
             </div>
           </div>
         </div>
+      </div>
+
+      {error && (
+        <p className="font-body-sm text-body-sm text-red-600">{error}</p>
+      )}
+
+      {/* Barre d'action finale : envoie palette + typographie + logo en base */}
+      <div className="sticky bottom-4 z-40 flex justify-end pt-2">
+        <button
+          type="button"
+          onClick={handleFinish}
+          disabled={saving}
+          className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {saving ? "Enregistrement..." : "Terminer l'identité visuelle"}
+          <span className="material-symbols-outlined text-[20px]">
+            check_circle
+          </span>
+        </button>
       </div>
     </div>
   );

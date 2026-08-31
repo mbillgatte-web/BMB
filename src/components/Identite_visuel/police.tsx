@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 
 const FONT_FAMILY_VARS: Record<string, string> = {
@@ -90,6 +91,12 @@ export default function TypographyBuilder({
   onContinue,
   onGenerateWithAI,
 }: TypographyBuilderProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Même entrepriseId transmis depuis /PaletteColor -> on le repropage
+  // vers /Logo, la dernière étape.
+  const entrepriseId = searchParams.get("entrepriseId");
+
   const [selectedId, setSelectedId] = useState(FONT_PAIRINGS[0].id);
   const [aiPrompt, setAiPrompt] = useState("");
   const [headingOverride, setHeadingOverride] = useState(
@@ -118,6 +125,29 @@ export default function TypographyBuilder({
     if (aiPrompt.trim()) {
       onGenerateWithAI?.(aiPrompt.trim());
     }
+  };
+
+  const handleContinue = () => {
+    // Comme pour la palette : pas d'écriture en BD ici, juste en mémoire
+    // le temps d'arriver à /Logo, qui enverra tout d'un coup à la fin.
+    if (entrepriseId) {
+      localStorage.setItem(
+        `identite:${entrepriseId}:typographie`,
+        JSON.stringify({
+          policeTitre: headingOverride,
+          policeTexte: bodyOverride,
+        })
+      );
+    }
+
+    onContinue?.({
+      pairing: selectedPairing,
+      headingOverride,
+      bodyOverride,
+    });
+
+    const query = entrepriseId ? `?entrepriseId=${entrepriseId}` : "";
+    router.push(`/Logo${query}`);
   };
 
   return (
@@ -322,13 +352,8 @@ export default function TypographyBuilder({
       {/* Barre d'action "Continue" : sticky au composant, pas au viewport global */}
       <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
         <button
-          onClick={() =>
-            onContinue?.({
-              pairing: selectedPairing,
-              headingOverride,
-              bodyOverride,
-            })
-          }
+          type="button"
+          onClick={handleContinue}
           className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary"
         >
           Importez votre logo
