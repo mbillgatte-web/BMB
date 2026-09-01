@@ -2,8 +2,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { useEntrepriseId } from "@/hooks/useEntrepriseId";
 
 interface LogoBuilderProps {
   /** Appelé quand un fichier logo valide est importé (drag & drop ou input) */
@@ -17,12 +18,17 @@ export default function LogoBuilder({
   onGenerateWithAI,
 }: LogoBuilderProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  // Id transmis depuis /PaletteColor -> /Typographie -> ici. C'est la
-  // dernière étape : on en a besoin pour savoir sur quelle entreprise
-  // rattacher l'identité visuelle, et pour relire palette/typographie
-  // que les deux pages précédentes ont laissées dans localStorage.
-  const entrepriseId = searchParams.get("entrepriseId");
+  // Id transmis depuis /PaletteColor -> /Typographie -> ici (ou détecté
+  // automatiquement si le compte n'a qu'une seule entreprise, voir
+  // src/hooks/useEntrepriseId.ts). C'est la dernière étape : on en a
+  // besoin pour savoir sur quelle entreprise rattacher l'identité
+  // visuelle, et pour relire palette/typographie que les deux pages
+  // précédentes ont laissées dans localStorage.
+  const {
+    entrepriseId,
+    loading: loadingEntreprise,
+    error: entrepriseIdError,
+  } = useEntrepriseId();
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
@@ -360,8 +366,10 @@ export default function LogoBuilder({
         </div>
       </div>
 
-      {error && (
-        <p className="font-body-sm text-body-sm text-red-600">{error}</p>
+      {(error || entrepriseIdError) && (
+        <p className="font-body-sm text-body-sm text-red-600">
+          {error || entrepriseIdError}
+        </p>
       )}
 
       {/* Barre d'action finale : envoie palette + typographie + logo en base */}
@@ -369,7 +377,7 @@ export default function LogoBuilder({
         <button
           type="button"
           onClick={handleFinish}
-          disabled={saving}
+          disabled={saving || loadingEntreprise || !entrepriseId}
           className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saving ? "Enregistrement..." : "Terminer l'identité visuelle"}

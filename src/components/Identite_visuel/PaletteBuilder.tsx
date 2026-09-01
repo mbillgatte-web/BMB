@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEntrepriseId } from "@/hooks/useEntrepriseId";
 
 
 type PaletteMode = 2 | 3;
@@ -77,10 +78,13 @@ export default function PaletteBuilder({
   onGenerateWithAI,
 }: PaletteBuilderProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  // Id de l'entreprise créée à l'étape précédente (voir EntrepriseForm.tsx),
-  // transmis dans l'URL : /PaletteColor?entrepriseId=xxx
-  const entrepriseId = searchParams.get("entrepriseId");
+  // Retrouve l'entreprise du compte connecté (compte_id = auth.uid()),
+  // au lieu de la recevoir via l'URL : voir src/hooks/useEntrepriseId.ts.
+  const {
+    entrepriseId,
+    loading: loadingEntreprise,
+    error: entrepriseError,
+  } = useEntrepriseId();
 
   const [mode, setMode] = useState<PaletteMode>(2);
   const [selectedId, setSelectedId] = useState<string>(PALETTES_2[0].id);
@@ -125,8 +129,10 @@ export default function PaletteBuilder({
 
     onContinue?.({ palette: selectedPalette, mode });
 
-    const query = entrepriseId ? `?entrepriseId=${entrepriseId}` : "";
-    router.push(`/Typographie${query}`);
+    // On précise l'entreprise dans l'URL pour la suite (voir
+    // src/hooks/useEntrepriseId.ts : l'URL a priorité sur la détection
+    // automatique, utile si le compte a plusieurs entreprises).
+    router.push(`/Typographie?entrepriseId=${entrepriseId}`);
   };
 
   return (
@@ -338,13 +344,20 @@ export default function PaletteBuilder({
         </div>
       </div>
 
+      {entrepriseError && (
+        <p className="col-span-full font-body-sm text-body-sm text-red-600">
+          {entrepriseError}
+        </p>
+      )}
+
       {/* Barre d'action "Continue" : sticky au bas du composant, jamais
           ancrée au viewport global (contrairement à `fixed`). */}
       <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
         <button
           type="button"
           onClick={handleContinue}
-          className="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-primary transition-all shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] flex items-center gap-2"
+          disabled={loadingEntreprise || !entrepriseId}
+          className="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-primary transition-all shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Continuez vers la typographie
           <span className="material-symbols-outlined text-[18px]">

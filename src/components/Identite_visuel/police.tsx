@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEntrepriseId } from "@/hooks/useEntrepriseId";
 
 
 const FONT_FAMILY_VARS: Record<string, string> = {
@@ -92,10 +93,11 @@ export default function TypographyBuilder({
   onGenerateWithAI,
 }: TypographyBuilderProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  // Même entrepriseId transmis depuis /PaletteColor -> on le repropage
-  // vers /Logo, la dernière étape.
-  const entrepriseId = searchParams.get("entrepriseId");
+  const {
+    entrepriseId,
+    loading: loadingEntreprise,
+    error: entrepriseError,
+  } = useEntrepriseId();
 
   const [selectedId, setSelectedId] = useState(FONT_PAIRINGS[0].id);
   const [aiPrompt, setAiPrompt] = useState("");
@@ -146,8 +148,7 @@ export default function TypographyBuilder({
       bodyOverride,
     });
 
-    const query = entrepriseId ? `?entrepriseId=${entrepriseId}` : "";
-    router.push(`/Logo${query}`);
+    router.push(`/Logo?entrepriseId=${entrepriseId}`);
   };
 
   return (
@@ -349,12 +350,19 @@ export default function TypographyBuilder({
         </div>
       </div>
 
+      {entrepriseError && (
+        <p className="col-span-full font-body-sm text-body-sm text-red-600">
+          {entrepriseError}
+        </p>
+      )}
+
       {/* Barre d'action "Continue" : sticky au composant, pas au viewport global */}
       <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
         <button
           type="button"
           onClick={handleContinue}
-          className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary"
+          disabled={loadingEntreprise || !entrepriseId}
+          className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60"
         >
           Importez votre logo
           <span className="material-symbols-outlined text-[20px]">

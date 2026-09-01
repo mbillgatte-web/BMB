@@ -39,6 +39,10 @@ export async function POST(request: NextRequest) {
     { global: { headers: { Authorization: authHeader } } }
   );
 
+  // insert simple : un compte peut posséder plusieurs entreprises, donc
+  // chaque soumission de ce formulaire doit créer une NOUVELLE ligne (pas
+  // de upsert/unique sur compte_id ici, contrairement à une version
+  // précédente de ce fichier).
   const { data, error } = await supabaseForRequest
     .from("entreprise")
     .insert({
@@ -53,7 +57,6 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    // (vérifie que le token ci-dessus correspond bien à compte_id envoyé).
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

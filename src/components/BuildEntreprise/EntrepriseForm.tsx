@@ -75,10 +75,11 @@ export default function EntrepriseForm() {
       return;
     }
 
-    // data.entreprise = la ligne insérée renvoyée par route.ts (.select().single()).
-    // On transmet son id dans l'URL : les 3 pages de l'identité visuelle
-    // (Palette -> Typographie -> Logo) en ont besoin pour savoir à quelle
-    // entreprise rattacher ce qu'elles enregistreront.
+    // data.entreprise = la ligne insérée renvoyée par route.ts. Un compte
+    // pouvant posséder plusieurs entreprises, on précise explicitement
+    // laquelle dans l'URL (celle qu'on vient de créer) : useEntrepriseId()
+    // la lira en priorité, sans avoir à deviner parmi les entreprises du
+    // compte (voir src/hooks/useEntrepriseId.ts).
     router.push(`/PaletteColor?entrepriseId=${data.entreprise.id}`);
   };
 
