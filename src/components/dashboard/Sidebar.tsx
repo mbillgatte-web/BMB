@@ -17,6 +17,7 @@ import {
   PanelLeftOpen,
   ChevronDown,
   LayoutTemplate,
+  ImagePlus,
   LucideIcon,
 } from "lucide-react";
 
@@ -55,6 +56,7 @@ const NAV_ITEMS: NavItem[] = [
   ],
 },
   { icon: LayoutTemplate, label: "Mon site web", link: "/Templates" },
+  { icon: ImagePlus, label: "Visuels marketing", link: "/Visuels" },
 
 ];
 
