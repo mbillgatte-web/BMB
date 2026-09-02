@@ -42,18 +42,26 @@ export async function POST(request: NextRequest) {
     { global: { headers: { Authorization: authHeader } } }
   );
 
+  // upsert (pas insert) : une entreprise n'a qu'UNE identité visuelle.
+  // Revisiter /PaletteColor -> /Logo pour la même entreprise doit mettre à
+  // jour la ligne existante, pas en créer une nouvelle à chaque fois.
+  // Nécessite une contrainte "unique" sur entreprise_id côté BD (voir la
+  // migration SQL fournie) pour que onConflict sache quelle ligne cibler.
   const { data, error } = await supabaseForRequest
     .from("identite_visuelle")
-    .insert({
-      entreprise_id: entrepriseId,
-      palette_mode: paletteMode,
-      couleur_primaire: couleurPrimaire,
-      couleur_fond: couleurFond,
-      couleur_accent: couleurAccent,
-      police_titre: policeTitre,
-      police_texte: policeTexte,
-      logo_url: logoUrl,
-    })
+    .upsert(
+      {
+        entreprise_id: entrepriseId,
+        palette_mode: paletteMode,
+        couleur_primaire: couleurPrimaire,
+        couleur_fond: couleurFond,
+        couleur_accent: couleurAccent,
+        police_titre: policeTitre,
+        police_texte: policeTexte,
+        logo_url: logoUrl,
+      },
+      { onConflict: "entreprise_id" }
+    )
     .select()
     .single();
 
@@ -62,6 +70,8 @@ export async function POST(request: NextRequest) {
     // "row-level security policy" -> vérifie que la policy compare bien
     // entreprise.compte_id (via une jointure) et pas identite_visuelle.compte_id
     // (cette table n'a pas de compte_id, seulement entreprise_id).
+    // "no unique or exclusion constraint matching ON CONFLICT" -> la
+    // contrainte unique sur entreprise_id n'existe pas encore côté BD.
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

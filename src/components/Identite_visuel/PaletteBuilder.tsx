@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
+import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 
 
 type PaletteMode = 2 | 3;
@@ -86,9 +87,43 @@ export default function PaletteBuilder({
     error: entrepriseError,
   } = useEntrepriseId();
 
+  // Ce que cette entreprise a déjà enregistré, s'il y a déjà quelque chose
+  // (voir src/hooks/useIdentiteVisuelle.ts) -- sert à préremplir ci-dessous.
+  const { identiteVisuelle } = useIdentiteVisuelle(entrepriseId);
+
   const [mode, setMode] = useState<PaletteMode>(2);
   const [selectedId, setSelectedId] = useState<string>(PALETTES_2[0].id);
   const [aiPrompt, setAiPrompt] = useState("");
+
+  // Préremplit mode + palette sélectionnée à partir de ce qui est déjà en
+  // base pour cette entreprise -- une seule fois, quand identiteVisuelle
+  // passe de "pas encore chargé" à une valeur (ou change d'entreprise).
+  // Technique de rendu plutôt qu'un useEffect (voir useIdentiteVisuelle.ts)
+  // pour rester une pure dérivation, sans setState synchrone dans un effet.
+  // Ne fonctionne que si les couleurs sauvegardées correspondent exactement
+  // à une des palettes prédéfinies ci-dessus -- c'est le cas en pratique,
+  // "Editer manuellement les couleurs" plus bas n'étant pas encore branché
+  // (voir setSelectedIdOverride).
+  const [prevIdentiteVisuelle, setPrevIdentiteVisuelle] = useState(identiteVisuelle);
+  if (identiteVisuelle !== prevIdentiteVisuelle) {
+    setPrevIdentiteVisuelle(identiteVisuelle);
+
+    if (identiteVisuelle) {
+      const savedMode: PaletteMode =
+        identiteVisuelle.palette_mode === "3" ? 3 : 2;
+      const pool = savedMode === 3 ? PALETTES_3 : PALETTES_2;
+      const match = pool.find(
+        (p) =>
+          p.primary === identiteVisuelle.couleur_primaire &&
+          p.background === identiteVisuelle.couleur_fond
+      );
+
+      if (match) {
+        setMode(savedMode);
+        setSelectedId(match.id);
+      }
+    }
+  }
 
   const palettes = mode === 2 ? PALETTES_2 : PALETTES_3;
 

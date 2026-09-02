@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
+import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 
 interface LogoBuilderProps {
   /** Appelé quand un fichier logo valide est importé (drag & drop ou input) */
@@ -30,6 +31,8 @@ export default function LogoBuilder({
     error: entrepriseIdError,
   } = useEntrepriseId();
 
+  const { identiteVisuelle } = useIdentiteVisuelle(entrepriseId);
+
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -42,6 +45,10 @@ export default function LogoBuilder({
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Effet inchangé par rapport à l'original : ne gère QUE la création/le
+  // nettoyage de l'URL blob du fichier local (vraie ressource externe,
+  // c'est un cas légitime d'effet). Le repli vers le logo déjà enregistré
+  // en base est géré séparément ci-dessous, en pure dérivation.
   useEffect(() => {
     if (!logoFile) {
       setLogoPreviewUrl(null);
@@ -51,6 +58,10 @@ export default function LogoBuilder({
     setLogoPreviewUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [logoFile]);
+
+  // Priorité au fichier tout juste choisi localement ; sinon, le logo déjà
+  // enregistré pour cette entreprise (voir useIdentiteVisuelle.ts).
+  const displayedLogoUrl = logoPreviewUrl ?? identiteVisuelle?.logo_url ?? null;
 
   const handleFile = useCallback(
     (file: File | undefined | null) => {
@@ -103,7 +114,10 @@ export default function LogoBuilder({
     const palette = paletteRaw ? JSON.parse(paletteRaw) : null;
     const typographie = typographieRaw ? JSON.parse(typographieRaw) : null;
 
-    let logoUrl: string | null = null;
+    // Par défaut, on garde le logo déjà enregistré (si l'utilisateur n'a
+    // pas choisi de nouveau fichier cette fois) -- écrasé plus bas
+    // seulement si `logoFile` est renseigné.
+    let logoUrl: string | null = identiteVisuelle?.logo_url ?? null;
 
     if (logoFile) {
       const extension = logoFile.name.split(".").pop() ?? "png";
@@ -143,15 +157,25 @@ export default function LogoBuilder({
         "Content-Type": "application/json",
         Authorization: `Bearer ${session.access_token}`,
       },
+      // Ordre de priorité pour chaque champ : ce qui vient d'être choisi
+      // cette session (localStorage) -> sinon ce qui existait déjà en base
+      // pour cette entreprise (identiteVisuelle) -> sinon null. Sans le
+      // 2e maillon, revisiter uniquement /Logo sans repasser par Palette/
+      // Typographie effacerait leurs valeurs déjà enregistrées.
       body: JSON.stringify({
         entrepriseId,               // -> colonne entreprise_id (clé étrangère)
-        paletteMode: palette?.mode ?? null,          // -> palette_mode
-        couleurPrimaire: palette?.primary ?? null,   // -> couleur_primaire
-        couleurFond: palette?.background ?? null,    // -> couleur_fond
-        couleurAccent: palette?.accent ?? null,       // -> couleur_accent
-        policeTitre: typographie?.policeTitre ?? null, // -> police_titre
-        policeTexte: typographie?.policeTexte ?? null, // -> police_texte
-        logoUrl,                    // -> logo_url
+        paletteMode: palette?.mode ?? identiteVisuelle?.palette_mode ?? null,
+        couleurPrimaire:
+          palette?.primary ?? identiteVisuelle?.couleur_primaire ?? null,
+        couleurFond:
+          palette?.background ?? identiteVisuelle?.couleur_fond ?? null,
+        couleurAccent:
+          palette?.accent ?? identiteVisuelle?.couleur_accent ?? null,
+        policeTitre:
+          typographie?.policeTitre ?? identiteVisuelle?.police_titre ?? null,
+        policeTexte:
+          typographie?.policeTexte ?? identiteVisuelle?.police_texte ?? null,
+        logoUrl,                    // -> logo_url (voir plus haut)
       }),
     });
 
@@ -214,7 +238,7 @@ export default function LogoBuilder({
                 <div className="relative flex h-full flex-col justify-between">
                   <div className="flex items-center gap-3">
                     <LogoMark
-                      previewUrl={logoPreviewUrl}
+                      previewUrl={displayedLogoUrl}
                       sizeClassName="h-11 w-11"
                       iconSize={22}
                     />

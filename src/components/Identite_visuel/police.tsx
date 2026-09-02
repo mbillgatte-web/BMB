@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
+import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 
 
 const FONT_FAMILY_VARS: Record<string, string> = {
@@ -99,12 +100,38 @@ export default function TypographyBuilder({
     error: entrepriseError,
   } = useEntrepriseId();
 
+  const { identiteVisuelle } = useIdentiteVisuelle(entrepriseId);
+
   const [selectedId, setSelectedId] = useState(FONT_PAIRINGS[0].id);
   const [aiPrompt, setAiPrompt] = useState("");
   const [headingOverride, setHeadingOverride] = useState(
     FONT_PAIRINGS[0].headingLabel
   );
   const [bodyOverride, setBodyOverride] = useState(FONT_PAIRINGS[0].bodyLabel);
+
+  // Préremplit les polices à partir de ce qui est déjà enregistré pour
+  // cette entreprise -- même technique de rendu (pas d'effet) que dans
+  // PaletteBuilder.tsx, voir ses commentaires pour le détail.
+  const [prevIdentiteVisuelle, setPrevIdentiteVisuelle] = useState(identiteVisuelle);
+  if (identiteVisuelle !== prevIdentiteVisuelle) {
+    setPrevIdentiteVisuelle(identiteVisuelle);
+
+    if (identiteVisuelle) {
+      if (identiteVisuelle.police_titre) {
+        setHeadingOverride(identiteVisuelle.police_titre);
+      }
+      if (identiteVisuelle.police_texte) {
+        setBodyOverride(identiteVisuelle.police_texte);
+      }
+
+      const match = FONT_PAIRINGS.find(
+        (p) =>
+          p.headingLabel === identiteVisuelle.police_titre &&
+          p.bodyLabel === identiteVisuelle.police_texte
+      );
+      if (match) setSelectedId(match.id);
+    }
+  }
 
   const selectedPairing = useMemo(
     () => FONT_PAIRINGS.find((p) => p.id === selectedId) ?? FONT_PAIRINGS[0],
