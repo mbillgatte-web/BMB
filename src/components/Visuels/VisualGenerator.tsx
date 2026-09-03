@@ -9,9 +9,16 @@ import {
   type VisualTemplate,
 } from "./visuels-data";
 
+const ALL = "Tous";
+
 function thumbnailUrl(template: VisualTemplate, size: string) {
   const label = encodeURIComponent(template.name);
   return `https://placehold.co/${size}/${template.accentColor}/FFFFFF?text=${label}`;
+}
+
+/** Le format (dimensions, ratio) auquel appartient un template donné. */
+function formatOf(template: VisualTemplate) {
+  return VISUAL_FORMATS.find((f) => f.id === template.formatId)!;
 }
 
 export default function VisualGenerator() {
@@ -21,72 +28,32 @@ export default function VisualGenerator() {
   const { entreprise } = useEntreprise();
   const { identiteVisuelle } = useIdentiteVisuelle(entreprise?.id ?? null);
 
-  const [selectedFormatId, setSelectedFormatId] = useState<string | null>(
-    null
-  );
+  const [activeCategory, setActiveCategory] = useState<string>(ALL);
+  const [previewTemplate, setPreviewTemplate] =
+    useState<VisualTemplate | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     null
   );
-  const [previewTemplate, setPreviewTemplate] =
-    useState<VisualTemplate | null>(null);
   const [prompt, setPrompt] = useState("");
 
-  const selectedFormat = VISUAL_FORMATS.find(
-    (f) => f.id === selectedFormatId
-  );
   const selectedTemplate = VISUAL_TEMPLATES.find(
     (t) => t.id === selectedTemplateId
   );
-  const templatesForFormat = VISUAL_TEMPLATES.filter(
-    (t) => t.formatId === selectedFormatId
-  );
 
-  // --- Étape 1 : choix du format -----------------------------------------
-  if (!selectedFormat) {
-    return (
-      <div className="flex flex-col gap-lg">
-        <div className="mb-md">
-          <h2 className="mb-xs text-headline-lg font-headline-lg text-on-surface">
-            Générer un visuel
-          </h2>
-          <p className="text-body-md font-body-md text-secondary">
-            Choisissez d&apos;abord le format du visuel que vous voulez
-            créer.
-          </p>
-        </div>
+  const visibleTemplates =
+    activeCategory === ALL
+      ? VISUAL_TEMPLATES
+      : VISUAL_TEMPLATES.filter((t) => t.formatId === activeCategory);
 
-        <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 xl:grid-cols-4">
-          {VISUAL_FORMATS.map((format) => {
-            const Icon = format.icon;
-            return (
-              <button
-                key={format.id}
-                type="button"
-                onClick={() => setSelectedFormatId(format.id)}
-                className="flex flex-col items-start gap-3 rounded-2xl border border-outline-variant bg-surface-container-lowest p-lg text-left shadow-sm transition-all hover:border-primary hover:shadow-md"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-container/30 text-primary">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                </div>
-                <h3 className="font-headline-sm text-headline-sm text-on-surface">
-                  {format.name}
-                </h3>
-                <p className="text-body-sm font-body-sm text-secondary">
-                  {format.description}
-                </p>
-                <span className="font-label-sm text-label-sm text-outline">
-                  {format.dimensions}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
+  const handleChoose = (template: VisualTemplate) => {
+    setSelectedTemplateId(template.id);
+    setPreviewTemplate(null);
+  };
 
-  // --- Étape 3 : template choisi -> résumé identité + génération ---------
+  // --- Un template est choisi -> résumé identité + génération ------------
   if (selectedTemplate) {
+    const format = formatOf(selectedTemplate);
+
     return (
       <div className="flex flex-col gap-lg">
         <button
@@ -97,14 +64,14 @@ export default function VisualGenerator() {
           <span className="material-symbols-outlined text-[18px]">
             arrow_back
           </span>
-          Changer de template
+          Retour à la galerie
         </button>
 
         <div className="grid grid-cols-1 gap-xl lg:grid-cols-[1fr_360px]">
           {/* Aperçu du template choisi */}
           <div
             className="w-full max-w-lg overflow-hidden rounded-2xl border border-outline-variant shadow-sm"
-            style={{ aspectRatio: selectedFormat.aspectRatio }}
+            style={{ aspectRatio: format.aspectRatio }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -205,72 +172,118 @@ export default function VisualGenerator() {
     );
   }
 
-  // --- Étape 2 : galerie de templates pour le format choisi --------------
+  // --- Galerie : tous les templates, filtrables par catégorie/format -----
   return (
     <div className="flex flex-col gap-lg">
-      <button
-        type="button"
-        onClick={() => setSelectedFormatId(null)}
-        className="flex w-fit items-center gap-1 font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary"
-      >
-        <span className="material-symbols-outlined text-[18px]">
-          arrow_back
-        </span>
-        Changer de format
-      </button>
-
       <div className="mb-md">
         <h2 className="mb-xs text-headline-lg font-headline-lg text-on-surface">
-          {selectedFormat.name}
+          Générer un visuel
         </h2>
         <p className="text-body-md font-body-md text-secondary">
-          {selectedFormat.description} ({selectedFormat.dimensions})
+          Parcourez tous les formats disponibles ou filtrez par catégorie,
+          puis choisissez un template.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 xl:grid-cols-3">
-        {templatesForFormat.map((template) => (
-          <div
-            key={template.id}
-            className="group flex flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-all hover:shadow-md"
-          >
+      {/* Filtre par catégorie (les formats servent de catégories) */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveCategory(ALL)}
+          className={`rounded-full px-4 py-2 font-label-sm text-label-sm transition-colors ${
+            activeCategory === ALL
+              ? "bg-primary text-white"
+              : "bg-surface-container-lowest text-on-surface-variant border border-outline-variant hover:border-primary/50 hover:text-primary"
+          }`}
+        >
+          {ALL}
+        </button>
+        {VISUAL_FORMATS.map((format) => {
+          const isActive = activeCategory === format.id;
+          return (
             <button
+              key={format.id}
               type="button"
-              onClick={() => setPreviewTemplate(template)}
-              className="relative block w-full overflow-hidden"
-              style={{ aspectRatio: selectedFormat.aspectRatio }}
+              onClick={() => setActiveCategory(format.id)}
+              className={`rounded-full px-4 py-2 font-label-sm text-label-sm transition-colors ${
+                isActive
+                  ? "bg-primary text-white"
+                  : "bg-surface-container-lowest text-on-surface-variant border border-outline-variant hover:border-primary/50 hover:text-primary"
+              }`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={thumbnailUrl(template, "640x640")}
-                alt={`Aperçu du template ${template.name}`}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <span className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-200 group-hover:bg-black/30 group-hover:opacity-100">
-                <span className="rounded-full bg-white px-4 py-2 font-label-md text-label-md text-on-surface shadow-sm">
-                  Aperçu rapide
-                </span>
-              </span>
+              {format.name}
             </button>
+          );
+        })}
+      </div>
 
-            <div className="flex flex-1 flex-col gap-2 p-lg">
-              <h3 className="font-headline-sm text-headline-sm text-on-surface">
-                {template.name}
-              </h3>
-              <p className="flex-1 text-body-sm font-body-sm text-secondary">
-                {template.description}
-              </p>
+      {/* Grille : chaque carte respecte le ratio de SON propre format */}
+      <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 xl:grid-cols-3">
+        {visibleTemplates.map((template) => {
+          const format = formatOf(template);
+
+          return (
+            <div
+              key={template.id}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-all hover:shadow-md"
+            >
               <button
                 type="button"
-                onClick={() => setSelectedTemplateId(template.id)}
-                className="mt-2 rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-white transition-colors hover:bg-primary/90"
+                onClick={() => setPreviewTemplate(template)}
+                className="relative block w-full overflow-hidden"
+                style={{ aspectRatio: format.aspectRatio }}
               >
-                Choisir
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={thumbnailUrl(template, "640x640")}
+                  alt={`Aperçu du template ${template.name}`}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 font-label-sm text-label-sm text-on-surface shadow-sm">
+                  {format.name}
+                </span>
+                <span className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-200 group-hover:bg-black/30 group-hover:opacity-100">
+                  <span className="rounded-full bg-white px-4 py-2 font-label-md text-label-md text-on-surface shadow-sm">
+                    Aperçu rapide
+                  </span>
+                </span>
               </button>
+
+              <div className="flex flex-1 flex-col gap-2 p-lg">
+                <h3 className="font-headline-sm text-headline-sm text-on-surface">
+                  {template.name}
+                </h3>
+                <p className="flex-1 text-body-sm font-body-sm text-secondary">
+                  {template.description}
+                </p>
+
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewTemplate(template)}
+                    className="flex-1 rounded-lg border border-outline-variant px-4 py-2 font-label-md text-label-md text-on-surface transition-colors hover:border-primary hover:text-primary"
+                  >
+                    Prévisualiser
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChoose(template)}
+                    className="flex-1 rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-white transition-colors hover:bg-primary/90"
+                  >
+                    Choisir
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      {visibleTemplates.length === 0 && (
+        <p className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg text-center font-body-md text-body-md text-secondary">
+          Aucun template dans cette catégorie pour le moment.
+        </p>
+      )}
 
       {/* Modale de prévisualisation */}
       {previewTemplate && (
@@ -284,7 +297,7 @@ export default function VisualGenerator() {
           >
             <div
               className="relative w-full shrink-0 overflow-hidden"
-              style={{ aspectRatio: selectedFormat.aspectRatio }}
+              style={{ aspectRatio: formatOf(previewTemplate).aspectRatio }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -305,6 +318,9 @@ export default function VisualGenerator() {
             </div>
 
             <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-xl">
+              <span className="w-fit rounded-full bg-primary/10 px-3 py-1 font-label-sm text-label-sm text-primary">
+                {formatOf(previewTemplate).name}
+              </span>
               <h3 className="font-headline-md text-headline-md text-on-surface">
                 {previewTemplate.name}
               </h3>
@@ -322,10 +338,7 @@ export default function VisualGenerator() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedTemplateId(previewTemplate.id);
-                    setPreviewTemplate(null);
-                  }}
+                  onClick={() => handleChoose(previewTemplate)}
                   className="rounded-lg bg-primary px-5 py-2.5 font-label-md text-label-md text-white transition-colors hover:bg-primary/90"
                 >
                   Choisir ce template
