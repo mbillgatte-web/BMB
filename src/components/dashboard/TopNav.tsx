@@ -1,11 +1,27 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import Button from "@/components/ui/Button";
+import { useEntreprise } from "@/hooks/useEntreprise";
+import { findNavLabel } from "./nav-items";
 
 export default function TopNav() {
+  const pathname = usePathname();
+  const { entreprise } = useEntreprise();
+  const pageLabel = findNavLabel(pathname) ?? "Dashboard";
+
   return (
     <header className="top-0 z-40 h-16 flex-shrink-0 border-b border-outline-variant/70 bg-surface/95 shadow-[0_4px_16px_rgba(27,27,35,0.04)] backdrop-blur-md">
       <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-full">
-        <div className="font-headline-md text-headline-md font-extrabold text-primary lg:hidden">
-          Build My Business
+        {/* Fil d'ariane : entreprise sélectionnée -> page actuelle (voir
+            nav-items.ts pour la correspondance pathname -> libellé, partagée
+            avec la Sidebar). */}
+        <div className="flex min-w-0 items-center gap-2 font-body-sm text-body-sm">
+          <span className="truncate max-w-[160px] font-semibold text-on-surface">
+            {entreprise?.nom ?? "Build My Business"}
+          </span>
+          <span className="text-outline">/</span>
+          <span className="truncate text-on-surface-variant">{pageLabel}</span>
         </div>
 
         <div className="flex flex-1 items-center justify-end gap-4">
