@@ -3,15 +3,9 @@
 import React from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopNav from "@/components/dashboard/TopNav";
-import ProgressStepper from "@/components/BuildEntreprise/ProgressStepper";
-import FounderInfoForm from "@/components/BuildEntreprise/FounderInfoForm";
+import EntrepriseForm from "@/components/BuildEntreprise/EntrepriseForm";
 
 export default function CreateEntreprise() {
-  const handleNext = () => {
-    console.log("Passer à l'étape suivante");
-    // Ici tu gères le state (useState) ou la navigation
-  };
-
   return (
     <div className="bg-background text-on-background antialiased flex h-screen overflow-hidden">
       <Sidebar />
@@ -31,13 +25,10 @@ export default function CreateEntreprise() {
               </p>
             </div>
 
-            {/* Stepper */}
-            <ProgressStepper currentStep={1} />
-
             {/* Form Card */}
             <div className="relative overflow-hidden rounded-3xl border border-outline-variant/50 bg-surface-container-lowest p-xl shadow-[0_18px_45px_rgb(27,27,35,0.08)]">
               <div className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-full bg-primary/5 blur-3xl" />
-              <FounderInfoForm onNext={handleNext} />
+              <EntrepriseForm />
             </div>
           </div>
         </main>

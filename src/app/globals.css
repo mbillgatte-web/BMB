@@ -8,6 +8,11 @@
   --font-family-open-sans: var(--font-open-sans), sans-serif;
   --font-family-merriweather: var(--font-merriweather), serif;
   --font-family-lato: var(--font-lato), sans-serif;
+  --font-family-manrope: var(--font-manrope), sans-serif;
+}
+
+body {
+  font-family: var(--font-inter), sans-serif;
 }
 
 
@@ -34,6 +39,10 @@
 
   .form-section > div:last-child > :nth-child(4) {
     animation-delay: 260ms;
+  }
+
+  .form-section > div:last-child > :nth-child(5) {
+    animation-delay: 320ms;
   }
 }
 
@@ -113,11 +122,13 @@
 
 
 
-.sidebar-nav {
+.sidebar-nav,
+.scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.sidebar-nav::-webkit-scrollbar {
+.sidebar-nav::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

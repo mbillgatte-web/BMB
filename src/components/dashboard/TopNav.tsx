@@ -1,3 +1,5 @@
+import Button from "@/components/ui/Button";
+
 export default function TopNav() {
   return (
     <header className="top-0 z-40 h-16 flex-shrink-0 border-b border-outline-variant/70 bg-surface/95 shadow-[0_4px_16px_rgba(27,27,35,0.04)] backdrop-blur-md">
@@ -6,11 +8,7 @@ export default function TopNav() {
           Build My Business
         </div>
 
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-lg border border-outline-variant cursor-pointer hover:bg-surface-container-high transition-colors">
-          
-        </div>
-
-        <div className="flex items-center gap-4">
+        <div className="flex flex-1 items-center justify-end gap-4">
           <div className="relative hidden md:block">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">
               search
@@ -22,24 +20,29 @@ export default function TopNav() {
             />
           </div>
 
-          <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-surface-container text-primary font-label-md text-label-md rounded-full hover:bg-surface-container-high transition-colors">
+          <Button variant="secondary" size="sm" className="hidden md:inline-flex">
             <span className="material-symbols-outlined text-[18px]">magic_button</span>
-            Ask AI
-          </button>
+            Demander à l&apos;IA
+          </Button>
 
           <div className="flex items-center gap-2">
-            <button className="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all relative">
+            <Button variant="icon" aria-label="Notifications">
               <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
-            </button>
-            <button className="w-8 h-8 rounded-full overflow-hidden border-2 border-surface-container-highest hover:border-primary transition-colors focus:outline-none">
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-error" />
+            </Button>
+            <Button
+              variant="icon"
+              size="sm"
+              aria-label="Menu du compte"
+              className="overflow-hidden border-2 border-surface-container-highest hover:border-primary"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkaIG7VR9HQJOfxHlB7tjV4SfJP8LCnaZkFDK37lgrTPyGrf8gecG6K1F0Z-9YfOFwuBNn_9cGWYimeU4Z-CuCN4cG4L7eWAexEyyjigGIH6BrfX5GqVmPEeBA98e-X3RWHQ2uYkkq9rbSbM4tEBFmyJFI26Bhc3fBpfccCI9RA65G9GDRVsqS-V89IyjJQqgNcBiXMs5ePx0wa-hsID61W_9a2viEoZzS0RLuSUNHClRClQl1oKXF0Q"
                 alt="Avatar utilisateur"
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
-            </button>
+            </Button>
           </div>
         </div>
       </div>

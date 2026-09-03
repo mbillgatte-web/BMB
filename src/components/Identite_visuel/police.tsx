@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEntrepriseId } from "@/hooks/useEntrepriseId";
+import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 
 
 const FONT_FAMILY_VARS: Record<string, string> = {
@@ -90,12 +93,45 @@ export default function TypographyBuilder({
   onContinue,
   onGenerateWithAI,
 }: TypographyBuilderProps) {
+  const router = useRouter();
+  const {
+    entrepriseId,
+    loading: loadingEntreprise,
+    error: entrepriseError,
+  } = useEntrepriseId();
+
+  const { identiteVisuelle } = useIdentiteVisuelle(entrepriseId);
+
   const [selectedId, setSelectedId] = useState(FONT_PAIRINGS[0].id);
   const [aiPrompt, setAiPrompt] = useState("");
   const [headingOverride, setHeadingOverride] = useState(
     FONT_PAIRINGS[0].headingLabel
   );
   const [bodyOverride, setBodyOverride] = useState(FONT_PAIRINGS[0].bodyLabel);
+
+  // Préremplit les polices à partir de ce qui est déjà enregistré pour
+  // cette entreprise -- même technique de rendu (pas d'effet) que dans
+  // PaletteBuilder.tsx, voir ses commentaires pour le détail.
+  const [prevIdentiteVisuelle, setPrevIdentiteVisuelle] = useState(identiteVisuelle);
+  if (identiteVisuelle !== prevIdentiteVisuelle) {
+    setPrevIdentiteVisuelle(identiteVisuelle);
+
+    if (identiteVisuelle) {
+      if (identiteVisuelle.police_titre) {
+        setHeadingOverride(identiteVisuelle.police_titre);
+      }
+      if (identiteVisuelle.police_texte) {
+        setBodyOverride(identiteVisuelle.police_texte);
+      }
+
+      const match = FONT_PAIRINGS.find(
+        (p) =>
+          p.headingLabel === identiteVisuelle.police_titre &&
+          p.bodyLabel === identiteVisuelle.police_texte
+      );
+      if (match) setSelectedId(match.id);
+    }
+  }
 
   const selectedPairing = useMemo(
     () => FONT_PAIRINGS.find((p) => p.id === selectedId) ?? FONT_PAIRINGS[0],
@@ -118,6 +154,28 @@ export default function TypographyBuilder({
     if (aiPrompt.trim()) {
       onGenerateWithAI?.(aiPrompt.trim());
     }
+  };
+
+  const handleContinue = () => {
+    // Comme pour la palette : pas d'écriture en BD ici, juste en mémoire
+    // le temps d'arriver à /Logo, qui enverra tout d'un coup à la fin.
+    if (entrepriseId) {
+      localStorage.setItem(
+        `identite:${entrepriseId}:typographie`,
+        JSON.stringify({
+          policeTitre: headingOverride,
+          policeTexte: bodyOverride,
+        })
+      );
+    }
+
+    onContinue?.({
+      pairing: selectedPairing,
+      headingOverride,
+      bodyOverride,
+    });
+
+    router.push(`/Logo?entrepriseId=${entrepriseId}`);
   };
 
   return (
@@ -319,17 +377,19 @@ export default function TypographyBuilder({
         </div>
       </div>
 
+      {entrepriseError && (
+        <p className="col-span-full font-body-sm text-body-sm text-red-600">
+          {entrepriseError}
+        </p>
+      )}
+
       {/* Barre d'action "Continue" : sticky au composant, pas au viewport global */}
       <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
         <button
-          onClick={() =>
-            onContinue?.({
-              pairing: selectedPairing,
-              headingOverride,
-              bodyOverride,
-            })
-          }
-          className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary"
+          type="button"
+          onClick={handleContinue}
+          disabled={loadingEntreprise || !entrepriseId}
+          className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60"
         >
           Importez votre logo
           <span className="material-symbols-outlined text-[20px]">

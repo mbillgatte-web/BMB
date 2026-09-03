@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import LogoBuilder from "@/components/Identite_visuel/LogoBuilder";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopNav from "@/components/dashboard/TopNav";
@@ -70,10 +71,18 @@ export default function LogoPage() {
             {/* barre de progression */}
             <BrandProgressStepper currentStep={3} />
 
-            <LogoBuilder />
+            <Suspense fallback={null}>
+              <LogoBuilder />
+            </Suspense>
           </div>
         </main>
       </div>
     </div>
   );
 }
+
+
+// This is file of your component
+
+
+

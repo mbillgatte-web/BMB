@@ -2,7 +2,10 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import { useEntrepriseId } from "@/hooks/useEntrepriseId";
+import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 
 interface LogoBuilderProps {
   /** Appelé quand un fichier logo valide est importé (drag & drop ou input) */
@@ -15,6 +18,21 @@ export default function LogoBuilder({
   onLogoUploaded,
   onGenerateWithAI,
 }: LogoBuilderProps) {
+  const router = useRouter();
+  // Id transmis depuis /PaletteColor -> /Typographie -> ici (ou détecté
+  // automatiquement si le compte n'a qu'une seule entreprise, voir
+  // src/hooks/useEntrepriseId.ts). C'est la dernière étape : on en a
+  // besoin pour savoir sur quelle entreprise rattacher l'identité
+  // visuelle, et pour relire palette/typographie que les deux pages
+  // précédentes ont laissées dans localStorage.
+  const {
+    entrepriseId,
+    loading: loadingEntreprise,
+    error: entrepriseIdError,
+  } = useEntrepriseId();
+
+  const { identiteVisuelle } = useIdentiteVisuelle(entrepriseId);
+
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -23,8 +41,14 @@ export default function LogoBuilder({
     "Minimaliste",
     "Géométrique",
   ]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Effet inchangé par rapport à l'original : ne gère QUE la création/le
+  // nettoyage de l'URL blob du fichier local (vraie ressource externe,
+  // c'est un cas légitime d'effet). Le repli vers le logo déjà enregistré
+  // en base est géré séparément ci-dessous, en pure dérivation.
   useEffect(() => {
     if (!logoFile) {
       setLogoPreviewUrl(null);
@@ -34,6 +58,10 @@ export default function LogoBuilder({
     setLogoPreviewUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [logoFile]);
+
+  // Priorité au fichier tout juste choisi localement ; sinon, le logo déjà
+  // enregistré pour cette entreprise (voir useIdentiteVisuelle.ts).
+  const displayedLogoUrl = logoPreviewUrl ?? identiteVisuelle?.logo_url ?? null;
 
   const handleFile = useCallback(
     (file: File | undefined | null) => {
@@ -65,6 +93,105 @@ export default function LogoBuilder({
     if (aiPrompt.trim()) {
       onGenerateWithAI?.(aiPrompt.trim(), selectedStyles);
     }
+  };
+
+  const handleFinish = async () => {
+    if (!entrepriseId) {
+      setError("Entreprise introuvable, recommence depuis la création d'entreprise.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+
+    // Relit ce que PaletteBuilder.tsx et police.tsx ont mis de côté dans
+    // localStorage à leurs étapes respectives (rien n'a encore été
+    // envoyé en base avant ce point).
+    const paletteRaw = localStorage.getItem(`identite:${entrepriseId}:palette`);
+    const typographieRaw = localStorage.getItem(
+      `identite:${entrepriseId}:typographie`
+    );
+    const palette = paletteRaw ? JSON.parse(paletteRaw) : null;
+    const typographie = typographieRaw ? JSON.parse(typographieRaw) : null;
+
+    // Par défaut, on garde le logo déjà enregistré (si l'utilisateur n'a
+    // pas choisi de nouveau fichier cette fois) -- écrasé plus bas
+    // seulement si `logoFile` est renseigné.
+    let logoUrl: string | null = identiteVisuelle?.logo_url ?? null;
+
+    if (logoFile) {
+      const extension = logoFile.name.split(".").pop() ?? "png";
+      // Chemin dans le bucket "logos" : un dossier par entreprise pour
+      // éviter les collisions de noms entre utilisateurs.
+      const path = `${entrepriseId}/logo.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("logos")
+        .upload(path, logoFile, { upsert: true });
+
+      if (uploadError) {
+        setSaving(false);
+        setError(`Échec de l'envoi du logo : ${uploadError.message}`);
+        return;
+      }
+
+      logoUrl = supabase.storage.from("logos").getPublicUrl(path).data.publicUrl;
+    }
+
+    // Même mécanisme que EntrepriseForm.tsx : on a besoin du jeton de
+    // l'utilisateur connecté pour que la policy RLS de identite_visuelle
+    // laisse passer l'insertion côté serveur.
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      setSaving(false);
+      setError("Vous devez être connecté.");
+      return;
+    }
+
+    const res = await fetch("/api/identite-visuelle", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      // Ordre de priorité pour chaque champ : ce qui vient d'être choisi
+      // cette session (localStorage) -> sinon ce qui existait déjà en base
+      // pour cette entreprise (identiteVisuelle) -> sinon null. Sans le
+      // 2e maillon, revisiter uniquement /Logo sans repasser par Palette/
+      // Typographie effacerait leurs valeurs déjà enregistrées.
+      body: JSON.stringify({
+        entrepriseId,               // -> colonne entreprise_id (clé étrangère)
+        paletteMode: palette?.mode ?? identiteVisuelle?.palette_mode ?? null,
+        couleurPrimaire:
+          palette?.primary ?? identiteVisuelle?.couleur_primaire ?? null,
+        couleurFond:
+          palette?.background ?? identiteVisuelle?.couleur_fond ?? null,
+        couleurAccent:
+          palette?.accent ?? identiteVisuelle?.couleur_accent ?? null,
+        policeTitre:
+          typographie?.policeTitre ?? identiteVisuelle?.police_titre ?? null,
+        policeTexte:
+          typographie?.policeTexte ?? identiteVisuelle?.police_texte ?? null,
+        logoUrl,                    // -> logo_url (voir plus haut)
+      }),
+    });
+
+    const data = await res.json();
+    setSaving(false);
+
+    if (!res.ok) {
+      setError(data.error || "Erreur lors de l'enregistrement de l'identité visuelle");
+      return;
+    }
+
+    // Les brouillons locaux ne servent plus une fois enregistrés en base.
+    localStorage.removeItem(`identite:${entrepriseId}:palette`);
+    localStorage.removeItem(`identite:${entrepriseId}:typographie`);
+
+    router.push("/dashboard");
   };
 
   return (
@@ -111,7 +238,7 @@ export default function LogoBuilder({
                 <div className="relative flex h-full flex-col justify-between">
                   <div className="flex items-center gap-3">
                     <LogoMark
-                      previewUrl={logoPreviewUrl}
+                      previewUrl={displayedLogoUrl}
                       sizeClassName="h-11 w-11"
                       iconSize={22}
                     />
@@ -261,6 +388,27 @@ export default function LogoBuilder({
             </div>
           </div>
         </div>
+      </div>
+
+      {(error || entrepriseIdError) && (
+        <p className="font-body-sm text-body-sm text-red-600">
+          {error || entrepriseIdError}
+        </p>
+      )}
+
+      {/* Barre d'action finale : envoie palette + typographie + logo en base */}
+      <div className="sticky bottom-4 z-40 flex justify-end pt-2">
+        <button
+          type="button"
+          onClick={handleFinish}
+          disabled={saving || loadingEntreprise || !entrepriseId}
+          className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {saving ? "Enregistrement..." : "Terminer l'identité visuelle"}
+          <span className="material-symbols-outlined text-[20px]">
+            check_circle
+          </span>
+        </button>
       </div>
     </div>
   );

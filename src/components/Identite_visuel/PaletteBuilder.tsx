@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEntrepriseId } from "@/hooks/useEntrepriseId";
+import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 
 
 type PaletteMode = 2 | 3;
@@ -76,9 +78,52 @@ export default function PaletteBuilder({
   onContinue,
   onGenerateWithAI,
 }: PaletteBuilderProps) {
+  const router = useRouter();
+  // Retrouve l'entreprise du compte connecté (compte_id = auth.uid()),
+  // au lieu de la recevoir via l'URL : voir src/hooks/useEntrepriseId.ts.
+  const {
+    entrepriseId,
+    loading: loadingEntreprise,
+    error: entrepriseError,
+  } = useEntrepriseId();
+
+  // Ce que cette entreprise a déjà enregistré, s'il y a déjà quelque chose
+  // (voir src/hooks/useIdentiteVisuelle.ts) -- sert à préremplir ci-dessous.
+  const { identiteVisuelle } = useIdentiteVisuelle(entrepriseId);
+
   const [mode, setMode] = useState<PaletteMode>(2);
   const [selectedId, setSelectedId] = useState<string>(PALETTES_2[0].id);
   const [aiPrompt, setAiPrompt] = useState("");
+
+  // Préremplit mode + palette sélectionnée à partir de ce qui est déjà en
+  // base pour cette entreprise -- une seule fois, quand identiteVisuelle
+  // passe de "pas encore chargé" à une valeur (ou change d'entreprise).
+  // Technique de rendu plutôt qu'un useEffect (voir useIdentiteVisuelle.ts)
+  // pour rester une pure dérivation, sans setState synchrone dans un effet.
+  // Ne fonctionne que si les couleurs sauvegardées correspondent exactement
+  // à une des palettes prédéfinies ci-dessus -- c'est le cas en pratique,
+  // "Editer manuellement les couleurs" plus bas n'étant pas encore branché
+  // (voir setSelectedIdOverride).
+  const [prevIdentiteVisuelle, setPrevIdentiteVisuelle] = useState(identiteVisuelle);
+  if (identiteVisuelle !== prevIdentiteVisuelle) {
+    setPrevIdentiteVisuelle(identiteVisuelle);
+
+    if (identiteVisuelle) {
+      const savedMode: PaletteMode =
+        identiteVisuelle.palette_mode === "3" ? 3 : 2;
+      const pool = savedMode === 3 ? PALETTES_3 : PALETTES_2;
+      const match = pool.find(
+        (p) =>
+          p.primary === identiteVisuelle.couleur_primaire &&
+          p.background === identiteVisuelle.couleur_fond
+      );
+
+      if (match) {
+        setMode(savedMode);
+        setSelectedId(match.id);
+      }
+    }
+  }
 
   const palettes = mode === 2 ? PALETTES_2 : PALETTES_3;
 
@@ -97,6 +142,32 @@ export default function PaletteBuilder({
     if (aiPrompt.trim()) {
       onGenerateWithAI?.(aiPrompt.trim());
     }
+  };
+
+  const handleContinue = () => {
+    // On ne sauvegarde rien en BD à cette étape : la palette est juste
+    // gardée en mémoire (localStorage) le temps de traverser les pages
+    // Typographie puis Logo, qui enverront tout d'un coup à la fin.
+    // Les clés ci-dessous (mode, primary, background, accent) sont celles
+    // que /Logo relira pour construire l'objet envoyé à /api/identite-visuelle.
+    if (entrepriseId) {
+      localStorage.setItem(
+        `identite:${entrepriseId}:palette`,
+        JSON.stringify({
+          mode,
+          primary: selectedPalette.primary,
+          background: selectedPalette.background,
+          accent: mode === 3 ? selectedPalette.accent : null,
+        })
+      );
+    }
+
+    onContinue?.({ palette: selectedPalette, mode });
+
+    // On précise l'entreprise dans l'URL pour la suite (voir
+    // src/hooks/useEntrepriseId.ts : l'URL a priorité sur la détection
+    // automatique, utile si le compte a plusieurs entreprises).
+    router.push(`/Typographie?entrepriseId=${entrepriseId}`);
   };
 
   return (
@@ -308,18 +379,26 @@ export default function PaletteBuilder({
         </div>
       </div>
 
+      {entrepriseError && (
+        <p className="col-span-full font-body-sm text-body-sm text-red-600">
+          {entrepriseError}
+        </p>
+      )}
+
       {/* Barre d'action "Continue" : sticky au bas du composant, jamais
           ancrée au viewport global (contrairement à `fixed`). */}
       <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
-      
-        
-          <Link href="/Typographie" className="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-primary transition-all shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] flex items-center gap-2">
-            Continuez vers la typographie
-            <span className="material-symbols-outlined text-[18px]">
-              arrow_forward
-            </span>
-          </Link>
-
+        <button
+          type="button"
+          onClick={handleContinue}
+          disabled={loadingEntreprise || !entrepriseId}
+          className="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-primary transition-all shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Continuez vers la typographie
+          <span className="material-symbols-outlined text-[18px]">
+            arrow_forward
+          </span>
+        </button>
       </div>
   </div>
 

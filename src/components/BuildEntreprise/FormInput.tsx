@@ -5,6 +5,7 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
   label: string;
   icon?: string;
+  hint?: string;
 }
 
 export default function FormInput({
@@ -14,6 +15,7 @@ export default function FormInput({
   type = "text",
   placeholder,
   icon,
+  hint,
   required = false,
   ...props
 }: FormInputProps) {
@@ -42,6 +44,9 @@ export default function FormInput({
           {...props}
         />
       </div>
+      {hint && (
+        <p className="mt-1.5 font-body-sm text-[13px] text-outline">{hint}</p>
+      )}
     </div>
   );
 }

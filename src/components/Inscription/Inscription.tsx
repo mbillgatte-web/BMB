@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function RegisterForm() {
   const [name, setName] = useState("");
@@ -31,7 +33,9 @@ export default function RegisterForm() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, prenom, contact }),
+      // route.ts lit "nom" (pas "name") pour la colonne "nom" de la table
+      // "compte" : la clé JSON doit correspondre à ce que route.ts attend.
+      body: JSON.stringify({ nom: name, email, password, prenom, contact }),
     });
 
     const data = await res.json();
@@ -40,6 +44,16 @@ export default function RegisterForm() {
     if (!res.ok) {
       setError(data.error || "Erreur lors de l'inscription");
       return;
+    }
+
+    // Si la confirmation d'email est désactivée dans Supabase, signUp
+    // renvoie directement une session : on la réplique dans le client
+    // du navigateur pour que l'utilisateur soit connecté tout de suite.
+    if (data.session) {
+      await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
     }
 
     router.push("/dashboard");
@@ -52,10 +66,14 @@ export default function RegisterForm() {
         
 
         <div className="space-y-2">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight leading-tight">
+          <h1 className="font-headline-lg text-headline-lg text-on-surface hidden md:block lg:hidden">
             Créez votre compte
           </h1>
-          <p className="text-base text-on-surface-variant leading-relaxed max-w-[380px]">
+
+          <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface block md:hidden">
+            Créez votre compte
+          </h1>
+          <p className="font-body-md text-body-md text-on-surface-variant max-w-[380px]">
             Rejoignez des milliers d’entrepreneurs et commencez à bâtir votre
             projet dès aujourd’hui.
           </p>
@@ -68,7 +86,7 @@ export default function RegisterForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-on-surface-variant"
+            className="block font-body-sm text-body-sm text-on-surface-variant"
           >
             Nom complet
           </label>
@@ -77,8 +95,8 @@ export default function RegisterForm() {
               person
             </span>
             <input
-              id="name"
-              name="name"
+              id="nom"
+              name="nom"
               type="text"
               placeholder="Mbeppa"
               required
@@ -93,8 +111,8 @@ export default function RegisterForm() {
         {/* PreNom */}
         <div className="space-y-1.5">
           <label
-            htmlFor="name"
-            className="block text-sm font-medium text-on-surface-variant"
+            htmlFor="prenom"
+            className="block font-body-sm text-body-sm text-on-surface-variant"
           >
             Prenom
           </label>
@@ -119,8 +137,8 @@ export default function RegisterForm() {
                 {/* Contact*/}
         <div className="space-y-1.5">
           <label
-            htmlFor="name"
-            className="block text-sm font-medium text-on-surface-variant"
+            htmlFor="contact"
+            className="block font-body-sm text-body-sm text-on-surface-variant"
           >
             Tel
           </label>
@@ -131,7 +149,7 @@ export default function RegisterForm() {
             <input
               id="contact"
               name="contact"
-              type="int"
+              type="tel"
               placeholder="(+237) 6 XXX"
               required
               value={contact}
@@ -147,7 +165,7 @@ export default function RegisterForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-on-surface-variant"
+            className="block font-body-sm text-body-sm text-on-surface-variant"
           >
             Adresse email
           </label>
@@ -172,7 +190,7 @@ export default function RegisterForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-on-surface-variant"
+            className="block font-body-sm text-body-sm text-on-surface-variant"
           >
             Mot de passe
           </label>
@@ -190,15 +208,17 @@ export default function RegisterForm() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full pl-11 pr-12 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
             />
-            <button
-              type="button"
+            <Button
+              variant="icon"
+              size="sm"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors"
+              aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+              className="absolute right-2 top-1/2 -translate-y-1/2"
             >
               <span className="material-symbols-outlined text-[20px]">
                 {showPassword ? "visibility_off" : "visibility"}
               </span>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -206,7 +226,7 @@ export default function RegisterForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="confirmPassword"
-            className="block text-sm font-medium text-on-surface-variant"
+            className="block font-body-sm text-body-sm text-on-surface-variant"
           >
             Confirmer le mot de passe
           </label>
@@ -224,46 +244,34 @@ export default function RegisterForm() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full pl-11 pr-12 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
             />
-            <button
-              type="button"
+            <Button
+              variant="icon"
+              size="sm"
               onClick={() => setShowConfirmPassword((v) => !v)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors"
+              aria-label={
+                showConfirmPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
+              }
+              className="absolute right-2 top-1/2 -translate-y-1/2"
             >
               <span className="material-symbols-outlined text-[20px]">
                 {showConfirmPassword ? "visibility_off" : "visibility"}
               </span>
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Erreur */}
         {error && (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
+          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 font-body-sm text-body-sm">
             <span className="material-symbols-outlined text-[18px]">error</span>
             <span>{error}</span>
           </div>
         )}
 
         {/* Bouton principal */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3.5 px-6 rounded-xl font-semibold text-white bg-gradient-to-r from-primary to-[#4F46E5] hover:from-[#4F46E5] hover:to-primary shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          {loading ? (
-            <>
-              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Inscription en cours...
-            </>
-          ) : (
-            <>
-              Créer mon compte
-              <span className="material-symbols-outlined text-[20px]">
-                arrow_forward
-              </span>
-            </>
-          )}
-        </button>
+        <Button type="submit" size="lg" loading={loading} className="w-full">
+          {loading ? "Inscription en cours..." : "Créer mon compte"}
+        </Button>
 
         {/* Séparateur */}
         <div className="relative py-2">
@@ -271,17 +279,14 @@ export default function RegisterForm() {
             <div className="w-full border-t border-outline-variant/60" />
           </div>
           <div className="relative flex justify-center">
-            <span className="px-4 bg-surface-container-lowest text-sm text-on-surface-variant">
+            <span className="px-4 bg-surface-container-lowest font-body-sm text-body-sm text-on-surface-variant">
               ou continuer avec
             </span>
           </div>
         </div>
 
         {/* Google */}
-        <button
-          type="button"
-          className="w-full py-3 px-6 rounded-xl font-medium text-on-surface bg-surface border border-outline-variant hover:bg-surface-container-low hover:border-outline transition-all duration-200 flex items-center justify-center gap-3"
-        >
+        <Button variant="secondary" size="lg" className="w-full">
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -301,16 +306,16 @@ export default function RegisterForm() {
             />
           </svg>
           Continuer avec Google
-        </button>
+        </Button>
       </form>
 
       {/* Lien connexion */}
       <div className="mt-8 pt-6 border-t border-outline-variant/40 text-center">
-        <p className="text-sm text-on-surface-variant">
+        <p className="font-body-sm text-body-sm text-on-surface-variant">
           Vous avez déjà un compte ?{" "}
           <Link
             href="/"
-            className="font-semibold text-primary hover:text-[#4F46E5] transition-colors"
+            className="font-label-md text-label-md text-primary hover:text-[#4F46E5] transition-colors"
           >
             Se connecter
           </Link>

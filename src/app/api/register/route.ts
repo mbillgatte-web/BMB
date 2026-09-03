@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
   const { error:  profileError } = await supabase.from("compte").insert({
       id: data.user.id , 
-      name, 
+      nom, 
       prenom, 
       contact,
   });
