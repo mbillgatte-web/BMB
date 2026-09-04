@@ -120,6 +120,22 @@ body {
   animation-delay: 4s;
 }
 
+/* Défilement horizontal continu utilisé par PortfolioGallery.tsx (version
+   mobile) : le contenu est dupliqué (voir marqueeRepeat) puis translaté
+   de sa propre largeur + l'espacement, en boucle infinie. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--duration) linear infinite;
+}
+
 
 
 .sidebar-nav,

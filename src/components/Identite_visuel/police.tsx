@@ -6,7 +6,9 @@ import { useEntrepriseId } from "@/hooks/useEntrepriseId";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 
 
-const FONT_FAMILY_VARS: Record<string, string> = {
+// Exporté pour VueEnsemble.tsx (aperçu en lecture seule des polices déjà
+// enregistrées, avec la même correspondance libellé -> variable CSS).
+export const FONT_FAMILY_VARS: Record<string, string> = {
   Inter: "var(--font-family-inter)",
   "Playfair Display": "var(--font-family-playfair)",
   Montserrat: "var(--font-family-montserrat)",

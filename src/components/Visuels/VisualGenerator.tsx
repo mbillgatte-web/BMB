@@ -5,60 +5,60 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 import {
   VISUAL_FORMATS,
-  VISUAL_TEMPLATES,
-  type VisualTemplate,
+  buildVisualImages,
+  type VisualImage,
 } from "./visuels-data";
+import { PortfolioGallery } from "./PortfolioGallery";
 
 const ALL = "Tous";
 
-function thumbnailUrl(template: VisualTemplate, size: string) {
-  const label = encodeURIComponent(template.name);
-  return `https://placehold.co/${size}/${template.accentColor}/FFFFFF?text=${label}`;
+interface VisualGeneratorProps {
+  /** { [formatId]: chemins d'images }, calculé côté serveur (voir Visuels/page.tsx). */
+  imagesByCategory: Record<string, string[]>;
 }
 
-/** Le format (dimensions, ratio) auquel appartient un template donné. */
-function formatOf(template: VisualTemplate) {
-  return VISUAL_FORMATS.find((f) => f.id === template.formatId)!;
+/** Le format (dimensions, ratio, nom...) auquel appartient une image donnée. */
+function formatOf(image: VisualImage) {
+  return VISUAL_FORMATS.find((f) => f.id === image.formatId)!;
 }
 
-export default function VisualGenerator() {
+export default function VisualGenerator({
+  imagesByCategory,
+}: VisualGeneratorProps) {
   // L'entreprise du compte connecté (et son identité visuelle déjà
   // configurée, si elle existe) : sert à préremplir le générateur avec le
   // vrai nom/logo/couleurs/polices plutôt que de laisser l'IA deviner.
   const { entreprise } = useEntreprise();
   const { identiteVisuelle } = useIdentiteVisuelle(entreprise?.id ?? null);
 
+  const images = buildVisualImages(imagesByCategory);
+
   const [activeCategory, setActiveCategory] = useState<string>(ALL);
-  const [previewTemplate, setPreviewTemplate] =
-    useState<VisualTemplate | null>(null);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
-    null
-  );
+  const [previewImage, setPreviewImage] = useState<VisualImage | null>(null);
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
 
-  const selectedTemplate = VISUAL_TEMPLATES.find(
-    (t) => t.id === selectedTemplateId
-  );
+  const selectedImage = images.find((img) => img.id === selectedImageId);
 
-  const visibleTemplates =
+  const visibleImages =
     activeCategory === ALL
-      ? VISUAL_TEMPLATES
-      : VISUAL_TEMPLATES.filter((t) => t.formatId === activeCategory);
+      ? images
+      : images.filter((img) => img.formatId === activeCategory);
 
-  const handleChoose = (template: VisualTemplate) => {
-    setSelectedTemplateId(template.id);
-    setPreviewTemplate(null);
+  const handleChoose = (image: VisualImage) => {
+    setSelectedImageId(image.id);
+    setPreviewImage(null);
   };
 
-  // --- Un template est choisi -> résumé identité + génération ------------
-  if (selectedTemplate) {
-    const format = formatOf(selectedTemplate);
+  // --- Une image est choisie -> résumé identité + génération ------------
+  if (selectedImage) {
+    const format = formatOf(selectedImage);
 
     return (
       <div className="flex flex-col gap-lg">
         <button
           type="button"
-          onClick={() => setSelectedTemplateId(null)}
+          onClick={() => setSelectedImageId(null)}
           className="flex w-fit items-center gap-1 font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary"
         >
           <span className="material-symbols-outlined text-[18px]">
@@ -68,15 +68,15 @@ export default function VisualGenerator() {
         </button>
 
         <div className="grid grid-cols-1 gap-xl lg:grid-cols-[1fr_360px]">
-          {/* Aperçu du template choisi */}
+          {/* Aperçu de l'image choisie */}
           <div
             className="w-full max-w-lg overflow-hidden rounded-2xl border border-outline-variant shadow-sm"
             style={{ aspectRatio: format.aspectRatio }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={thumbnailUrl(selectedTemplate, "800x800")}
-              alt={`Aperçu du template ${selectedTemplate.name}`}
+              src={selectedImage.src}
+              alt={`Visuel ${format.name}`}
               className="h-full w-full object-cover"
             />
           </div>
@@ -84,9 +84,16 @@ export default function VisualGenerator() {
           {/* Panneau identité + génération */}
           <div className="flex flex-col gap-lg">
             <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
-              <h3 className="mb-3 font-label-md text-label-md text-on-surface">
-                Identité de {entreprise?.nom ?? "votre entreprise"}
+              <h3 className="mb-1 font-headline-sm text-headline-sm text-on-surface">
+                {format.name}
               </h3>
+              <p className="mb-4 font-body-sm text-body-sm text-secondary">
+                {format.dimensions}
+              </p>
+
+              <h4 className="mb-3 font-label-md text-label-md text-on-surface">
+                Identité de {entreprise?.nom ?? "votre entreprise"}
+              </h4>
 
               {identiteVisuelle ? (
                 <div className="flex flex-col gap-3">
@@ -172,16 +179,21 @@ export default function VisualGenerator() {
     );
   }
 
-  // --- Galerie : tous les templates, filtrables par catégorie/format -----
+  // --- Galerie : toutes les images, filtrables par catégorie/format ------
   return (
     <div className="flex flex-col gap-lg">
-      <div className="mb-md">
+      <PortfolioGallery images={images.slice(0, 10).map((img) => ({
+        src: img.src,
+        alt: `Visuel ${formatOf(img).name}`,
+      }))} />
+
+      <div id="galerie" className="mb-md scroll-mt-6">
         <h2 className="mb-xs text-headline-lg font-headline-lg text-on-surface">
           Générer un visuel
         </h2>
         <p className="text-body-md font-body-md text-secondary">
           Parcourez tous les formats disponibles ou filtrez par catégorie,
-          puis choisissez un template.
+          puis choisissez une image de base.
         </p>
       </div>
 
@@ -219,24 +231,24 @@ export default function VisualGenerator() {
 
       {/* Grille : chaque carte respecte le ratio de SON propre format */}
       <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 xl:grid-cols-3">
-        {visibleTemplates.map((template) => {
-          const format = formatOf(template);
+        {visibleImages.map((image) => {
+          const format = formatOf(image);
 
           return (
             <div
-              key={template.id}
+              key={image.id}
               className="group flex flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-all hover:shadow-md"
             >
               <button
                 type="button"
-                onClick={() => setPreviewTemplate(template)}
+                onClick={() => setPreviewImage(image)}
                 className="relative block w-full overflow-hidden"
                 style={{ aspectRatio: format.aspectRatio }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={thumbnailUrl(template, "640x640")}
-                  alt={`Aperçu du template ${template.name}`}
+                  src={image.src}
+                  alt={`Visuel ${format.name}`}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 font-label-sm text-label-sm text-on-surface shadow-sm">
@@ -249,47 +261,37 @@ export default function VisualGenerator() {
                 </span>
               </button>
 
-              <div className="flex flex-1 flex-col gap-2 p-lg">
-                <h3 className="font-headline-sm text-headline-sm text-on-surface">
-                  {template.name}
-                </h3>
-                <p className="flex-1 text-body-sm font-body-sm text-secondary">
-                  {template.description}
-                </p>
-
-                <div className="mt-2 flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPreviewTemplate(template)}
-                    className="flex-1 rounded-lg border border-outline-variant px-4 py-2 font-label-md text-label-md text-on-surface transition-colors hover:border-primary hover:text-primary"
-                  >
-                    Prévisualiser
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleChoose(template)}
-                    className="flex-1 rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-white transition-colors hover:bg-primary/90"
-                  >
-                    Choisir
-                  </button>
-                </div>
+              <div className="p-3">
+                <button
+                  type="button"
+                  onClick={() => handleChoose(image)}
+                  className="w-full rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-white transition-colors hover:bg-primary/90"
+                >
+                  Choisir
+                </button>
               </div>
             </div>
           );
         })}
       </div>
 
-      {visibleTemplates.length === 0 && (
+      {visibleImages.length === 0 && (
         <p className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg text-center font-body-md text-body-md text-secondary">
-          Aucun template dans cette catégorie pour le moment.
+          Aucun visuel dans cette catégorie pour le moment. Ajoute des images
+          dans{" "}
+          <code className="font-mono text-label-sm">
+            public/visuels/
+            {activeCategory === ALL ? "&lt;categorie&gt;" : activeCategory}/
+          </code>
+          .
         </p>
       )}
 
       {/* Modale de prévisualisation */}
-      {previewTemplate && (
+      {previewImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setPreviewTemplate(null)}
+          onClick={() => setPreviewImage(null)}
         >
           <div
             className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-surface-container-lowest shadow-xl"
@@ -297,17 +299,17 @@ export default function VisualGenerator() {
           >
             <div
               className="relative w-full shrink-0 overflow-hidden"
-              style={{ aspectRatio: formatOf(previewTemplate).aspectRatio }}
+              style={{ aspectRatio: formatOf(previewImage).aspectRatio }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={thumbnailUrl(previewTemplate, "1000x1000")}
-                alt={`Aperçu du template ${previewTemplate.name}`}
+                src={previewImage.src}
+                alt={`Visuel ${formatOf(previewImage).name}`}
                 className="h-full w-full object-cover"
               />
               <button
                 type="button"
-                onClick={() => setPreviewTemplate(null)}
+                onClick={() => setPreviewImage(null)}
                 aria-label="Fermer l'aperçu"
                 className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-on-surface shadow-sm transition-colors hover:bg-white"
               >
@@ -319,29 +321,23 @@ export default function VisualGenerator() {
 
             <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-xl">
               <span className="w-fit rounded-full bg-primary/10 px-3 py-1 font-label-sm text-label-sm text-primary">
-                {formatOf(previewTemplate).name}
+                {formatOf(previewImage).name}
               </span>
-              <h3 className="font-headline-md text-headline-md text-on-surface">
-                {previewTemplate.name}
-              </h3>
-              <p className="font-body-md text-body-md text-secondary">
-                {previewTemplate.description}
-              </p>
 
               <div className="mt-4 flex items-center justify-end gap-3 border-t border-outline-variant pt-4">
                 <button
                   type="button"
-                  onClick={() => setPreviewTemplate(null)}
+                  onClick={() => setPreviewImage(null)}
                   className="rounded-lg border border-outline-variant px-5 py-2.5 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
                 >
                   Fermer
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleChoose(previewTemplate)}
+                  onClick={() => handleChoose(previewImage)}
                   className="rounded-lg bg-primary px-5 py-2.5 font-label-md text-label-md text-white transition-colors hover:bg-primary/90"
                 >
-                  Choisir ce template
+                  Choisir ce visuel
                 </button>
               </div>
             </div>
