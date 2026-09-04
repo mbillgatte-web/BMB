@@ -286,7 +286,6 @@ export default function VisualGenerator({
           .
         </p>
       )}
-
       {/* Modale de prévisualisation */}
       {previewImage && (
         <div
