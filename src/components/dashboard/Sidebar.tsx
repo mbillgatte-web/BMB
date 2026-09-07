@@ -2,15 +2,10 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import {
-  Settings,
-  Sparkles,
-  PanelLeftClose,
-  PanelLeftOpen,
-  ChevronDown,
-} from "lucide-react";
+import { Settings, Sparkles, ChevronDown } from "lucide-react";
 
 import Button from "@/components/ui/Button";
+import { MenuToggle } from "@/components/menuToggle/bouttonmenu";
 import { cn } from "@/lib/cn";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { NAV_GROUPS } from "./nav-items";
@@ -113,22 +108,16 @@ export default function Sidebar() {
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={() => setIsCollapsed((collapsed) => !collapsed)}
+          <MenuToggle
+            open={!isCollapsed}
+            onOpenChange={(open) => setIsCollapsed(!open)}
             aria-label={
               isCollapsed ? "Développer la barre latérale" : "Réduire la barre latérale"
             }
             aria-expanded={!isCollapsed}
             title={isCollapsed ? "Développer la barre latérale" : "Réduire la barre latérale"}
             className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-100"
-          >
-            {isCollapsed ? (
-              <PanelLeftOpen size={20} aria-hidden="true" />
-            ) : (
-              <PanelLeftClose size={20} aria-hidden="true" />
-            )}
-          </button>
+          />
         </div>
 
         {/* Navigation */}

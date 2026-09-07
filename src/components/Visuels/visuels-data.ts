@@ -16,6 +16,9 @@ export interface VisualFormat {
   icon: LucideIcon;
 }
 
+// Les formats restent décrits à la main (nom, dimensions, icône...) : ce
+// sont des catégories, pas des images. `id` = nom du sous-dossier attendu
+// dans public/visuels/ (voir src/lib/visuelsFs.ts).
 export const VISUAL_FORMATS: VisualFormat[] = [
   {
     id: "post-social",
@@ -51,80 +54,31 @@ export const VISUAL_FORMATS: VisualFormat[] = [
   },
 ];
 
-export interface VisualTemplate {
+/**
+ * Une image de la galerie, dérivée automatiquement du contenu de
+ * public/visuels/<formatId>/ (voir getVisuelsByCategory dans
+ * src/lib/visuelsFs.ts) -- pas de nom/description saisis à la main.
+ */
+export interface VisualImage {
+  /** Identifie l'image de façon stable (son chemin) : sert de `key` React. */
   id: string;
   formatId: string;
-  name: string;
-  description: string;
-  accentColor: string;
+  src: string;
 }
 
-export const VISUAL_TEMPLATES: VisualTemplate[] = [
-  // Post réseaux sociaux
-  {
-    id: "post-annonce",
-    formatId: "post-social",
-    name: "Annonce produit",
-    description: "Met en avant un produit ou service avec un titre percutant.",
-    accentColor: "4648D4",
-  },
-  {
-    id: "post-citation",
-    formatId: "post-social",
-    name: "Citation de marque",
-    description: "Une citation ou un message inspirant sur fond de marque.",
-    accentColor: "C2410C",
-  },
-  {
-    id: "post-promo",
-    formatId: "post-social",
-    name: "Promotion",
-    description: "Structure pensée pour une offre ou une réduction limitée.",
-    accentColor: "16A34A",
-  },
-  // Flyer
-  {
-    id: "flyer-evenement",
-    formatId: "flyer",
-    name: "Événement",
-    description: "Annonce d'un événement avec date, lieu et appel à l'action.",
-    accentColor: "7C3AED",
-  },
-  {
-    id: "flyer-catalogue",
-    formatId: "flyer",
-    name: "Catalogue de services",
-    description: "Présente plusieurs services ou produits sur une page.",
-    accentColor: "0891B2",
-  },
-  // Bannière
-  {
-    id: "banniere-couverture",
-    formatId: "banniere",
-    name: "Couverture de page",
-    description: "Bannière large pour l'en-tête d'une page ou d'un profil.",
-    accentColor: "1D4ED8",
-  },
-  {
-    id: "banniere-pub",
-    formatId: "banniere",
-    name: "Publicité web",
-    description: "Format publicitaire avec message clair et bouton d'action.",
-    accentColor: "B45309",
-  },
-  // Carte de visite
-  {
-    id: "carte-classique",
-    formatId: "carte-visite",
-    name: "Classique",
-    description: "Logo, nom et coordonnées, mise en page sobre.",
-    accentColor: "27272A",
-  },
-  {
-    id: "carte-moderne",
-    formatId: "carte-visite",
-    name: "Moderne",
-    description: "Mise en page asymétrique avec touche de couleur de marque.",
-    accentColor: "0D9488",
-  },
-];
+/**
+ * Aplati `{ [formatId]: chemins[] }` (renvoyé par getVisuelsByCategory,
+ * lui-même appelé côté serveur dans Visuels/page.tsx) en une liste plate
+ * de VisualImage, dans l'ordre des catégories connues.
+ */
+export function buildVisualImages(
+  imagesByCategory: Record<string, string[]>
+): VisualImage[] {
+  return VISUAL_FORMATS.flatMap((format) =>
+    (imagesByCategory[format.id] ?? []).map((src) => ({
+      id: src,
+      formatId: format.id,
+      src,
+    }))
+  );
+}

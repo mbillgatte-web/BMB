@@ -48,6 +48,7 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: Folder,
         label: "Identité visuelle",
         children: [
+          { label: "Vue d'ensemble", link: "/IdentiteVisuelle" },
           { label: "Palette de couleurs", link: "/PaletteColor" },
           { label: "Typographie", link: "/Typographie" },
           { label: "Logo", link: "/Logo" },
