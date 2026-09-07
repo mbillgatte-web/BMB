@@ -73,6 +73,15 @@ const config: Config = {
         "container-max": "1280px",
         gutter: "24px",
       },
+      // NB: max-w-lg / max-w-2xl sont cassés dans ce projet (spacing.lg=24px
+      // et spacing.2xl=48px écrasent silencieusement le sens standard de
+      // maxWidth.lg/2xl, à cause du spread interne spacing -> maxWidth de
+      // Tailwind). Une tentative de les redéclarer ici via `extend.maxWidth`
+      // n'a PAS suffi à corriger le rendu (vérifié empiriquement, pas
+      // seulement en théorie) -- le compat layer v4 + @config ne les
+      // prend pas en compte comme attendu. Utiliser des valeurs arbitraires
+      // (`max-w-[32rem]`) directement dans le JSX à la place -- voir
+      // VisualGenerator.tsx.
       fontFamily: {
         "headline-lg-mobile": ["var(--font-manrope)", "sans-serif"],
         "mono-stats": ["var(--font-inter)", "sans-serif"],
