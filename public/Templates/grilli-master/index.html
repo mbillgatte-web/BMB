@@ -6,31 +6,39 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 
+  <!--
     - primary meta tags
   -->
-  <title>Grilli - Amazing & Delicious Food</title>
-  <meta name="title" content="Grilli - Amazing & Delicious Food">
-  <meta name="description" content="This is a Restaurant html template made by codewithsadee">
+  <title>{{meta.title}}</title>
+  <meta name="title" content="{{meta.title}}">
+  <meta name="description" content="{{meta.description}}">
 
-  <!-- 
+  <!--
     - favicon
   -->
   <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
 
-  <!-- 
-    - google font link
+  <!--
+    - google font link (URL calculée par renderSiteTemplate.ts à partir de
+      style.json / de l'identité visuelle de l'entreprise -- voir
+      src/lib/googleFonts.ts)
   -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+  <link href="{{style.googleFontsHref}}" rel="stylesheet">
 
-  <!-- 
+  <!--
     - custom css link
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
 
-  <!-- 
+  <!--
+    - override des variables CSS de couleur/police (voir style.json) --
+      injecté APRÈS style.css pour que la cascade le prenne en compte
+  -->
+  {{style.cssOverrides}}
+
+  <!--
     - preload images
   -->
   <link rel="preload" as="image" href="./assets/images/hero-slider-1.jpg">
@@ -41,20 +49,20 @@
 
 <body id="top">
 
-  <!-- 
+  <!--
     - #PRELOADER
   -->
 
   <div class="preload" data-preaload>
     <div class="circle"></div>
-    <p class="text">Grilli</p>
+    <p class="text">{{brand.name}}</p>
   </div>
 
 
 
 
 
-  <!-- 
+  <!--
     - #TOP BAR
   -->
 
@@ -67,7 +75,7 @@
         </div>
 
         <span class="span">
-          Restaurant St, Delicious City, London 9578, UK
+          {{topbar.address}}
         </span>
       </address>
 
@@ -78,25 +86,25 @@
           <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
         </div>
 
-        <span class="span">Daily : 8.00 am to 10.00 pm</span>
+        <span class="span">{{topbar.hours}}</span>
       </div>
 
-      <a href="tel:+11234567890" class="topbar-item link">
+      <a href="tel:{{topbar.phoneHref}}" class="topbar-item link">
         <div class="icon">
           <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
         </div>
 
-        <span class="span">+1 123 456 7890</span>
+        <span class="span">{{topbar.phone}}</span>
       </a>
 
       <div class="separator"></div>
 
-      <a href="mailto:booking@restaurant.com" class="topbar-item link">
+      <a href="mailto:{{topbar.email}}" class="topbar-item link">
         <div class="icon">
           <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
         </div>
 
-        <span class="span">booking@restaurant.com</span>
+        <span class="span">{{topbar.email}}</span>
       </a>
 
     </div>
@@ -106,7 +114,7 @@
 
 
 
-  <!-- 
+  <!--
     - #HEADER
   -->
 
@@ -114,7 +122,7 @@
     <div class="container">
 
       <a href="#" class="logo">
-        <img src="./assets/images/logo.svg" width="160" height="50" alt="Grilli - Home">
+        <img src="{{brand.logo}}" width="160" height="50" alt="{{brand.name}} - Home">
       </a>
 
       <nav class="navbar" data-navbar>
@@ -124,7 +132,7 @@
         </button>
 
         <a href="#" class="logo">
-          <img src="./assets/images/logo.svg" width="160" height="50" alt="Grilli - Home">
+          <img src="{{brand.logo}}" width="160" height="50" alt="{{brand.name}} - Home">
         </a>
 
         <ul class="navbar-list">
@@ -133,7 +141,7 @@
             <a href="#home" class="navbar-link hover-underline active">
               <div class="separator"></div>
 
-              <span class="span">Home</span>
+              <span class="span">{{nav.items.0}}</span>
             </a>
           </li>
 
@@ -141,7 +149,7 @@
             <a href="#menu" class="navbar-link hover-underline">
               <div class="separator"></div>
 
-              <span class="span">Menus</span>
+              <span class="span">{{nav.items.1}}</span>
             </a>
           </li>
 
@@ -149,7 +157,7 @@
             <a href="#about" class="navbar-link hover-underline">
               <div class="separator"></div>
 
-              <span class="span">About Us</span>
+              <span class="span">{{nav.items.2}}</span>
             </a>
           </li>
 
@@ -157,7 +165,7 @@
             <a href="#" class="navbar-link hover-underline">
               <div class="separator"></div>
 
-              <span class="span">Our Chefs</span>
+              <span class="span">{{nav.items.3}}</span>
             </a>
           </li>
 
@@ -165,39 +173,38 @@
             <a href="#" class="navbar-link hover-underline">
               <div class="separator"></div>
 
-              <span class="span">Contact</span>
+              <span class="span">{{nav.items.4}}</span>
             </a>
           </li>
 
         </ul>
 
         <div class="text-center">
-          <p class="headline-1 navbar-title">Visit Us</p>
+          <p class="headline-1 navbar-title">{{nav.sidebar.title}}</p>
 
           <address class="body-4">
-            Restaurant St, Delicious City, <br>
-            London 9578, UK
+            {{nav.sidebar.address}}
           </address>
 
-          <p class="body-4 navbar-text">Open: 9.30 am - 2.30pm</p>
+          <p class="body-4 navbar-text">{{nav.sidebar.hours}}</p>
 
-          <a href="mailto:booking@grilli.com" class="body-4 sidebar-link">booking@grilli.com</a>
+          <a href="mailto:{{nav.sidebar.email}}" class="body-4 sidebar-link">{{nav.sidebar.email}}</a>
 
           <div class="separator"></div>
 
-          <p class="contact-label">Booking Request</p>
+          <p class="contact-label">{{nav.sidebar.bookingLabel}}</p>
 
-          <a href="tel:+88123123456" class="body-1 contact-number hover-underline">
-            +88-123-123456
+          <a href="tel:{{nav.sidebar.phoneHref}}" class="body-1 contact-number hover-underline">
+            {{nav.sidebar.phone}}
           </a>
         </div>
 
       </nav>
 
       <a href="#" class="btn btn-secondary">
-        <span class="text text-1">Find A Table</span>
+        <span class="text text-1">{{nav.ctaLabel}}</span>
 
-        <span class="text text-2" aria-hidden="true">Find A Table</span>
+        <span class="text text-2" aria-hidden="true">{{nav.ctaLabel}}</span>
       </a>
 
       <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
@@ -218,7 +225,7 @@
   <main>
     <article>
 
-      <!-- 
+      <!--
         - #HERO
       -->
 
@@ -229,24 +236,23 @@
           <li class="slider-item active" data-hero-slider-item>
 
             <div class="slider-bg">
-              <img src="./assets/images/hero-slider-1.jpg" width="1880" height="950" alt="" class="img-cover">
+              <img src="{{hero.slides.0.image}}" width="1880" height="950" alt="" class="img-cover">
             </div>
 
-            <p class="label-2 section-subtitle slider-reveal">Tradational & Hygine</p>
+            <p class="label-2 section-subtitle slider-reveal">{{hero.slides.0.subtitle}}</p>
 
             <h1 class="display-1 hero-title slider-reveal">
-              For the love of <br>
-              delicious food
+              {{hero.slides.0.title}}
             </h1>
 
             <p class="body-2 hero-text slider-reveal">
-              Come with family & feel the joy of mouthwatering food
+              {{hero.slides.0.text}}
             </p>
 
             <a href="#" class="btn btn-primary slider-reveal">
-              <span class="text text-1">View Our Menu</span>
+              <span class="text text-1">{{hero.slides.0.ctaLabel}}</span>
 
-              <span class="text text-2" aria-hidden="true">View Our Menu</span>
+              <span class="text text-2" aria-hidden="true">{{hero.slides.0.ctaLabel}}</span>
             </a>
 
           </li>
@@ -254,24 +260,23 @@
           <li class="slider-item" data-hero-slider-item>
 
             <div class="slider-bg">
-              <img src="./assets/images/hero-slider-2.jpg" width="1880" height="950" alt="" class="img-cover">
+              <img src="{{hero.slides.1.image}}" width="1880" height="950" alt="" class="img-cover">
             </div>
 
-            <p class="label-2 section-subtitle slider-reveal">delightful experience</p>
+            <p class="label-2 section-subtitle slider-reveal">{{hero.slides.1.subtitle}}</p>
 
             <h1 class="display-1 hero-title slider-reveal">
-              Flavors Inspired by <br>
-              the Seasons
+              {{hero.slides.1.title}}
             </h1>
 
             <p class="body-2 hero-text slider-reveal">
-              Come with family & feel the joy of mouthwatering food
+              {{hero.slides.1.text}}
             </p>
 
             <a href="#" class="btn btn-primary slider-reveal">
-              <span class="text text-1">View Our Menu</span>
+              <span class="text text-1">{{hero.slides.1.ctaLabel}}</span>
 
-              <span class="text text-2" aria-hidden="true">View Our Menu</span>
+              <span class="text text-2" aria-hidden="true">{{hero.slides.1.ctaLabel}}</span>
             </a>
 
           </li>
@@ -279,24 +284,23 @@
           <li class="slider-item" data-hero-slider-item>
 
             <div class="slider-bg">
-              <img src="./assets/images/hero-slider-3.jpg" width="1880" height="950" alt="" class="img-cover">
+              <img src="{{hero.slides.2.image}}" width="1880" height="950" alt="" class="img-cover">
             </div>
 
-            <p class="label-2 section-subtitle slider-reveal">amazing & delicious</p>
+            <p class="label-2 section-subtitle slider-reveal">{{hero.slides.2.subtitle}}</p>
 
             <h1 class="display-1 hero-title slider-reveal">
-              Where every flavor <br>
-              tells a story
+              {{hero.slides.2.title}}
             </h1>
 
             <p class="body-2 hero-text slider-reveal">
-              Come with family & feel the joy of mouthwatering food
+              {{hero.slides.2.text}}
             </p>
 
             <a href="#" class="btn btn-primary slider-reveal">
-              <span class="text text-1">View Our Menu</span>
+              <span class="text text-1">{{hero.slides.2.ctaLabel}}</span>
 
-              <span class="text text-2" aria-hidden="true">View Our Menu</span>
+              <span class="text text-2" aria-hidden="true">{{hero.slides.2.ctaLabel}}</span>
             </a>
 
           </li>
@@ -314,7 +318,7 @@
         <a href="#" class="hero-btn has-after">
           <img src="./assets/images/hero-icon.png" width="48" height="48" alt="booking icon">
 
-          <span class="label-2 text-center span">Book A Table</span>
+          <span class="label-2 text-center span">{{hero.bookLabel}}</span>
         </a>
 
       </section>
@@ -323,20 +327,19 @@
 
 
 
-      <!-- 
+      <!--
         - #SERVICE
       -->
 
       <section class="section service bg-black-10 text-center" aria-label="service">
         <div class="container">
 
-          <p class="section-subtitle label-2">Flavors For Royalty</p>
+          <p class="section-subtitle label-2">{{services.subtitle}}</p>
 
-          <h2 class="headline-1 section-title">We Offer Top Notch</h2>
+          <h2 class="headline-1 section-title">{{services.title}}</h2>
 
           <p class="section-text">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry lorem Ipsum has been the industrys
-            standard dummy text ever.
+            {{services.text}}
           </p>
 
           <ul class="grid-list">
@@ -346,7 +349,7 @@
 
                 <a href="#" class="has-before hover:shine">
                   <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
-                    <img src="./assets/images/service-1.jpg" width="285" height="336" loading="lazy" alt="Breakfast"
+                    <img src="{{services.items.0.image}}" width="285" height="336" loading="lazy" alt="{{services.items.0.name}}"
                       class="img-cover">
                   </figure>
                 </a>
@@ -354,7 +357,7 @@
                 <div class="card-content">
 
                   <h3 class="title-4 card-title">
-                    <a href="#">Breakfast</a>
+                    <a href="#">{{services.items.0.name}}</a>
                   </h3>
 
                   <a href="#" class="btn-text hover-underline label-2">View Menu</a>
@@ -369,7 +372,7 @@
 
                 <a href="#" class="has-before hover:shine">
                   <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
-                    <img src="./assets/images/service-2.jpg" width="285" height="336" loading="lazy" alt="Appetizers"
+                    <img src="{{services.items.1.image}}" width="285" height="336" loading="lazy" alt="{{services.items.1.name}}"
                       class="img-cover">
                   </figure>
                 </a>
@@ -377,7 +380,7 @@
                 <div class="card-content">
 
                   <h3 class="title-4 card-title">
-                    <a href="#">Appetizers</a>
+                    <a href="#">{{services.items.1.name}}</a>
                   </h3>
 
                   <a href="#" class="btn-text hover-underline label-2">View Menu</a>
@@ -392,7 +395,7 @@
 
                 <a href="#" class="has-before hover:shine">
                   <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
-                    <img src="./assets/images/service-3.jpg" width="285" height="336" loading="lazy" alt="Drinks"
+                    <img src="{{services.items.2.image}}" width="285" height="336" loading="lazy" alt="{{services.items.2.name}}"
                       class="img-cover">
                   </figure>
                 </a>
@@ -400,7 +403,7 @@
                 <div class="card-content">
 
                   <h3 class="title-4 card-title">
-                    <a href="#">Drinks</a>
+                    <a href="#">{{services.items.2.name}}</a>
                   </h3>
 
                   <a href="#" class="btn-text hover-underline label-2">View Menu</a>
@@ -424,7 +427,7 @@
 
 
 
-      <!-- 
+      <!--
         - #ABOUT
       -->
 
@@ -433,31 +436,29 @@
 
           <div class="about-content">
 
-            <p class="label-2 section-subtitle" id="about-label">Our Story</p>
+            <p class="label-2 section-subtitle" id="about-label">{{about.subtitle}}</p>
 
-            <h2 class="headline-1 section-title">Every Fla vor Tells a Story</h2>
+            <h2 class="headline-1 section-title">{{about.title}}</h2>
 
             <p class="section-text">
-              Lorem Ipsum is simply dummy text of the printingand typesetting industry lorem Ipsum has been the
-              industrys standard dummy text ever since the when an unknown printer took a galley of type and scrambled
-              it to make a type specimen book It has survived not only five centuries, but also the leap into.
+              {{about.text}}
             </p>
 
-            <div class="contact-label">Book Through Call</div>
+            <div class="contact-label">{{about.callLabel}}</div>
 
-            <a href="tel:+804001234567" class="body-1 contact-number hover-underline">+80 (400) 123 4567</a>
+            <a href="tel:{{about.phoneHref}}" class="body-1 contact-number hover-underline">{{about.phone}}</a>
 
             <a href="#" class="btn btn-primary">
-              <span class="text text-1">Read More</span>
+              <span class="text text-1">{{about.ctaLabel}}</span>
 
-              <span class="text text-2" aria-hidden="true">Read More</span>
+              <span class="text text-2" aria-hidden="true">{{about.ctaLabel}}</span>
             </a>
 
           </div>
 
           <figure class="about-banner">
 
-            <img src="./assets/images/about-banner.jpg" width="570" height="570" loading="lazy" alt="about banner"
+            <img src="{{about.image}}" width="570" height="570" loading="lazy" alt="about banner"
               class="w-100" data-parallax-item data-parallax-speed="1">
 
             <div class="abs-img abs-img-1 has-before" data-parallax-item data-parallax-speed="1.75">
@@ -480,14 +481,14 @@
 
 
 
-      <!-- 
+      <!--
         - #SPECIAL DISH
       -->
 
       <section class="special-dish text-center" aria-labelledby="dish-label">
 
         <div class="special-dish-banner">
-          <img src="./assets/images/special-dish-banner.jpg" width="940" height="900" loading="lazy" alt="special dish"
+          <img src="{{specialDish.image}}" width="940" height="900" loading="lazy" alt="special dish"
             class="img-cover">
         </div>
 
@@ -496,25 +497,24 @@
 
             <img src="./assets/images/badge-1.png" width="28" height="41" loading="lazy" alt="badge" class="abs-img">
 
-            <p class="section-subtitle label-2">Special Dish</p>
+            <p class="section-subtitle label-2">{{specialDish.subtitle}}</p>
 
-            <h2 class="headline-1 section-title">Lobster Tortellini</h2>
+            <h2 class="headline-1 section-title">{{specialDish.title}}</h2>
 
             <p class="section-text">
-              Lorem Ipsum is simply dummy text of the printingand typesetting industry lorem Ipsum has been the
-              industrys standard dummy text ever since the when an unknown printer took a galley of type.
+              {{specialDish.text}}
             </p>
 
             <div class="wrapper">
-              <del class="del body-3">$40.00</del>
+              <del class="del body-3">{{specialDish.oldPrice}}</del>
 
-              <span class="span body-1">$20.00</span>
+              <span class="span body-1">{{specialDish.price}}</span>
             </div>
 
             <a href="#" class="btn btn-primary">
-              <span class="text text-1">View All Menu</span>
+              <span class="text text-1">{{specialDish.ctaLabel}}</span>
 
-              <span class="text text-2" aria-hidden="true">View All Menu</span>
+              <span class="text text-2" aria-hidden="true">{{specialDish.ctaLabel}}</span>
             </a>
 
           </div>
@@ -530,16 +530,16 @@
 
 
 
-      <!-- 
+      <!--
         - #MENU
       -->
 
       <section class="section menu" aria-label="menu-label" id="menu">
         <div class="container">
 
-          <p class="section-subtitle text-center label-2">Special Selection</p>
+          <p class="section-subtitle text-center label-2">{{menu.subtitle}}</p>
 
-          <h2 class="headline-1 section-title text-center">Delicious Menu</h2>
+          <h2 class="headline-1 section-title text-center">{{menu.title}}</h2>
 
           <ul class="grid-list">
 
@@ -547,7 +547,7 @@
               <div class="menu-card hover:card">
 
                 <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-1.png" width="100" height="100" loading="lazy" alt="Greek Salad"
+                  <img src="{{menu.items.0.image}}" width="100" height="100" loading="lazy" alt="{{menu.items.0.name}}"
                     class="img-cover">
                 </figure>
 
@@ -555,16 +555,16 @@
 
                   <div class="title-wrapper">
                     <h3 class="title-3">
-                      <a href="#" class="card-title">Greek Salad</a>
+                      <a href="#" class="card-title">{{menu.items.0.name}}</a>
                     </h3>
 
-                    <span class="badge label-1">Seasonal</span>
+                    <span class="badge label-1">{{menu.items.0.badge}}</span>
 
-                    <span class="span title-2">$25.50</span>
+                    <span class="span title-2">{{menu.items.0.price}}</span>
                   </div>
 
                   <p class="card-text label-1">
-                    Tomatoes, green bell pepper, sliced cucumber onion, olives, and feta cheese.
+                    {{menu.items.0.description}}
                   </p>
 
                 </div>
@@ -576,7 +576,7 @@
               <div class="menu-card hover:card">
 
                 <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-2.png" width="100" height="100" loading="lazy" alt="Lasagne"
+                  <img src="{{menu.items.1.image}}" width="100" height="100" loading="lazy" alt="{{menu.items.1.name}}"
                     class="img-cover">
                 </figure>
 
@@ -584,14 +584,14 @@
 
                   <div class="title-wrapper">
                     <h3 class="title-3">
-                      <a href="#" class="card-title">Lasagne</a>
+                      <a href="#" class="card-title">{{menu.items.1.name}}</a>
                     </h3>
 
-                    <span class="span title-2">$40.00</span>
+                    <span class="span title-2">{{menu.items.1.price}}</span>
                   </div>
 
                   <p class="card-text label-1">
-                    Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices
+                    {{menu.items.1.description}}
                   </p>
 
                 </div>
@@ -603,7 +603,7 @@
               <div class="menu-card hover:card">
 
                 <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-3.png" width="100" height="100" loading="lazy" alt="Butternut Pumpkin"
+                  <img src="{{menu.items.2.image}}" width="100" height="100" loading="lazy" alt="{{menu.items.2.name}}"
                     class="img-cover">
                 </figure>
 
@@ -611,14 +611,14 @@
 
                   <div class="title-wrapper">
                     <h3 class="title-3">
-                      <a href="#" class="card-title">Butternut Pumpkin</a>
+                      <a href="#" class="card-title">{{menu.items.2.name}}</a>
                     </h3>
 
-                    <span class="span title-2">$10.00</span>
+                    <span class="span title-2">{{menu.items.2.price}}</span>
                   </div>
 
                   <p class="card-text label-1">
-                    Typesetting industry lorem Lorem Ipsum is simply dummy text of the priand.
+                    {{menu.items.2.description}}
                   </p>
 
                 </div>
@@ -630,7 +630,7 @@
               <div class="menu-card hover:card">
 
                 <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-4.png" width="100" height="100" loading="lazy" alt="Tokusen Wagyu"
+                  <img src="{{menu.items.3.image}}" width="100" height="100" loading="lazy" alt="{{menu.items.3.name}}"
                     class="img-cover">
                 </figure>
 
@@ -638,16 +638,16 @@
 
                   <div class="title-wrapper">
                     <h3 class="title-3">
-                      <a href="#" class="card-title">Tokusen Wagyu</a>
+                      <a href="#" class="card-title">{{menu.items.3.name}}</a>
                     </h3>
 
-                    <span class="badge label-1">New</span>
+                    <span class="badge label-1">{{menu.items.3.badge}}</span>
 
-                    <span class="span title-2">$39.00</span>
+                    <span class="span title-2">{{menu.items.3.price}}</span>
                   </div>
 
                   <p class="card-text label-1">
-                    Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices.
+                    {{menu.items.3.description}}
                   </p>
 
                 </div>
@@ -659,7 +659,7 @@
               <div class="menu-card hover:card">
 
                 <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-5.png" width="100" height="100" loading="lazy" alt="Olivas Rellenas"
+                  <img src="{{menu.items.4.image}}" width="100" height="100" loading="lazy" alt="{{menu.items.4.name}}"
                     class="img-cover">
                 </figure>
 
@@ -667,14 +667,14 @@
 
                   <div class="title-wrapper">
                     <h3 class="title-3">
-                      <a href="#" class="card-title">Olivas Rellenas</a>
+                      <a href="#" class="card-title">{{menu.items.4.name}}</a>
                     </h3>
 
-                    <span class="span title-2">$25.00</span>
+                    <span class="span title-2">{{menu.items.4.price}}</span>
                   </div>
 
                   <p class="card-text label-1">
-                    Avocados with crab meat, red onion, crab salad stuffed red bell pepper and green bell pepper.
+                    {{menu.items.4.description}}
                   </p>
 
                 </div>
@@ -686,7 +686,7 @@
               <div class="menu-card hover:card">
 
                 <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-6.png" width="100" height="100" loading="lazy" alt="Opu Fish"
+                  <img src="{{menu.items.5.image}}" width="100" height="100" loading="lazy" alt="{{menu.items.5.name}}"
                     class="img-cover">
                 </figure>
 
@@ -694,14 +694,14 @@
 
                   <div class="title-wrapper">
                     <h3 class="title-3">
-                      <a href="#" class="card-title">Opu Fish</a>
+                      <a href="#" class="card-title">{{menu.items.5.name}}</a>
                     </h3>
 
-                    <span class="span title-2">$49.00</span>
+                    <span class="span title-2">{{menu.items.5.price}}</span>
                   </div>
 
                   <p class="card-text label-1">
-                    Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices
+                    {{menu.items.5.description}}
                   </p>
 
                 </div>
@@ -712,13 +712,13 @@
           </ul>
 
           <p class="menu-text text-center">
-            During winter daily from <span class="span">7:00 pm</span> to <span class="span">9:00 pm</span>
+            {{menu.note}}
           </p>
 
           <a href="#" class="btn btn-primary">
-            <span class="text text-1">View All Menu</span>
+            <span class="text text-1">{{menu.ctaLabel}}</span>
 
-            <span class="text text-2" aria-hidden="true">View All Menu</span>
+            <span class="text text-2" aria-hidden="true">{{menu.ctaLabel}}</span>
           </a>
 
           <img src="./assets/images/shape-5.png" width="921" height="1036" loading="lazy" alt="shape"
@@ -733,7 +733,7 @@
 
 
 
-      <!-- 
+      <!--
         - #TESTIMONIALS
       -->
 
@@ -744,8 +744,7 @@
           <div class="quote">”</div>
 
           <p class="headline-2 testi-text">
-            I wanted to thank you for inviting me down for that amazing dinner the other night. The food was
-            extraordinary.
+            {{testimonial.quote}}
           </p>
 
           <div class="wrapper">
@@ -755,10 +754,10 @@
           </div>
 
           <div class="profile">
-            <img src="./assets/images/testi-avatar.jpg" width="100" height="100" loading="lazy" alt="Sam Jhonson"
+            <img src="{{testimonial.avatar}}" width="100" height="100" loading="lazy" alt="{{testimonial.name}}"
               class="img">
 
-            <p class="label-2 profile-name">Sam Jhonson</p>
+            <p class="label-2 profile-name">{{testimonial.name}}</p>
           </div>
 
         </div>
@@ -768,7 +767,7 @@
 
 
 
-      <!-- 
+      <!--
         - #RESERVATION
       -->
 
@@ -779,10 +778,10 @@
 
             <form action="" class="form-left">
 
-              <h2 class="headline-1 text-center">Online Reservation</h2>
+              <h2 class="headline-1 text-center">{{reservation.title}}</h2>
 
               <p class="form-text text-center">
-                Booking request <a href="tel:+88123123456" class="link">+88-123-123456</a>
+                Booking request <a href="tel:{{reservation.phoneHref}}" class="link">{{reservation.phone}}</a>
                 or fill out the order form
               </p>
 
@@ -847,42 +846,39 @@
               <textarea name="message" placeholder="Message" autocomplete="off" class="input-field"></textarea>
 
               <button type="submit" class="btn btn-secondary">
-                <span class="text text-1">Book A Table</span>
+                <span class="text text-1">{{reservation.ctaLabel}}</span>
 
-                <span class="text text-2" aria-hidden="true">Book A Table</span>
+                <span class="text text-2" aria-hidden="true">{{reservation.ctaLabel}}</span>
               </button>
 
             </form>
 
             <div class="form-right text-center" style="background-image: url('./assets/images/form-pattern.png')">
 
-              <h2 class="headline-1 text-center">Contact Us</h2>
+              <h2 class="headline-1 text-center">{{reservation.contact.title}}</h2>
 
-              <p class="contact-label">Booking Request</p>
+              <p class="contact-label">{{reservation.contact.bookingLabel}}</p>
 
-              <a href="tel:+88123123456" class="body-1 contact-number hover-underline">+88-123-123456</a>
+              <a href="tel:{{reservation.phoneHref}}" class="body-1 contact-number hover-underline">{{reservation.contact.phone}}</a>
 
               <div class="separator"></div>
 
-              <p class="contact-label">Location</p>
+              <p class="contact-label">{{reservation.contact.locationLabel}}</p>
 
               <address class="body-4">
-                Restaurant St, Delicious City, <br>
-                London 9578, UK
+                {{reservation.contact.address}}
               </address>
 
-              <p class="contact-label">Lunch Time</p>
+              <p class="contact-label">{{reservation.contact.lunchLabel}}</p>
 
               <p class="body-4">
-                Monday to Sunday <br>
-                11.00 am - 2.30pm
+                {{reservation.contact.lunchHours}}
               </p>
 
-              <p class="contact-label">Dinner Time</p>
+              <p class="contact-label">{{reservation.contact.dinnerLabel}}</p>
 
               <p class="body-4">
-                Monday to Sunday <br>
-                05.00 pm - 10.00pm
+                {{reservation.contact.dinnerHours}}
               </p>
 
             </div>
@@ -896,16 +892,16 @@
 
 
 
-      <!-- 
+      <!--
         - #FEATURES
       -->
 
       <section class="section features text-center" aria-label="features">
         <div class="container">
 
-          <p class="section-subtitle label-2">Why Choose Us</p>
+          <p class="section-subtitle label-2">{{features.subtitle}}</p>
 
-          <h2 class="headline-1 section-title">Our Strength</h2>
+          <h2 class="headline-1 section-title">{{features.title}}</h2>
 
           <ul class="grid-list">
 
@@ -913,12 +909,12 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-1.png" width="100" height="80" loading="lazy" alt="icon">
+                  <img src="{{features.items.0.icon}}" width="100" height="80" loading="lazy" alt="icon">
                 </div>
 
-                <h3 class="title-2 card-title">Hygienic Food</h3>
+                <h3 class="title-2 card-title">{{features.items.0.title}}</h3>
 
-                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+                <p class="label-1 card-text">{{features.items.0.text}}</p>
 
               </div>
             </li>
@@ -927,12 +923,12 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-2.png" width="100" height="80" loading="lazy" alt="icon">
+                  <img src="{{features.items.1.icon}}" width="100" height="80" loading="lazy" alt="icon">
                 </div>
 
-                <h3 class="title-2 card-title">Fresh Environment</h3>
+                <h3 class="title-2 card-title">{{features.items.1.title}}</h3>
 
-                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+                <p class="label-1 card-text">{{features.items.1.text}}</p>
 
               </div>
             </li>
@@ -941,12 +937,12 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-3.png" width="100" height="80" loading="lazy" alt="icon">
+                  <img src="{{features.items.2.icon}}" width="100" height="80" loading="lazy" alt="icon">
                 </div>
 
-                <h3 class="title-2 card-title">Skilled Chefs</h3>
+                <h3 class="title-2 card-title">{{features.items.2.title}}</h3>
 
-                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+                <p class="label-1 card-text">{{features.items.2.text}}</p>
 
               </div>
             </li>
@@ -955,12 +951,12 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-4.png" width="100" height="80" loading="lazy" alt="icon">
+                  <img src="{{features.items.3.icon}}" width="100" height="80" loading="lazy" alt="icon">
                 </div>
 
-                <h3 class="title-2 card-title">Event & Party</h3>
+                <h3 class="title-2 card-title">{{features.items.3.title}}</h3>
 
-                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+                <p class="label-1 card-text">{{features.items.3.text}}</p>
 
               </div>
             </li>
@@ -980,16 +976,16 @@
 
 
 
-      <!-- 
+      <!--
         - #EVENT
       -->
 
       <section class="section event bg-black-10" aria-label="event">
         <div class="container">
 
-          <p class="section-subtitle label-2 text-center">Recent Updates</p>
+          <p class="section-subtitle label-2 text-center">{{events.subtitle}}</p>
 
-          <h2 class="section-title headline-1 text-center">Upcoming Event</h2>
+          <h2 class="section-title headline-1 text-center">{{events.title}}</h2>
 
           <ul class="grid-list">
 
@@ -997,17 +993,17 @@
               <div class="event-card has-before hover:shine">
 
                 <div class="card-banner img-holder" style="--width: 350; --height: 450;">
-                  <img src="./assets/images/event-1.jpg" width="350" height="450" loading="lazy"
-                    alt="Flavour so good you’ll try to eat with your eyes." class="img-cover">
+                  <img src="{{events.items.0.image}}" width="350" height="450" loading="lazy"
+                    alt="{{events.items.0.title}}" class="img-cover">
 
-                  <time class="publish-date label-2" datetime="2022-09-15">15/09/2022</time>
+                  <time class="publish-date label-2" datetime="{{events.items.0.date}}">{{events.items.0.dateLabel}}</time>
                 </div>
 
                 <div class="card-content">
-                  <p class="card-subtitle label-2 text-center">Food, Flavour</p>
+                  <p class="card-subtitle label-2 text-center">{{events.items.0.category}}</p>
 
                   <h3 class="card-title title-2 text-center">
-                    Flavour so good you’ll try to eat with your eyes.
+                    {{events.items.0.title}}
                   </h3>
                 </div>
 
@@ -1018,17 +1014,17 @@
               <div class="event-card has-before hover:shine">
 
                 <div class="card-banner img-holder" style="--width: 350; --height: 450;">
-                  <img src="./assets/images/event-2.jpg" width="350" height="450" loading="lazy"
-                    alt="Flavour so good you’ll try to eat with your eyes." class="img-cover">
+                  <img src="{{events.items.1.image}}" width="350" height="450" loading="lazy"
+                    alt="{{events.items.1.title}}" class="img-cover">
 
-                  <time class="publish-date label-2" datetime="2022-09-08">08/09/2022</time>
+                  <time class="publish-date label-2" datetime="{{events.items.1.date}}">{{events.items.1.dateLabel}}</time>
                 </div>
 
                 <div class="card-content">
-                  <p class="card-subtitle label-2 text-center">Healthy Food</p>
+                  <p class="card-subtitle label-2 text-center">{{events.items.1.category}}</p>
 
                   <h3 class="card-title title-2 text-center">
-                    Flavour so good you’ll try to eat with your eyes.
+                    {{events.items.1.title}}
                   </h3>
                 </div>
 
@@ -1039,17 +1035,17 @@
               <div class="event-card has-before hover:shine">
 
                 <div class="card-banner img-holder" style="--width: 350; --height: 450;">
-                  <img src="./assets/images/event-3.jpg" width="350" height="450" loading="lazy"
-                    alt="Flavour so good you’ll try to eat with your eyes." class="img-cover">
+                  <img src="{{events.items.2.image}}" width="350" height="450" loading="lazy"
+                    alt="{{events.items.2.title}}" class="img-cover">
 
-                  <time class="publish-date label-2" datetime="2022-09-03">03/09/2022</time>
+                  <time class="publish-date label-2" datetime="{{events.items.2.date}}">{{events.items.2.dateLabel}}</time>
                 </div>
 
                 <div class="card-content">
-                  <p class="card-subtitle label-2 text-center">Recipie</p>
+                  <p class="card-subtitle label-2 text-center">{{events.items.2.category}}</p>
 
                   <h3 class="card-title title-2 text-center">
-                    Flavour so good you’ll try to eat with your eyes.
+                    {{events.items.2.title}}
                   </h3>
                 </div>
 
@@ -1059,9 +1055,9 @@
           </ul>
 
           <a href="#" class="btn btn-primary">
-            <span class="text text-1">View Our Blog</span>
+            <span class="text text-1">{{events.ctaLabel}}</span>
 
-            <span class="text text-2" aria-hidden="true">View Our Blog</span>
+            <span class="text text-2" aria-hidden="true">{{events.ctaLabel}}</span>
           </a>
 
         </div>
@@ -1074,7 +1070,7 @@
 
 
 
-  <!-- 
+  <!--
     - #FOOTER
   -->
 
@@ -1087,19 +1083,19 @@
         <div class="footer-brand has-before has-after">
 
           <a href="#" class="logo">
-            <img src="./assets/images/logo.svg" width="160" height="50" loading="lazy" alt="grilli home">
+            <img src="{{brand.logo}}" width="160" height="50" loading="lazy" alt="{{brand.name}} home">
           </a>
 
           <address class="body-4">
-            Restaurant St, Delicious City, London 9578, UK
+            {{footer.address}}
           </address>
 
-          <a href="mailto:booking@grilli.com" class="body-4 contact-link">booking@grilli.com</a>
+          <a href="mailto:{{footer.email}}" class="body-4 contact-link">{{footer.email}}</a>
 
-          <a href="tel:+88123123456" class="body-4 contact-link">Booking Request : +88-123-123456</a>
+          <a href="tel:{{footer.phoneHref}}" class="body-4 contact-link">{{footer.phoneLabel}}</a>
 
           <p class="body-4">
-            Open : 09:00 am - 01:00 pm
+            {{footer.hours}}
           </p>
 
           <div class="wrapper">
@@ -1108,10 +1104,10 @@
             <div class="separator"></div>
           </div>
 
-          <p class="title-1">Get News & Offers</p>
+          <p class="title-1">{{footer.newsletterTitle}}</p>
 
           <p class="label-1">
-            Subscribe us & Get <span class="span">25% Off.</span>
+            {{footer.newsletterText}}
           </p>
 
           <form action="" class="input-wrapper">
@@ -1133,23 +1129,23 @@
         <ul class="footer-list">
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Home</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{nav.items.0}}</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Menus</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{nav.items.1}}</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">About Us</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{nav.items.2}}</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Our Chefs</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{nav.items.3}}</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Contact</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{nav.items.4}}</a>
           </li>
 
         </ul>
@@ -1157,23 +1153,23 @@
         <ul class="footer-list">
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Facebook</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{footer.socialLinks.0}}</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Instagram</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{footer.socialLinks.1}}</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Twitter</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{footer.socialLinks.2}}</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Youtube</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{footer.socialLinks.3}}</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Google Map</a>
+            <a href="#" class="label-2 footer-link hover-underline">{{footer.socialLinks.4}}</a>
           </li>
 
         </ul>
@@ -1183,7 +1179,7 @@
       <div class="footer-bottom">
 
         <p class="copyright">
-          &copy; 2022 Grilli. All Rights Reserved | Crafted by <a href="https://github.com/codewithsadee"
+          {{footer.copyright}} | Crafted by <a href="https://github.com/codewithsadee"
             target="_blank" class="link">codewithsadee</a>
         </p>
 
@@ -1196,7 +1192,7 @@
 
 
 
-  <!-- 
+  <!--
     - #BACK TO TOP
   -->
 
@@ -1208,12 +1204,12 @@
 
 
 
-  <!-- 
+  <!--
     - custom js link
   -->
   <script src="./assets/js/script.js"></script>
 
-  <!-- 
+  <!--
     - ionicon link
   -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
