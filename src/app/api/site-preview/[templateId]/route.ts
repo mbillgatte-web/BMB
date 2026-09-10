@@ -45,6 +45,7 @@ export async function GET(
 
   const entrepriseId = request.nextUrl.searchParams.get("entrepriseId");
   let identite: TemplateIdentity | null = null;
+  let contentOverride: Record<string, unknown> | null = null;
 
   if (entrepriseId) {
     const supabase = createClient(
@@ -58,9 +59,23 @@ export async function GET(
       .maybeSingle();
 
     identite = data ?? null;
+
+    // Contenu déjà sauvegardé pour cette entreprise sur ce template (table
+    // "site", créée via /api/site quand elle a cliqué "Choisir") -- s'il
+    // existe, il prend le pas sur le content.json par défaut du template
+    // (voir renderSiteTemplate.ts). Absence de ligne = template jamais
+    // choisi par cette entreprise -> on garde le contenu par défaut.
+    const { data: site } = await supabase
+      .from("site")
+      .select("content")
+      .eq("entreprise_id", entrepriseId)
+      .eq("template_id", templateId)
+      .maybeSingle();
+
+    contentOverride = site?.content ?? null;
   }
 
-  const html = renderSiteTemplate(templateDir, identite);
+  const html = renderSiteTemplate(templateDir, identite, contentOverride);
 
   return new NextResponse(html, {
     headers: { "Content-Type": "text/html; charset=utf-8" },

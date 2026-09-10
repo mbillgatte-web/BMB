@@ -99,15 +99,22 @@ function buildStyleData(defaultStyle: TemplateStyle, identite?: TemplateIdentity
  * à l'appelant de le construire et de valider que l'id vient d'une liste
  * connue plutôt que d'une entrée utilisateur brute (même précaution que
  * getVisuelsByCategory dans visuelsFs.ts).
+ *
+ * `contentOverride`, s'il est fourni, remplace le content.json par défaut du
+ * template -- c'est le contenu sauvegardé en base pour CETTE entreprise
+ * (table "site", voir /api/site), qui peut déjà avoir été modifié par
+ * l'édition IA. Sans lui, on retombe sur le contenu par défaut du template
+ * (cas d'un aperçu sans entreprise, ou d'un template jamais choisi).
  */
 export function renderSiteTemplate(
   templateDir: string,
-  identite?: TemplateIdentity | null
+  identite?: TemplateIdentity | null,
+  contentOverride?: Record<string, unknown> | null
 ): string {
   const html = fs.readFileSync(path.join(templateDir, "index.html"), "utf-8");
-  const content = JSON.parse(
-    fs.readFileSync(path.join(templateDir, "content.json"), "utf-8")
-  );
+  const content =
+    contentOverride ??
+    JSON.parse(fs.readFileSync(path.join(templateDir, "content.json"), "utf-8"));
   const defaultStyle: TemplateStyle = JSON.parse(
     fs.readFileSync(path.join(templateDir, "style.json"), "utf-8")
   );
