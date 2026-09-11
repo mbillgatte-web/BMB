@@ -7,6 +7,7 @@ export interface TemplateIdentity {
   couleur_primaire?: string | null;
   police_titre?: string | null;
   police_texte?: string | null;
+  logo_url?: string | null;
 }
 
 interface TemplateStyle {
@@ -88,6 +89,59 @@ function buildStyleData(defaultStyle: TemplateStyle, identite?: TemplateIdentity
 }
 
 /**
+ * Construit un lien "cliquer pour commander sur WhatsApp" (wa.me) pour un
+ * plat donné. `phoneRaw` vient de content.topbar.phone/phoneHref -- il peut
+ * contenir des espaces/tirets (saisie humaine, ou réécrit par l'édition IA
+ * sans garantie de format) : wa.me n'accepte que des chiffres (avec
+ * l'indicatif pays), donc on les retire nous-mêmes plutôt que de faire
+ * confiance à la valeur telle quelle.
+ *
+ * Renvoie "#" (lien inerte) si le téléphone ou le nom du plat manquent --
+ * mieux qu'un lien wa.me/ cassé (sans numéro) qui ouvrirait WhatsApp sur
+ * rien de précis.
+ */
+function whatsappOrderLink(phoneRaw: unknown, itemName: unknown): string {
+  const digits = typeof phoneRaw === "string" ? phoneRaw.replace(/[^\d]/g, "") : "";
+  if (!digits || typeof itemName !== "string" || !itemName.trim()) return "#";
+
+  const text = `Bonjour, je voudrais commander : ${itemName}`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+}
+
+/**
+ * Ajoute un champ `orderLink` (voir whatsappOrderLink) à chaque plat de
+ * menu.items et au plat vedette (specialDish) -- calculé à chaque rendu, pas
+ * stocké en base : il dépend du téléphone ACTUEL de content.topbar, qui peut
+ * changer (édition IA) sans que ce lien ait besoin d'être régénéré à la main.
+ */
+function withOrderLinks(content: Record<string, unknown>): Record<string, unknown> {
+  const topbar = content.topbar as Record<string, unknown> | undefined;
+  const phoneRaw = topbar?.phoneHref ?? topbar?.phone;
+
+  const menu = content.menu as { items?: unknown[] } | undefined;
+  const menuWithLinks = Array.isArray(menu?.items)
+    ? {
+        ...menu,
+        items: menu!.items.map((item) => {
+          const i = item as Record<string, unknown>;
+          return { ...i, orderLink: whatsappOrderLink(phoneRaw, i.name) };
+        }),
+      }
+    : menu;
+
+  const specialDish = content.specialDish as Record<string, unknown> | undefined;
+  const specialDishWithLink = specialDish
+    ? { ...specialDish, orderLink: whatsappOrderLink(phoneRaw, specialDish.title) }
+    : specialDish;
+
+  return {
+    ...content,
+    ...(menuWithLinks ? { menu: menuWithLinks } : {}),
+    ...(specialDishWithLink ? { specialDish: specialDishWithLink } : {}),
+  };
+}
+
+/**
  * Rend le HTML final d'un template de site : lit son gabarit + son
  * content.json + son style.json sur disque (public/Templates/<id>/),
  * applique l'identité visuelle de l'entreprise par-dessus le style par
@@ -120,7 +174,18 @@ export function renderSiteTemplate(
   );
 
   const style = buildStyleData(defaultStyle, identite);
-  const merged = fillTemplate(html, { ...content, style });
+
+  // Le logo n'est pas un "style" CSS (pas de variable à écraser) : c'est un
+  // champ de CONTENU ({{brand.logo}}, voir content.json) -- on le remplace
+  // donc directement dans `content` avant fillTemplate, comme n'importe
+  // quel autre texte, plutôt que via buildStyleData/cssOverrides.
+  const contentWithLogo = identite?.logo_url
+    ? { ...content, brand: { ...content.brand, logo: identite.logo_url } }
+    : content;
+
+  const contentWithOrderLinks = withOrderLinks(contentWithLogo);
+
+  const merged = fillTemplate(html, { ...contentWithOrderLinks, style });
 
   // Le gabarit référence ses propres assets en relatif ("./assets/...",
   // "./favicon.svg"), pensé pour être servi depuis son propre dossier

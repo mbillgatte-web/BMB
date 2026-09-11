@@ -54,7 +54,7 @@ export async function GET(
     );
     const { data } = await supabase
       .from("identite_visuelle")
-      .select("couleur_primaire, police_titre, police_texte")
+      .select("couleur_primaire, police_titre, police_texte, logo_url")
       .eq("entreprise_id", entrepriseId)
       .maybeSingle();
 

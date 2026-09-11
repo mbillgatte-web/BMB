@@ -79,6 +79,32 @@ export async function POST(request: NextRequest) {
 
   const defaultContent = JSON.parse(fs.readFileSync(contentPath, "utf-8"));
 
+  // On récupère tout de suite le vrai téléphone (et le nom) de l'entreprise
+  // pour les inscrire dans le contenu par défaut -- sans ça, topbar.phone
+  // resterait le numéro factice du template ("+1 123 456 7890") jusqu'à ce
+  // qu'une édition IA passe par là, ce qui casserait le bouton "Commander"
+  // (lien WhatsApp, voir renderSiteTemplate.ts) tant que ce n'est pas fait.
+  // Même client authentifié que la lecture "site" ci-dessus : la policy RLS
+  // de "entreprise" laisse passer parce que c'est bien SON entreprise
+  // (compte_id = auth.uid()).
+  const { data: entreprise } = await supabaseForRequest
+    .from("entreprise")
+    .select("nom, contact")
+    .eq("id", entrepriseId)
+    .maybeSingle();
+
+  if (entreprise?.nom) {
+    defaultContent.brand ??= {};
+    defaultContent.brand.name = entreprise.nom;
+  }
+  if (entreprise?.contact) {
+    defaultContent.topbar ??= {};
+    defaultContent.topbar.phone = entreprise.contact;
+    // Que des chiffres : wa.me (voir renderSiteTemplate.ts) n'accepte pas
+    // les espaces/tirets/parenthèses d'un numéro saisi "à la main".
+    defaultContent.topbar.phoneHref = entreprise.contact.replace(/[^\d]/g, "");
+  }
+
   const { data: created, error: insertError } = await supabaseForRequest
     .from("site")
     .insert({

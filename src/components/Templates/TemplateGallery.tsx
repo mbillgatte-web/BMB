@@ -60,6 +60,11 @@ export default function TemplateGallery() {
   const [prompt, setPrompt] = useState("");
   const [choosing, setChoosing] = useState(false);
   const [chooseError, setChooseError] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [editError, setEditError] = useState("");
+  // Change à chaque édition réussie -> repasse dans previewUrl() pour forcer
+  // l'iframe à recharger le nouveau contenu plutôt qu'une réponse en cache.
+  const [refreshToken, setRefreshToken] = useState(0);
 
   const selectedTemplate = TEMPLATES.find((t) => t.id === selectedTemplateId);
 
@@ -117,13 +122,75 @@ export default function TemplateGallery() {
     setPreviewTemplate(null);
   };
 
+  // Envoie le prompt (optionnel) + les infos de l'entreprise + le
+  // content.json actuel à Gemini (voir /api/edit-site) et sauvegarde le
+  // résultat. Le prompt n'est plus obligatoire : la base ("adapte ce site à
+  // mon entreprise", voir la route) est déjà utile toute seule -- s'il y a
+  // un prompt, il vient s'ajouter en précision, pas la remplacer.
+  const handleEdit = async () => {
+    if (!selectedTemplate?.templateId || !entreprise) return;
+
+    setEditing(true);
+    setEditError("");
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      setEditing(false);
+      setEditError("Vous devez être connecté.");
+      return;
+    }
+
+    const res = await fetch("/api/edit-site", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        entrepriseId: entreprise.id,
+        templateId: selectedTemplate.templateId,
+        prompt,
+        // Base de l'adaptation IA (voir /api/edit-site) -- déjà connues via
+        // useEntreprise.ts, pas besoin de les redemander à l'utilisateur.
+        entrepriseNom: entreprise.nom,
+        entrepriseSlogan: entreprise.slogan,
+        entrepriseContact: entreprise.contact,
+        entrepriseAdresse: entreprise.adresse,
+        entrepriseSecteur: entreprise.secteur_activite,
+      }),
+    });
+
+    const body = await res.json();
+
+    setEditing(false);
+
+    if (!res.ok) {
+      setEditError(body.error ?? "Impossible de modifier le site.");
+      return;
+    }
+
+    // Force l'iframe à recharger : voir le commentaire de previewUrl().
+    // Simple compteur (pas Date.now()) : un événement React ne doit pas
+    // appeler de fonction impure, même dans un gestionnaire (règle
+    // react-hooks/purity) -- un entier croissant remplit le même rôle.
+    setRefreshToken((v) => v + 1);
+    setPrompt("");
+  };
+
   // --- Un template est choisi -> aperçu en grand + prompt d'édition IA ----
   // Même principe que VisualGenerator : la galerie disparaît au profit d'un
   // écran dédié. On exige templateId (des vrais fichiers derrière) car cet
   // écran est construit autour de l'aperçu réel ; les entrées de catalogue
   // sans fichiers ne sont de toute façon pas sélectionnables.
   if (selectedTemplate?.templateId) {
-    const url = previewUrl(selectedTemplate.templateId, entreprise?.id);
+    const url = previewUrl(
+      selectedTemplate.templateId,
+      entreprise?.id,
+      refreshToken
+    );
 
     return (
       <div className="flex flex-col gap-lg">
@@ -256,21 +323,23 @@ export default function TemplateGallery() {
               />
             </div>
 
+            {editError && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 font-body-sm text-body-sm text-red-800">
+                {editError}
+              </p>
+            )}
+
             <button
               type="button"
-              disabled
-              title="Bientôt disponible : édition du site par IA"
+              onClick={handleEdit}
+              disabled={editing}
               className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 font-label-md text-label-md text-white shadow-sm transition-all disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span className="material-symbols-outlined text-[20px]">
                 auto_awesome
               </span>
-              Modifier avec l&apos;IA
+              {editing ? "Modification en cours..." : "Modifier avec l'IA"}
             </button>
-            <p className="text-center font-body-sm text-body-sm text-outline">
-              L&apos;édition du contenu par IA arrive dans une prochaine
-              étape.
-            </p>
           </div>
         </div>
       </div>
