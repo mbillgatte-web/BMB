@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { createClient } from "@supabase/supabase-js";
-import { renderSiteTemplate, type TemplateIdentity } from "@/lib/renderSiteTemplate";
+import { renderSiteTemplate } from "@/lib/renderSiteTemplate";
 
 const TEMPLATES_DIR = path.join(process.cwd(), "public", "Templates");
 
@@ -12,8 +12,10 @@ const TEMPLATES_DIR = path.join(process.cwd(), "public", "Templates");
 const SAFE_TEMPLATE_ID = /^[a-zA-Z0-9_-]+$/;
 
 /**
- * Aperçu HTML en direct d'un template de site, avec l'identité visuelle
- * d'une entreprise appliquée par-dessus (voir renderSiteTemplate.ts).
+ * Aperçu HTML en direct d'un site : sert le HTML déjà construit pour cette
+ * entreprise (colonne "html" de la table "site" -- voir buildInitialSite.ts
+ * et /api/edit-site) s'il existe, sinon retombe sur le gabarit par défaut du
+ * template, sans identité appliquée.
  *
  * GET /api/site-preview/grilli-master?entrepriseId=xxx
  * -> navigable directement dans un navigateur (répond du text/html, pas du
@@ -22,11 +24,10 @@ const SAFE_TEMPLATE_ID = /^[a-zA-Z0-9_-]+$/;
  *
  * Volontairement public (pas d'Authorization requis) : contrairement à
  * /api/generate-visual (qui déclenche un appel payant), celle-ci ne fait
- * que lire des fichiers statiques + une couleur/police déjà publique par
- * nature (l'identité visuelle d'une entreprise est destinée à finir sur son
- * futur site public). Si `entrepriseId` est fourni mais que la lecture
- * échoue (RLS, entreprise inexistante...), on retombe simplement sur le
- * style par défaut du template plutôt que de bloquer l'aperçu.
+ * que lire du HTML déjà généré -- un site est de toute façon destiné à être
+ * public. Si `entrepriseId` est fourni mais qu'aucune ligne "site" n'existe
+ * (RLS, entreprise inexistante, template jamais choisi...), on retombe
+ * simplement sur le gabarit par défaut plutôt que de bloquer l'aperçu.
  */
 export async function GET(
   request: NextRequest,
@@ -44,38 +45,34 @@ export async function GET(
   }
 
   const entrepriseId = request.nextUrl.searchParams.get("entrepriseId");
-  let identite: TemplateIdentity | null = null;
-  let contentOverride: Record<string, unknown> | null = null;
 
   if (entrepriseId) {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    const { data } = await supabase
-      .from("identite_visuelle")
-      .select("couleur_primaire, police_titre, police_texte, logo_url")
-      .eq("entreprise_id", entrepriseId)
-      .maybeSingle();
 
-    identite = data ?? null;
-
-    // Contenu déjà sauvegardé pour cette entreprise sur ce template (table
-    // "site", créée via /api/site quand elle a cliqué "Choisir") -- s'il
-    // existe, il prend le pas sur le content.json par défaut du template
-    // (voir renderSiteTemplate.ts). Absence de ligne = template jamais
-    // choisi par cette entreprise -> on garde le contenu par défaut.
+    // Le HTML déjà construit pour cette entreprise (voir buildInitialSite.ts
+    // à la création, ou /api/edit-site après une édition IA) -- il contient
+    // DÉJÀ sa couleur/police/logo "gravés" dedans, donc s'il existe on le
+    // sert tel quel, sans repasser par renderSiteTemplate. Absence de ligne
+    // = template jamais choisi par cette entreprise -> on retombe sur le
+    // gabarit par défaut ci-dessous.
     const { data: site } = await supabase
       .from("site")
-      .select("content")
+      .select("html")
       .eq("entreprise_id", entrepriseId)
       .eq("template_id", templateId)
       .maybeSingle();
 
-    contentOverride = site?.content ?? null;
+    if (site?.html) {
+      return new NextResponse(site.html, {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
   }
 
-  const html = renderSiteTemplate(templateDir, identite, contentOverride);
+  const html = renderSiteTemplate(templateDir, null, null);
 
   return new NextResponse(html, {
     headers: { "Content-Type": "text/html; charset=utf-8" },

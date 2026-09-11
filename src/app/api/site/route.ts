@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 import path from "path";
+import { buildInitialSite } from "@/lib/buildInitialSite";
 
 const TEMPLATES_DIR = path.join(process.cwd(), "public", "Templates");
 
@@ -14,10 +15,10 @@ const SAFE_TEMPLATE_ID = /^[a-zA-Z0-9_-]+$/;
  * template (voir TemplateGallery.tsx -> handleChoose).
  *
  * Crée la ligne "site" de cette entreprise pour ce template si elle n'existe
- * pas encore (avec le content.json par défaut du template comme contenu de
- * départ), ou renvoie celle qui existe déjà -- pour ne pas écraser les
- * modifications IA déjà faites si l'utilisateur re-clique "Choisir" sur un
- * template déjà en cours d'édition.
+ * pas encore (voir buildInitialSite.ts pour comment le contenu ET le HTML de
+ * départ sont construits), ou renvoie celle qui existe déjà -- pour ne pas
+ * écraser les modifications IA déjà faites si l'utilisateur re-clique
+ * "Choisir" sur un template déjà en cours d'édition.
  */
 export async function POST(request: NextRequest) {
   const { entrepriseId, templateId } = await request.json();
@@ -34,8 +35,7 @@ export async function POST(request: NextRequest) {
   }
 
   const templateDir = path.join(TEMPLATES_DIR, templateId);
-  const contentPath = path.join(templateDir, "content.json");
-  if (!fs.existsSync(contentPath)) {
+  if (!fs.existsSync(path.join(templateDir, "content.json"))) {
     return NextResponse.json({ error: "Template introuvable" }, { status: 404 });
   }
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
   // unique en pratique).
   const { data: existing, error: selectError } = await supabaseForRequest
     .from("site")
-    .select("id, entreprise_id, template_id, content")
+    .select("id, entreprise_id, template_id, content, html")
     .eq("entreprise_id", entrepriseId)
     .eq("template_id", templateId)
     .maybeSingle();
@@ -74,50 +74,58 @@ export async function POST(request: NextRequest) {
   }
 
   if (existing) {
-    return NextResponse.json({ site: existing });
+    if (existing.html) {
+      return NextResponse.json({ site: existing });
+    }
+
+    // Ligne créée AVANT l'ajout de la colonne "html" (ou jamais remplie
+    // pour une autre raison) -- sans ce rattrapage, /api/site-preview
+    // n'aurait jamais rien à servir pour ce site et retomberait sur le
+    // gabarit générique par défaut. Sans risque d'écraser une édition IA :
+    // /api/edit-site exige déjà un `html` existant pour fonctionner, donc
+    // si cette colonne est vide, aucune édition n'a pu avoir lieu dessus.
+    const { content, html } = await buildInitialSite(
+      supabaseForRequest,
+      entrepriseId,
+      templateDir
+    );
+
+    const { data: healed, error: healError } = await supabaseForRequest
+      .from("site")
+      .update({ content, html })
+      .eq("id", existing.id)
+      .select("id, entreprise_id, template_id, content, html")
+      .single();
+
+    if (healError) {
+      return NextResponse.json({ error: healError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ site: healed });
   }
 
-  const defaultContent = JSON.parse(fs.readFileSync(contentPath, "utf-8"));
-
-  // On récupère tout de suite le vrai téléphone (et le nom) de l'entreprise
-  // pour les inscrire dans le contenu par défaut -- sans ça, topbar.phone
-  // resterait le numéro factice du template ("+1 123 456 7890") jusqu'à ce
-  // qu'une édition IA passe par là, ce qui casserait le bouton "Commander"
-  // (lien WhatsApp, voir renderSiteTemplate.ts) tant que ce n'est pas fait.
-  // Même client authentifié que la lecture "site" ci-dessus : la policy RLS
-  // de "entreprise" laisse passer parce que c'est bien SON entreprise
-  // (compte_id = auth.uid()).
-  const { data: entreprise } = await supabaseForRequest
-    .from("entreprise")
-    .select("nom, contact")
-    .eq("id", entrepriseId)
-    .maybeSingle();
-
-  if (entreprise?.nom) {
-    defaultContent.brand ??= {};
-    defaultContent.brand.name = entreprise.nom;
-  }
-  if (entreprise?.contact) {
-    defaultContent.topbar ??= {};
-    defaultContent.topbar.phone = entreprise.contact;
-    // Que des chiffres : wa.me (voir renderSiteTemplate.ts) n'accepte pas
-    // les espaces/tirets/parenthèses d'un numéro saisi "à la main".
-    defaultContent.topbar.phoneHref = entreprise.contact.replace(/[^\d]/g, "");
-  }
+  const { content, html } = await buildInitialSite(
+    supabaseForRequest,
+    entrepriseId,
+    templateDir
+  );
 
   const { data: created, error: insertError } = await supabaseForRequest
     .from("site")
     .insert({
       entreprise_id: entrepriseId,
       template_id: templateId,
-      content: defaultContent,
+      content,
+      html,
     })
-    .select("id, entreprise_id, template_id, content")
+    .select("id, entreprise_id, template_id, content, html")
     .single();
 
   if (insertError) {
     // "row-level security policy" -> vérifie que la policy site_insert_own
     // compare bien entreprise.compte_id (via jointure) à auth.uid().
+    // "column site.html does not exist" -> exécute le SQL fourni pour
+    // ajouter cette colonne (voir le message envoyé au sujet du HTML).
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
 

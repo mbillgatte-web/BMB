@@ -122,13 +122,18 @@ export default function TemplateGallery() {
     setPreviewTemplate(null);
   };
 
-  // Envoie le prompt (optionnel) + les infos de l'entreprise + le
-  // content.json actuel à Gemini (voir /api/edit-site) et sauvegarde le
-  // résultat. Le prompt n'est plus obligatoire : la base ("adapte ce site à
-  // mon entreprise", voir la route) est déjà utile toute seule -- s'il y a
-  // un prompt, il vient s'ajouter en précision, pas la remplacer.
+  // Envoie le prompt + le HTML actuel du site à Gemini (voir /api/edit-site,
+  // qui édite maintenant le HTML complet plutôt qu'un content.json) et
+  // sauvegarde le résultat. Le prompt est de nouveau obligatoire : il n'y a
+  // plus de "base" à appliquer sans demande précise, l'adaptation à
+  // l'entreprise est déjà faite une fois pour toutes à la création.
   const handleEdit = async () => {
     if (!selectedTemplate?.templateId || !entreprise) return;
+
+    if (!prompt.trim()) {
+      setEditError("Décrivez ce que vous voulez modifier avant de continuer.");
+      return;
+    }
 
     setEditing(true);
     setEditError("");
@@ -153,13 +158,6 @@ export default function TemplateGallery() {
         entrepriseId: entreprise.id,
         templateId: selectedTemplate.templateId,
         prompt,
-        // Base de l'adaptation IA (voir /api/edit-site) -- déjà connues via
-        // useEntreprise.ts, pas besoin de les redemander à l'utilisateur.
-        entrepriseNom: entreprise.nom,
-        entrepriseSlogan: entreprise.slogan,
-        entrepriseContact: entreprise.contact,
-        entrepriseAdresse: entreprise.adresse,
-        entrepriseSecteur: entreprise.secteur_activite,
       }),
     });
 
@@ -178,6 +176,57 @@ export default function TemplateGallery() {
     // react-hooks/purity) -- un entier croissant remplit le même rôle.
     setRefreshToken((v) => v + 1);
     setPrompt("");
+  };
+
+  // Filet de sécurité pour handleEdit : reconstruit le site exactement comme
+  // au premier "Choisir" (voir /api/reset-site), effaçant les éditions IA --
+  // utile si un enchaînement de corrections dans le chat devient confus.
+  const handleReset = async () => {
+    if (!selectedTemplate?.templateId || !entreprise) return;
+
+    if (
+      !window.confirm(
+        "Repartir du template d'origine ? Toutes les modifications faites avec l'IA sur ce site seront perdues."
+      )
+    ) {
+      return;
+    }
+
+    setEditing(true);
+    setEditError("");
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      setEditing(false);
+      setEditError("Vous devez être connecté.");
+      return;
+    }
+
+    const res = await fetch("/api/reset-site", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        entrepriseId: entreprise.id,
+        templateId: selectedTemplate.templateId,
+      }),
+    });
+
+    const body = await res.json();
+
+    setEditing(false);
+
+    if (!res.ok) {
+      setEditError(body.error ?? "Impossible de réinitialiser le site.");
+      return;
+    }
+
+    setRefreshToken((v) => v + 1);
   };
 
   // --- Un template est choisi -> aperçu en grand + prompt d'édition IA ----
@@ -339,6 +388,15 @@ export default function TemplateGallery() {
                 auto_awesome
               </span>
               {editing ? "Modification en cours..." : "Modifier avec l'IA"}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={editing}
+              className="text-center font-body-sm text-body-sm text-secondary underline-offset-2 transition-colors hover:text-red-700 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Réinitialiser au template d&apos;origine
             </button>
           </div>
         </div>

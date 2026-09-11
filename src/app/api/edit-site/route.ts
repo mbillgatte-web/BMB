@@ -15,29 +15,24 @@ const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models
 /**
  * POST /api/edit-site — "Modifier avec l'IA" dans TemplateGallery.tsx.
  *
- * Envoie le content.json actuel du site à Gemini avec une instruction de
- * BASE toujours présente ("adapte ce contenu à cette entreprise précise",
- * avec son nom/secteur/coordonnées déjà en base) -- le prompt libre de
- * l'utilisateur, s'il y en a un, s'ajoute par-dessus comme précision, il ne
- * remplace pas cette base. C'est pour ça que `prompt` est optionnel ici :
- * même vide, l'adaptation à l'entreprise reste une demande utile en soi.
+ * Contrairement à la version précédente (qui envoyait le petit content.json
+ * à Gemini), on envoie maintenant le HTML COMPLET du site (colonne "html" de
+ * la table "site", déjà personnalisé -- voir buildInitialSite.ts) et on
+ * demande à Gemini de le réécrire, avec une consigne délibérément stricte :
+ * n'appliquer QUE la demande, ne rien changer d'autre. C'est plus risqué
+ * qu'éditer du JSON structuré (rien ne garantit que le HTML renvoyé soit
+ * valide ou visuellement correct), mais ça permet à l'IA d'ajouter/retirer
+ * des éléments (plus de plats, une section en moins...) sans qu'on ait
+ * nous-mêmes à construire un moteur de répétition de blocs. Le risque d'une
+ * réponse mal formée est acceptable ici parce que l'utilisateur peut
+ * toujours redemander une correction dans le même chat -- et /api/reset-site
+ * sert de filet de sécurité pour repartir de zéro si besoin.
  *
- * `responseMimeType: "application/json"` force Gemini à répondre en JSON
- * strict plutôt qu'en texte libre à parser à la main -- ça évite la
- * plupart des réponses mal formées (markdown autour du JSON, texte
- * d'explication en plus, etc.).
+ * Pas de `responseMimeType: "application/json"` ici (contrairement à
+ * l'ancienne version) : la réponse attendue est du HTML, pas du JSON.
  */
 export async function POST(request: NextRequest) {
-  const {
-    entrepriseId,
-    templateId,
-    prompt,
-    entrepriseNom,
-    entrepriseSlogan,
-    entrepriseContact,
-    entrepriseAdresse,
-    entrepriseSecteur,
-  } = await request.json();
+  const { entrepriseId, templateId, prompt } = await request.json();
 
   if (!entrepriseId || !templateId) {
     return NextResponse.json(
@@ -48,9 +43,15 @@ export async function POST(request: NextRequest) {
   if (!SAFE_TEMPLATE_ID.test(templateId)) {
     return NextResponse.json({ error: "Identifiant de template invalide" }, { status: 400 });
   }
+  // Contrairement à l'ancienne version, le prompt est de nouveau obligatoire
+  // ici : l'adaptation à l'entreprise (nom, téléphone...) est déjà faite une
+  // fois pour toutes à la création (voir buildInitialSite.ts) -- il n'y a
+  // plus de "base" utile à appliquer sans demande précise.
+  if (!prompt || !String(prompt).trim()) {
+    return NextResponse.json({ error: "Décrivez ce que vous voulez modifier." }, { status: 400 });
+  }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  
   if (!apiKey) {
     return NextResponse.json(
       { error: "GEMINI_API_KEY manquante. Ajoute-la dans .env.local puis redémarre le serveur." },
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
   // créer.
   const { data: existing, error: selectError } = await supabaseForRequest
     .from("site")
-    .select("id, content")
+    .select("id, html")
     .eq("entreprise_id", entrepriseId)
     .eq("template_id", templateId)
     .maybeSingle();
@@ -85,49 +86,33 @@ export async function POST(request: NextRequest) {
   if (selectError) {
     return NextResponse.json({ error: selectError.message }, { status: 500 });
   }
-  if (!existing) {
+  if (!existing?.html) {
     return NextResponse.json(
       { error: "Aucun site trouvé pour ce template : choisissez-le d'abord." },
       { status: 404 }
     );
   }
 
-  // Instruction de base : toujours présente, indépendamment du prompt libre
-  // (voir le commentaire de la route). N'inclut que les champs réellement
-  // connus -- si l'entreprise n'a pas encore d'adresse ou de secteur
-  // renseigné, pas la peine de demander à Gemini d'adapter un champ vide.
-  const identiteLines = [
-    entrepriseNom && `Nom de l'entreprise : ${entrepriseNom}`,
-    entrepriseSecteur && `Secteur d'activité : ${entrepriseSecteur}`,
-    entrepriseAdresse && `Adresse : ${entrepriseAdresse}`,
-    entrepriseContact && `Téléphone : ${entrepriseContact}`,
-    entrepriseSlogan && `Slogan : ${entrepriseSlogan}`,
-  ].filter(Boolean);
-
-  const promptTrimmed = String(prompt ?? "").trim();
-
   const instructions = [
-    `Tu édites le contenu JSON d'un site web (restaurant). Voici le JSON actuel :`,
-    JSON.stringify(existing.content),
+    `Tu es un éditeur de code HTML extrêmement précis et discipliné. Voici le ` +
+      `code HTML complet actuel d'un site web :`,
+    existing.html,
     ``,
-    identiteLines.length
-      ? [
-          `Adapte ce contenu à l'entreprise suivante (remplace le nom de marque, les ` +
-            `coordonnées, et adapte les textes à son secteur réel) :`,
-          ...identiteLines.map((line) => `- ${line}`),
-        ].join("\n")
-      : `Aucune information d'entreprise connue pour l'instant : garde le contenu ` +
-        `générique du template tel quel, sauf si l'instruction ci-dessous dit le contraire.`,
-    ``,       
-    promptTrimmed
-      ? `Instruction supplémentaire de l'utilisateur : ${promptTrimmed}`
-      : ``,
+    `Consigne STRICTE : applique UNIQUEMENT la demande ci-dessous, à la lettre. ` +
+      `Ne modifie RIEN d'autre : ni les textes non concernés, ni les classes CSS, ` +
+      `ni les balises <script> ou <style>, ni la structure, ni les attributs -- ` +
+      `sauf si la demande l'exige explicitement. Si la demande implique d'ajouter ` +
+      `des éléments (ex: plus de plats, une nouvelle carte), copie fidèlement la ` +
+      `structure et les classes CSS d'un élément existant du même type pour créer ` +
+      `les nouveaux -- n'invente jamais de nouveau style. Si la demande implique ` +
+      `de retirer un élément ou une section entière, retire tout le bloc concerné ` +
+      `proprement (balises ouvrantes et fermantes), sans laisser de fragment cassé.`,
     ``,
-    `Renvoie UNIQUEMENT un JSON avec EXACTEMENT les mêmes clés et la même structure ` +
-      `que le JSON ci-dessus (mêmes tableaux, même nombre d'éléments dans chaque ` +
-      `tableau, mêmes champs "image"/"icon" inchangés puisqu'il s'agit de chemins ` +
-      `de fichiers existants). Modifie uniquement les textes concernés. Le texte ` +
-      `doit être en français, cohérent, sans faute d'orthographe.`,
+    `Demande de l'utilisateur : ${String(prompt).trim()}`,
+    ``,
+    `Réponds UNIQUEMENT avec le code HTML complet final, du <!DOCTYPE html> à la ` +
+      `fermeture </html>. Pas de balises de code (pas de \`\`\`html), pas de ` +
+      `commentaire ni d'explication avant ou après -- uniquement le HTML.`,
   ].join("\n");
 
   const geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
@@ -135,7 +120,6 @@ export async function POST(request: NextRequest) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ parts: [{ text: instructions }] }],
-      generationConfig: { responseMimeType: "application/json" },
     }),
   });
 
@@ -151,10 +135,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const rawText: string | undefined =
+  let newHtml: string | undefined =
     geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-  if (!rawText) {
+  if (!newHtml) {
     return NextResponse.json(
       {
         error:
@@ -164,31 +148,37 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let newContent: unknown;
-  try {
-    newContent = JSON.parse(rawText);
-  } catch {
+
+  // creation du nouveu fichier HTML à partir de la réponse de Gemini. On retire les balises de code éventuelles et on vérifie que le HTML ressemble à une page complète.  
+
+  // Gemini ignore parfois la consigne "pas de balises de code" -- on retire
+  // une éventuelle enveloppe ```html ... ``` plutôt que de la sauvegarder
+  // telle quelle dans le site.
+  newHtml = newHtml.trim().replace(/^```(?:html)?\s*/i, "").replace(/```\s*$/i, "").trim();
+
+  // Vérification volontairement légère (pas un vrai validateur HTML) : on
+  // s'assure juste que ça ressemble à une page complète et que Gemini n'a
+  // pas renvoyé un fragment tronqué. Ça n'empêche pas un dégât visuel subtil
+  // (classe CSS oubliée...) -- voir le commentaire en tête de fichier sur ce
+  // compromis, rattrapable en redemandant une correction dans le chat.
+  const looksLikeFullPage =
+    /<html[\s>]/i.test(newHtml) && /<\/html>/i.test(newHtml);
+
+  if (!looksLikeFullPage) {
     return NextResponse.json(
-      { error: "Gemini a renvoyé un JSON invalide. Réessaie." },
+      {
+        error:
+          "Gemini a renvoyé une réponse incomplète ou invalide. Réessaie, éventuellement avec une demande plus précise.",
+      },
       { status: 502 }
     );
   }
-
-  if (typeof newContent !== "object" || newContent === null) {
-    return NextResponse.json(
-      { error: "Gemini a renvoyé un contenu inattendu. Réessaie." },
-      { status: 502 }
-    );
-  }
-
-
-// sauvegarde de la bd du JSON modifié par Gemini dans la table "site" de Supabase
 
   const { data: updated, error: updateError } = await supabaseForRequest
     .from("site")
-    .update({ content: newContent, updated_at: new Date().toISOString() })
+    .update({ html: newHtml, updated_at: new Date().toISOString() })
     .eq("id", existing.id)
-    .select("id, content")
+    .select("id, html")
     .single();
 
   if (updateError) {
@@ -197,7 +187,3 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ site: updated });
 }
-
-
-
-
