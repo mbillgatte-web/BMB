@@ -5,6 +5,13 @@ export interface SiteTemplate {
   description: string;
   /** Couleur hex utilisée pour générer la vignette placeholder (placehold.co) */
   accentColor: string;
+  /**
+   * Nom du dossier sous public/Templates/<templateId>/ (index.html +
+   * content.json + style.json, voir renderSiteTemplate.ts). Absent = ce
+   * template n'a pas encore de fichiers réels derrière -- juste une entrée
+   * de catalogue, pas encore sélectionnable/prévisualisable pour de vrai.
+   */
+  templateId?: string;
 }
 
 export const CATEGORIES = [
@@ -19,11 +26,12 @@ export const CATEGORIES = [
 export const TEMPLATES: SiteTemplate[] = [
   {
     id: "resto-moderne",
-    name: "Resto Moderne",
+    name: "Grilli",
     category: "Restaurant",
     description:
-      "Une page d'accueil chaleureuse avec mise en avant du menu, galerie photo et réservation en ligne.",
-    accentColor: "C2410C",
+      "Page d'accueil complète pour restaurant : slider hero, menu détaillé avec prix, réservation en ligne, avis client et événements.",
+    accentColor: "D4B483",
+    templateId: "grilli-master",
   },
   {
     id: "bistro-elegant",

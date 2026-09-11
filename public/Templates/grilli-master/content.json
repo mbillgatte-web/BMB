@@ -1,0 +1,153 @@
+{
+  "meta": {
+    "title": "Grilli - Amazing & Delicious Food",
+    "description": "This is a Restaurant html template made by codewithsadee"
+  },
+  "brand": {
+    "name": "Grilli",
+    "logo": "./assets/images/logo.svg"
+  },
+  "topbar": {
+    "address": "Restaurant St, Delicious City, London 9578, UK",
+    "hours": "Daily : 8.00 am to 10.00 pm",
+    "phone": "+1 123 456 7890",
+    "phoneHref": "+11234567890",
+    "email": "booking@restaurant.com"
+  },
+  "nav": {
+    "items": ["Home", "Menus", "About Us", "Our Chefs", "Contact"],
+    "ctaLabel": "Find A Table",
+    "sidebar": {
+      "title": "Visit Us",
+      "address": "Restaurant St, Delicious City,<br>London 9578, UK",
+      "hours": "Open: 9.30 am - 2.30pm",
+      "email": "booking@grilli.com",
+      "bookingLabel": "Booking Request",
+      "phone": "+88-123-123456",
+      "phoneHref": "+88123123456"
+    }
+  },
+  "hero": {
+    "bookLabel": "Book A Table",
+    "slides": [
+      {
+        "image": "./assets/images/hero-slider-1.jpg",
+        "subtitle": "Tradational & Hygine",
+        "title": "For the love of<br>delicious food",
+        "text": "Come with family & feel the joy of mouthwatering food",
+        "ctaLabel": "View Our Menu"
+      },
+      {
+        "image": "./assets/images/hero-slider-2.jpg",
+        "subtitle": "delightful experience",
+        "title": "Flavors Inspired by<br>the Seasons",
+        "text": "Come with family & feel the joy of mouthwatering food",
+        "ctaLabel": "View Our Menu"
+      },
+      {
+        "image": "./assets/images/hero-slider-3.jpg",
+        "subtitle": "amazing & delicious",
+        "title": "Where every flavor<br>tells a story",
+        "text": "Come with family & feel the joy of mouthwatering food",
+        "ctaLabel": "View Our Menu"
+      }
+    ]
+  },
+  "services": {
+    "subtitle": "Flavors For Royalty",
+    "title": "We Offer Top Notch",
+    "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry lorem Ipsum has been the industrys standard dummy text ever.",
+    "items": [
+      { "image": "./assets/images/service-1.jpg", "name": "Breakfast" },
+      { "image": "./assets/images/service-2.jpg", "name": "Appetizers" },
+      { "image": "./assets/images/service-3.jpg", "name": "Drinks" }
+    ]
+  },
+  "about": {
+    "subtitle": "Our Story",
+    "title": "Every Fla vor Tells a Story",
+    "text": "Lorem Ipsum is simply dummy text of the printingand typesetting industry lorem Ipsum has been the industrys standard dummy text ever since the when an unknown printer took a galley of type and scrambled it to make a type specimen book It has survived not only five centuries, but also the leap into.",
+    "callLabel": "Book Through Call",
+    "phone": "+80 (400) 123 4567",
+    "phoneHref": "+804001234567",
+    "ctaLabel": "Read More",
+    "image": "./assets/images/about-banner.jpg"
+  },
+  "specialDish": {
+    "subtitle": "Special Dish",
+    "title": "Lobster Tortellini",
+    "text": "Lorem Ipsum is simply dummy text of the printingand typesetting industry lorem Ipsum has been the industrys standard dummy text ever since the when an unknown printer took a galley of type.",
+    "oldPrice": "$40.00",
+    "price": "$20.00",
+    "ctaLabel": "View All Menu",
+    "image": "./assets/images/special-dish-banner.jpg"
+  },
+  "menu": {
+    "subtitle": "Special Selection",
+    "title": "Delicious Menu",
+    "note": "During winter daily from 7:00 pm to 9:00 pm",
+    "ctaLabel": "View All Menu",
+    "items": [
+      { "image": "./assets/images/menu-1.png", "name": "Greek Salad", "badge": "Seasonal", "price": "$25.50", "description": "Tomatoes, green bell pepper, sliced cucumber onion, olives, and feta cheese." },
+      { "image": "./assets/images/menu-2.png", "name": "Lasagne", "badge": "", "price": "$40.00", "description": "Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices" },
+      { "image": "./assets/images/menu-3.png", "name": "Butternut Pumpkin", "badge": "", "price": "$10.00", "description": "Typesetting industry lorem Lorem Ipsum is simply dummy text of the priand." },
+      { "image": "./assets/images/menu-4.png", "name": "Tokusen Wagyu", "badge": "New", "price": "$39.00", "description": "Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices." },
+      { "image": "./assets/images/menu-5.png", "name": "Olivas Rellenas", "badge": "", "price": "$25.00", "description": "Avocados with crab meat, red onion, crab salad stuffed red bell pepper and green bell pepper." },
+      { "image": "./assets/images/menu-6.png", "name": "Opu Fish", "badge": "", "price": "$49.00", "description": "Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices" }
+    ]
+  },
+  "testimonial": {
+    "quote": "I wanted to thank you for inviting me down for that amazing dinner the other night. The food was extraordinary.",
+    "avatar": "./assets/images/testi-avatar.jpg",
+    "name": "Sam Jhonson"
+  },
+  "reservation": {
+    "title": "Online Reservation",
+    "text": "Booking request +88-123-123456 or fill out the order form",
+    "phone": "+88-123-123456",
+    "phoneHref": "+88123123456",
+    "ctaLabel": "Book A Table",
+    "contact": {
+      "title": "Contact Us",
+      "bookingLabel": "Booking Request",
+      "phone": "+88-123-123456",
+      "locationLabel": "Location",
+      "address": "Restaurant St, Delicious City,<br>London 9578, UK",
+      "lunchLabel": "Lunch Time",
+      "lunchHours": "Monday to Sunday<br>11.00 am - 2.30pm",
+      "dinnerLabel": "Dinner Time",
+      "dinnerHours": "Monday to Sunday<br>05.00 pm - 10.00pm"
+    }
+  },
+  "features": {
+    "subtitle": "Why Choose Us",
+    "title": "Our Strength",
+    "items": [
+      { "icon": "./assets/images/features-icon-1.png", "title": "Hygienic Food", "text": "Lorem Ipsum is simply dummy printing and typesetting." },
+      { "icon": "./assets/images/features-icon-2.png", "title": "Fresh Environment", "text": "Lorem Ipsum is simply dummy printing and typesetting." },
+      { "icon": "./assets/images/features-icon-3.png", "title": "Skilled Chefs", "text": "Lorem Ipsum is simply dummy printing and typesetting." },
+      { "icon": "./assets/images/features-icon-4.png", "title": "Event & Party", "text": "Lorem Ipsum is simply dummy printing and typesetting." }
+    ]
+  },
+  "events": {
+    "subtitle": "Recent Updates",
+    "title": "Upcoming Event",
+    "ctaLabel": "View Our Blog",
+    "items": [
+      { "image": "./assets/images/event-1.jpg", "date": "2022-09-15", "dateLabel": "15/09/2022", "category": "Food, Flavour", "title": "Flavour so good you’ll try to eat with your eyes." },
+      { "image": "./assets/images/event-2.jpg", "date": "2022-09-08", "dateLabel": "08/09/2022", "category": "Healthy Food", "title": "Flavour so good you’ll try to eat with your eyes." },
+      { "image": "./assets/images/event-3.jpg", "date": "2022-09-03", "dateLabel": "03/09/2022", "category": "Recipie", "title": "Flavour so good you’ll try to eat with your eyes." }
+    ]
+  },
+  "footer": {
+    "address": "Restaurant St, Delicious City, London 9578, UK",
+    "email": "booking@grilli.com",
+    "phoneLabel": "Booking Request : +88-123-123456",
+    "phoneHref": "+88123123456",
+    "hours": "Open : 09:00 am - 01:00 pm",
+    "newsletterTitle": "Get News & Offers",
+    "newsletterText": "Subscribe us & Get 25% Off.",
+    "socialLinks": ["Facebook", "Instagram", "Twitter", "Youtube", "Google Map"],
+    "copyright": "© 2022 Grilli. All Rights Reserved"
+  }
+}
