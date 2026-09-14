@@ -3,12 +3,19 @@ import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 import path from "path";
 
-// Modèle configurable sans toucher au code : voir GEMINI_IMAGE_MODEL dans
-// .env.local. gemini-3.1-flash-image est celui recommandé par Google au
-// moment où ce fichier a été écrit -- si Google en change le nom, changer
-// la variable d'env suffit, pas la peine de retoucher cette route.
-const GEMINI_MODEL = process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+// Génération d'image via OpenRouter (pas Gemini en direct) -- voir
+// OPENROUTER_IMAGE_MODEL dans .env.local. Gemini a été essayé en premier
+// lors de l'écriture de cette route, mais son quota gratuit pour les
+// modèles image est à 0 sur ce compte (visible dans le message d'erreur
+// Google : "limit: 0") -- impossible d'en générer une seule sans activer la
+// facturation sur le projet Google. OpenRouter facture à l'usage (quelques
+// centimes par image, voir https://openrouter.ai/collections/image-models)
+// mais contourne ce blocage. Changer de modèle (ex: passer sur un modèle
+// OpenAI) ne demande de toucher qu'à OPENROUTER_IMAGE_MODEL, pas ce fichier.
+
+const OPENROUTER_MODEL =
+  process.env.OPENROUTER_IMAGE_MODEL || "google/gemini-3.1-flash-lite-image";
+const OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/images";
 
 function mimeFromExt(filePath: string): string {
   const ext = path.extname(filePath).toLowerCase();
@@ -19,12 +26,12 @@ function mimeFromExt(filePath: string): string {
 }
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
       {
         error:
-          "GEMINI_API_KEY manquante. Ajoute-la dans .env.local (voir le commentaire au-dessus) puis redémarre le serveur.",
+          "OPENROUTER_API_KEY manquante. Ajoute-la dans .env.local (voir le commentaire au-dessus) puis redémarre le serveur.",
       },
       { status: 500 }
     );
@@ -46,8 +53,9 @@ export async function POST(request: NextRequest) {
 
   // Contrairement à /api/identite-visuelle, cette route ne touche aucune
   // table protégée par RLS (qui aurait sinon rejeté gratuitement un jeton
-  // invalide) -- chaque appel déclenche un vrai appel Gemini payant, donc
-  // on vérifie nous-mêmes l'utilisateur avant de dépenser quoi que ce soit.
+  // invalide) -- chaque appel déclenche un vrai appel OpenRouter payant,
+  // donc on vérifie nous-mêmes l'utilisateur avant de dépenser quoi que ce
+  // soit.
   const {
     data: { user },
   } = await supabaseForRequest.auth.getUser();
@@ -126,7 +134,7 @@ export async function POST(request: NextRequest) {
     `Génère un visuel marketing au format "${formatName ?? "visuel"}"${
       formatDimensions ? ` (${formatDimensions})` : ""
     } pour l'entreprise ci-dessous.`,
-    `Utilise l'image jointe comme référence de mise en page et de style graphique, mais recrée entièrement le visuel -- ne te contente pas de la recopier telle quelle.`,
+    `Utilise la première image jointe comme référence de mise en page et de style graphique, mais recrée entièrement le visuel -- ne te contente pas de la recopier telle quelle.`,
     ...identiteLines,
     prompt?.trim()
       ? `Contenu à mettre en avant : ${prompt.trim()}`
@@ -134,10 +142,18 @@ export async function POST(request: NextRequest) {
     `Le texte du visuel doit être en français, lisible, et sans faute d'orthographe.`,
   ].join("\n");
 
+  // L'API Image d'OpenRouter (voir https://openrouter.ai/docs/guides/overview/multimodal/image-generation)
+  // accepte jusqu'à 14 images de référence via input_references, chacune en
+  // URL http(s) ou en data URL base64 -- contrairement à Gemini, pas de
+  // distinction "inline_data" vs "text", tout est dans une seule liste.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const parts: any[] = [
-    { text: instructions },
-    { inline_data: { mime_type: templateMime, data: templateBuffer.toString("base64") } },
+  const inputReferences: any[] = [
+    {
+      type: "image_url",
+      image_url: {
+        url: `data:${templateMime};base64,${templateBuffer.toString("base64")}`,
+      },
+    },
   ];
 
   if (logoUrl) {
@@ -145,12 +161,10 @@ export async function POST(request: NextRequest) {
       const logoRes = await fetch(logoUrl);
       if (logoRes.ok) {
         const logoBuffer = Buffer.from(await logoRes.arrayBuffer());
-        parts.push({ text: "Voici le logo exact de l'entreprise à intégrer au visuel :" });
-        parts.push({
-          inline_data: {
-            mime_type: logoRes.headers.get("content-type") || "image/png",
-            data: logoBuffer.toString("base64"),
-          },
+        const logoMime = logoRes.headers.get("content-type") || "image/png";
+        inputReferences.push({
+          type: "image_url",
+          image_url: { url: `data:${logoMime};base64,${logoBuffer.toString("base64")}` },
         });
       }
     } catch {
@@ -159,44 +173,44 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const geminiRes = await fetch(GEMINI_ENDPOINT, {
+  const openRouterRes = await fetch(OPENROUTER_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-goog-api-key": apiKey,
+      Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({ contents: [{ parts }] }),
+    body: JSON.stringify({
+      model: OPENROUTER_MODEL,
+      prompt: instructions,
+      input_references: inputReferences,
+    }),
   });
 
-  const geminiData = await geminiRes.json();
+  const openRouterData = await openRouterRes.json();
 
-  if (!geminiRes.ok) {
-    // Remonte le message d'erreur brut de Google : si GEMINI_IMAGE_MODEL
-    // pointe vers un nom de modèle invalide ou déprécié, l'erreur le dit
-    // explicitement ("model not found" etc.) -- pas la peine de deviner.
+  if (!openRouterRes.ok) {
+    // Remonte le message d'erreur brut d'OpenRouter : si OPENROUTER_IMAGE_MODEL
+    // pointe vers un nom de modèle invalide, ou si le crédit du compte est
+    // épuisé, l'erreur le dit explicitement -- pas la peine de deviner.
     return NextResponse.json(
-      { error: geminiData?.error?.message ?? "Erreur de l'API Gemini" },
-      { status: geminiRes.status }
+      { error: openRouterData?.error?.message ?? "Erreur de l'API OpenRouter" },
+      { status: openRouterRes.status }
     );
   }
 
-  const imagePart = geminiData?.candidates?.[0]?.content?.parts?.find(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (p: any) => p.inlineData || p.inline_data
-  );
-  const inline = imagePart?.inlineData ?? imagePart?.inline_data;
+  const image = openRouterData?.data?.[0];
 
-  if (!inline?.data) {
+  if (!image?.b64_json) {
     return NextResponse.json(
       {
         error:
-          "Gemini n'a renvoyé aucune image pour cette demande (contenu peut-être filtré). Réessaie avec un autre prompt.",
+          "OpenRouter n'a renvoyé aucune image pour cette demande (contenu peut-être filtré). Réessaie avec un autre prompt.",
       },
       { status: 502 }
     );
   }
 
   return NextResponse.json({
-    imageDataUrl: `data:${inline.mimeType ?? inline.mime_type ?? "image/png"};base64,${inline.data}`,
+    imageDataUrl: `data:${image.media_type ?? "image/png"};base64,${image.b64_json}`,
   });
 }
