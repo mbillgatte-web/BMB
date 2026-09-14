@@ -62,6 +62,13 @@ export default function TemplateGallery() {
   const [chooseError, setChooseError] = useState("");
   const [editing, setEditing] = useState(false);
   const [editError, setEditError] = useState("");
+  // L'image "épinglée" au prompt (voir handleAttachImage) : uploadée dès la
+  // sélection du fichier (pas au moment d'envoyer le prompt), pour que la
+  // vignette de confirmation s'affiche tout de suite. `attachedImageName`
+  // sert juste à l'affichage (nom du fichier dans la vignette).
+  const [attachedImageUrl, setAttachedImageUrl] = useState<string | null>(null);
+  const [attachedImageName, setAttachedImageName] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   // Change à chaque édition réussie -> repasse dans previewUrl() pour forcer
   // l'iframe à recharger le nouveau contenu plutôt qu'une réponse en cache.
   const [refreshToken, setRefreshToken] = useState(0);
@@ -122,6 +129,44 @@ export default function TemplateGallery() {
     setPreviewTemplate(null);
   };
 
+  // Upload immédiat vers le bucket "site-images" dès que l'utilisateur
+  // choisit un fichier (même mécanisme que LogoBuilder.tsx pour le bucket
+  // "logos") -- l'URL publique obtenue est envoyée à /api/edit-site avec le
+  // prompt, pour que l'IA utilise cette VRAIE photo plutôt que d'en réutiliser
+  // une du template (voir le commentaire de /api/edit-site).
+  const handleAttachImage = async (file: File) => {
+    if (!entreprise) {
+      setEditError("Sélectionnez une entreprise avant d'épingler une image.");
+      return;
+    }
+
+    setUploadingImage(true);
+    setEditError("");
+
+    const extension = file.name.split(".").pop() ?? "jpg";
+    // Un nom unique par fichier (pas juste l'entrepriseId comme pour le
+    // logo) : une entreprise peut épingler plusieurs photos différentes au
+    // fil de ses éditions, pas une seule image fixe à écraser.
+    const path = `${entreprise.id}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("site-images")
+      .upload(path, file);
+
+    setUploadingImage(false);
+
+    if (uploadError) {
+      setEditError(`Échec de l'envoi de l'image : ${uploadError.message}`);
+      return;
+    }
+
+    const publicUrl = supabase.storage.from("site-images").getPublicUrl(path)
+      .data.publicUrl;
+
+    setAttachedImageUrl(publicUrl);
+    setAttachedImageName(file.name);
+  };
+
   // Envoie le prompt + le HTML actuel du site à Gemini (voir /api/edit-site,
   // qui édite maintenant le HTML complet plutôt qu'un content.json) et
   // sauvegarde le résultat. Le prompt est de nouveau obligatoire : il n'y a
@@ -158,6 +203,7 @@ export default function TemplateGallery() {
         entrepriseId: entreprise.id,
         templateId: selectedTemplate.templateId,
         prompt,
+        imageUrl: attachedImageUrl,
       }),
     });
 
@@ -176,6 +222,8 @@ export default function TemplateGallery() {
     // react-hooks/purity) -- un entier croissant remplit le même rôle.
     setRefreshToken((v) => v + 1);
     setPrompt("");
+    setAttachedImageUrl(null);
+    setAttachedImageName(null);
   };
 
   // Filet de sécurité pour handleEdit : reconstruit le site exactement comme
@@ -370,6 +418,64 @@ export default function TemplateGallery() {
                 placeholder="Ex: Remplace le contenu par celui de mon restaurant avec des plats comme le eru et l'okok, et des horaires du mardi au dimanche..."
                 className="w-full resize-none rounded-lg border border-outline-variant bg-white p-3 text-body-sm font-body-sm placeholder:text-secondary focus:border-primary focus:ring-1 focus:ring-primary"
               />
+
+              {/* Vignette de confirmation de l'image épinglée (voir
+                  handleAttachImage) -- affichée seulement une fois l'upload
+                  terminé, avec un bouton pour la retirer avant d'envoyer. */}
+              {attachedImageName && (
+                <div className="mt-2 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
+                  <span className="material-symbols-outlined text-[16px] text-primary">
+                    image
+                  </span>
+                  <span className="flex-1 truncate font-body-sm text-body-sm text-on-surface">
+                    {attachedImageName}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAttachedImageUrl(null);
+                      setAttachedImageName(null);
+                    }}
+                    aria-label="Retirer l'image épinglée"
+                    className="text-on-surface-variant transition-colors hover:text-red-700"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">
+                      close
+                    </span>
+                  </button>
+                </div>
+              )}
+
+              <div className="mt-2 flex items-center justify-between">
+                <label
+                  htmlFor="site-image-upload"
+                  className={`flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant transition-colors ${
+                    uploadingImage
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer hover:text-primary"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    attach_file
+                  </span>
+                  {uploadingImage ? "Envoi de l'image..." : "Épingler une image"}
+                </label>
+                <input
+                  id="site-image-upload"
+                  type="file"
+                  accept="image/*"
+                  disabled={uploadingImage}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleAttachImage(file);
+                    // Permet de réépingler le même fichier une 2e fois (sinon
+                    // le navigateur ignore un <input type="file"> dont la
+                    // valeur n'a pas changé).
+                    e.target.value = "";
+                  }}
+                  className="hidden"
+                />
+              </div>
             </div>
 
             {editError && (

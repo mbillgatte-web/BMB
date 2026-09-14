@@ -32,7 +32,7 @@ const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models
  * l'ancienne version) : la réponse attendue est du HTML, pas du JSON.
  */
 export async function POST(request: NextRequest) {
-  const { entrepriseId, templateId, prompt } = await request.json();
+  const { entrepriseId, templateId, prompt, imageUrl } = await request.json();
 
   if (!entrepriseId || !templateId) {
     return NextResponse.json(
@@ -110,10 +110,29 @@ export async function POST(request: NextRequest) {
     ``,
     `Demande de l'utilisateur : ${String(prompt).trim()}`,
     ``,
+    // Présent seulement si l'utilisateur a épinglé une image (voir
+    // handleAttachImage dans TemplateGallery.tsx) -- une vraie photo déjà
+    // uploadée, à utiliser TELLE QUELLE plutôt que de laisser l'IA
+    // réutiliser une image existante du template (voir le commentaire en
+    // tête de fichier sur ce problème, observé avec "Poulet DG").
+    typeof imageUrl === "string" && imageUrl.trim()
+      ? `Une image a été fournie par l'utilisateur, à cette URL exacte : ` +
+        `${imageUrl.trim()} -- utilise-la EXACTEMENT là où la demande ` +
+        `ci-dessus l'indique. N'invente et ne réutilise aucune autre image ` +
+        `pour cet élément.\n`
+      : ``,
     `Réponds UNIQUEMENT avec le code HTML complet final, du <!DOCTYPE html> à la ` +
       `fermeture </html>. Pas de balises de code (pas de \`\`\`html), pas de ` +
       `commentaire ni d'explication avant ou après -- uniquement le HTML.`,
   ].join("\n");
+
+  // Log de départ : juste le prompt (pas tout le HTML envoyé, ~35 Ko --
+  // inutile d'inonder le terminal avec) -- pour savoir quelle requête
+  // correspond à quel résultat dans les logs qui suivent.
+  console.log(
+    `[edit-site] entreprise=${entrepriseId} template=${templateId} prompt="${String(prompt).trim()}"` +
+      (imageUrl ? ` image=${imageUrl}` : "")
+  );
 
   const geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
     method: "POST",
@@ -128,7 +147,10 @@ export async function POST(request: NextRequest) {
   if (!geminiRes.ok) {
     // Remonte le message d'erreur brut de Google : si GEMINI_TEXT_MODEL
     // pointe vers un nom de modèle invalide ou déprécié, l'erreur le dit
-    // explicitement (même logique que /api/generate-visual).
+    // explicitement (même logique que /api/generate-visual). Le JSON complet
+    // (pas juste le message) part dans le terminal -- utile si l'erreur a
+    // d'autres détails (code, status Google) que le message seul ne donne pas.
+    console.error("[edit-site] Erreur Gemini :", JSON.stringify(geminiData, null, 2));
     return NextResponse.json(
       { error: geminiData?.error?.message ?? "Erreur de l'API Gemini" },
       { status: geminiRes.status }
@@ -139,6 +161,12 @@ export async function POST(request: NextRequest) {
     geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (!newHtml) {
+    // candidates[0] existe généralement même sans texte (ex: contenu filtré
+    // par Google) -- son "finishReason" dit pourquoi (ex: "SAFETY").
+    console.error(
+      "[edit-site] Gemini n'a renvoyé aucun texte. Réponse complète :",
+      JSON.stringify(geminiData, null, 2)
+    );
     return NextResponse.json(
       {
         error:
@@ -165,6 +193,14 @@ export async function POST(request: NextRequest) {
     /<html[\s>]/i.test(newHtml) && /<\/html>/i.test(newHtml);
 
   if (!looksLikeFullPage) {
+    // Le plus utile à voir en cas de souci : le HTML tel que Gemini l'a
+    // VRAIMENT renvoyé (déjà nettoyé des ```html), pour comprendre ce qui
+    // cloche -- tronqué, balise <html> manquante, texte d'explication que
+    // Gemini a ajouté malgré la consigne, etc.
+    console.error(
+      "[edit-site] Réponse jugée incomplète/invalide, texte reçu de Gemini :\n",
+      newHtml
+    );
     return NextResponse.json(
       {
         error:
@@ -173,6 +209,8 @@ export async function POST(request: NextRequest) {
       { status: 502 }
     );
   }
+
+  console.log(`[edit-site] OK -- nouveau HTML de ${newHtml.length} caractères sauvegardé.`);
 
   const { data: updated, error: updateError } = await supabaseForRequest
     .from("site")

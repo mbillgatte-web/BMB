@@ -437,6 +437,29 @@ body.nav-active { overflow: hidden; }
   background-color: var(--eerie-black-4);
 }
 
+/*
+  Garantie de forme ET de taille pour les cartes du menu : peu importe ce
+  que l'édition IA écrit comme --width/--height, et peu importe la
+  résolution RÉELLE d'une photo uploadée par l'utilisateur (souvent bien
+  plus grande que les images du template, ex: 640x650 px), toutes les
+  cartes du menu restent des carrés de 100px identiques.
+
+  Le `width: 100px` est indispensable : .menu-card étant un flex container
+  et .card-banner un flex item en `flex-shrink: 0` (voir plus bas), sans
+  largeur fixée explicitement sa taille "par défaut" dépend de la
+  résolution NATURELLE de l'image qu'il contient -- ce qui passait
+  inaperçu avec les images du template (déjà ~100x100 px dans le fichier),
+  mais pas avec une vraie photo uploadée, bien plus grande.
+
+  Plus spécifique que .img-holder ci-dessus (2 classes au lieu d'1), donc
+  cette règle gagne toujours, quelle que soit la valeur des variables
+  --width/--height sur l'élément.
+*/
+.menu-card .img-holder {
+  width: 100px;
+  aspect-ratio: 1 / 1;
+}
+
 .btn-text {
   color: var(--gold-crayola);
   padding-block-end: 4px;
