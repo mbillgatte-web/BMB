@@ -1,7 +1,7 @@
 import Sidebar from "./Sidebar";
 import TopNav from "./TopNav";
-import HeroSection from "./HeroSection";
-import KpiCards from "./KpiCards";
+import BrandIdentityShowcase from "./BrandIdentityShowcase";
+import ActiveProjectsKpi from "./ActiveProjectsKpi";
 import AIRecommendation from "./AIRecommendation";
 
 export default function DashboardView() {
@@ -20,8 +20,12 @@ export default function DashboardView() {
 
           <div className="relative z-0 flex-1 overflow-y-auto p-gutter">
             <div className="max-w-container-max mx-auto space-y-xl pb-2xl">
-           
-              <KpiCards />
+              {/* Ligne de tuiles KPI : BrandIdentityShowcase + ActiveProjectsKpi
+                  occupent 2 cases, les 2 autres attendent les prochains KPI. */}
+              <div className="grid grid-cols-1 gap-sm sm:grid-cols-2 lg:grid-cols-4">
+                <BrandIdentityShowcase />
+                <ActiveProjectsKpi />
+              </div>
               <AIRecommendation />
             </div>
           </div>
