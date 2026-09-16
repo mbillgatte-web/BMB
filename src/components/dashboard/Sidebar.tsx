@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { Settings, Sparkles, ChevronDown } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Settings, Sparkles, ChevronDown, LogOut } from "lucide-react";
 
-import Button from "@/components/ui/Button";
 import { MenuToggle } from "@/components/menuToggle/bouttonmenu";
 import { cn } from "@/lib/cn";
 import { useEntreprise } from "@/hooks/useEntreprise";
+import { supabase } from "@/lib/supabaseClient";
 import { NAV_GROUPS } from "./nav-items";
 
 export default function Sidebar() {
@@ -16,8 +16,13 @@ export default function Sidebar() {
 
   const pathname = usePathname();
 
-  const { entreprise, entreprises, selectEntreprise } = useEntreprise();
-  const [isEntrepriseMenuOpen, setIsEntrepriseMenuOpen] = useState(false);
+  const { entreprise } = useEntreprise();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
 
   // Le label du parent dont un enfant correspond à la page actuelle (ex:
   // "Identité visuelle" quand pathname === "/Logo"), ou null sinon. Pure
@@ -38,8 +43,8 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`flex h-screen shrink-0 flex-col border-r border-white/10 bg-zinc-950 shadow-[8px_0_24px_rgba(0,0,0,0.25)] transition-all duration-300 hidden lg:flex sticky top-0 left-0 ${
-        isCollapsed ? "w-20" : "w-72"
+      className={`flex h-full shrink-0 flex-col border-r border-outline-variant/60 bg-surface-container-lowest transition-all duration-300 hidden lg:flex ${
+        isCollapsed ? "w-24" : "w-80"
       }`}
       id="sidebar"
     >
@@ -51,60 +56,20 @@ export default function Sidebar() {
           }`}
         >
           {!isCollapsed && (
-            <div className="relative min-w-0">
-              <button
-                type="button"
-                onClick={() => setIsEntrepriseMenuOpen((open) => !open)}
-                className="flex w-full items-center gap-2.5 rounded-lg py-1 text-left transition-colors hover:bg-white/5"
-              >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] bg-primary font-semibold text-[13px] text-white shadow-sm">
-                  {(entreprise?.nom ?? "B").charAt(0).toUpperCase()}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-medium leading-none text-zinc-100">
-                    {entreprise?.nom ?? "Build My Business"}
-                  </p>
-                  <p className="mt-1 text-[11px] leading-none text-zinc-500">
-                    Strategic Suite
-                  </p>
-                </div>
-                {entreprises.length > 1 && (
-                  <ChevronDown
-                    className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform duration-200 ${
-                      isEntrepriseMenuOpen ? "rotate-180" : ""
-                    }`}
-                    aria-hidden="true"
-                  />
-                )}
-              </button>
-
-              {isEntrepriseMenuOpen && entreprises.length > 1 && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsEntrepriseMenuOpen(false)}
-                  />
-                  <div className="absolute left-0 top-full z-20 mt-2 w-full rounded-xl border border-white/10 bg-zinc-900 p-1 shadow-xl">
-                    {entreprises.map((e) => (
-                      <button
-                        key={e.id}
-                        type="button"
-                        onClick={() => {
-                          selectEntreprise(e.id);
-                          setIsEntrepriseMenuOpen(false);
-                        }}
-                        className={`w-full truncate rounded-lg px-3 py-2 text-left font-label-md text-label-md transition-colors ${
-                          e.id === entreprise?.id
-                            ? "bg-primary/15 font-semibold text-primary"
-                            : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
-                        }`}
-                      >
-                        {e.nom}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
+            // Titre pur, plus aucune affordance de sélection (ni bouton ni
+            // menu) : juste le nom de l'entreprise en en-tête, comme demandé.
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-container font-extrabold text-[15px] text-on-primary shadow-[0_8px_18px_-8px_rgba(70,72,212,0.55)]">
+                {(entreprise?.nom ?? "B").charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[15px] font-bold leading-tight text-on-surface">
+                  {entreprise?.nom ?? "Build My Business"}
+                </p>
+                <p className="mt-0.5 text-[12px] leading-none text-on-surface-variant/70">
+                  Strategic Suite
+                </p>
+              </div>
             </div>
           )}
 
@@ -116,17 +81,17 @@ export default function Sidebar() {
             }
             aria-expanded={!isCollapsed}
             title={isCollapsed ? "Développer la barre latérale" : "Réduire la barre latérale"}
-            className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-100"
+            className="rounded-lg border border-outline-variant p-1.5 text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container hover:text-on-surface"
           />
         </div>
 
         {/* Navigation */}
         <nav className="sidebar-nav flex-1 overflow-y-auto pr-2">
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-6">
             {NAV_GROUPS.map((group, groupIndex) => (
-              <div key={group.heading ?? groupIndex} className="flex flex-col gap-0.5">
+              <div key={group.heading ?? groupIndex} className="flex flex-col gap-1">
                 {group.heading && !isCollapsed && (
-                  <span className="mb-1 px-2.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                  <span className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/50">
                     {group.heading}
                   </span>
                 )}
@@ -151,21 +116,21 @@ export default function Sidebar() {
                             )
                           }
                           aria-expanded={isOpen}
-                          className={`flex w-full items-center gap-2.5 rounded-[6px] px-2.5 py-[7px] transition-colors ${
+                          className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-[11px] transition-colors ${
                             isParentActive
-                              ? "bg-primary/15 font-medium text-primary"
-                              : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+                              ? "bg-primary text-on-primary shadow-[0_10px_20px_-10px_rgba(70,72,212,0.55)]"
+                              : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
                           } ${isCollapsed ? "justify-center px-0" : "justify-between"}`}
                           title={isCollapsed ? item.label : undefined}
                         >
-                          <span className="flex items-center gap-2.5">
+                          <span className="flex items-center gap-3">
                             <Icon
-                              className="h-4 w-4 shrink-0"
-                              strokeWidth={1.5}
+                              className="h-[19px] w-[19px] shrink-0"
+                              strokeWidth={1.6}
                               aria-hidden="true"
                             />
                             {!isCollapsed && (
-                              <span className="text-[13px] tracking-wide">
+                              <span className="text-[14.5px] font-medium">
                                 {item.label}
                               </span>
                             )}
@@ -188,7 +153,7 @@ export default function Sidebar() {
                             }`}
                           >
                             <div className="overflow-hidden">
-                              <div className="mt-0.5 flex flex-col gap-0.5 pl-9">
+                              <div className="mt-1 flex flex-col gap-1 pl-11">
                                 {item.children.map((child) => {
                                   const isChildActive = child.link === pathname;
 
@@ -203,10 +168,10 @@ export default function Sidebar() {
                                     <a
                                       key={child.label}
                                       href={href}
-                                      className={`rounded-[6px] px-2.5 py-[7px] text-[13px] transition-colors ${
+                                      className={`rounded-lg px-3.5 py-2 text-[14px] transition-colors ${
                                         isChildActive
-                                          ? "bg-primary/15 font-medium text-primary"
-                                          : "text-zinc-500 hover:bg-white/5 hover:text-zinc-100"
+                                          ? "bg-primary text-on-primary font-medium"
+                                          : "text-on-surface-variant/80 hover:bg-surface-container hover:text-on-surface"
                                       }`}
                                     >
                                       {child.label}
@@ -228,55 +193,114 @@ export default function Sidebar() {
                     <a
                       key={item.label}
                       href={item.link ?? "#"}
-                      className={`flex items-center gap-2.5 rounded-[6px] px-2.5 py-[7px] transition-colors ${
+                      className={`flex items-center gap-3 rounded-xl px-3.5 py-[11px] transition-colors ${
                         isActive
-                          ? "relative bg-primary/15 font-medium text-primary before:absolute before:left-0 before:top-1/2 before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-r-full before:bg-primary"
-                          : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+                          ? "bg-primary text-on-primary font-medium shadow-[0_10px_20px_-10px_rgba(70,72,212,0.55)]"
+                          : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
                       } ${isCollapsed ? "justify-center px-0" : ""}`}
                       title={isCollapsed ? item.label : undefined}
                     >
                       <Icon
-                        className="h-4 w-4 shrink-0"
-                        strokeWidth={isActive ? 2 : 1.5}
+                        className="h-[19px] w-[19px] shrink-0"
+                        strokeWidth={isActive ? 1.8 : 1.6}
                         aria-hidden="true"
                       />
                       {!isCollapsed && (
-                        <span className="text-[13px] tracking-wide">{item.label}</span>
+                        <span className="text-[14.5px]">{item.label}</span>
                       )}
                     </a>
                   );
                 })}
               </div>
             ))}
+
+            {/* Tout ce qui suit reste DANS le flux défilant (Settings,
+                encart Pro, déconnexion) : rien n'est plus figé en bas
+                pendant que le reste bouge -- c'est ce qui donnait
+                l'impression d'une sidebar rigide, coupée en deux blocs qui
+                ne bougeaient pas ensemble. Seul l'en-tête (logo + nom) reste
+                fixe, comme le veut ce genre de panneau. */}
+            <div className="flex flex-col gap-1">
+              <a
+                href="#"
+                className={`flex items-center gap-3 rounded-xl px-3.5 py-[11px] text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface ${
+                  isCollapsed ? "justify-center px-0" : ""
+                }`}
+                title={isCollapsed ? "Settings" : undefined}
+              >
+                <Settings className="h-[19px] w-[19px] shrink-0" strokeWidth={1.6} aria-hidden="true" />
+                {!isCollapsed && <span className="text-[14.5px]">Settings</span>}
+              </a>
+            </div>
+
+            {/* Encart Pro (seul aplat sombre de l'écran -- voir l'aperçu
+                "Indigo Clair" validé avant cette implémentation) et
+                déconnexion, au même gabarit de bouton (rounded-xl, py-3,
+                font-bold) pour un poids visuel comparable -- seule la
+                couleur change pour distinguer une action de vente d'une
+                action sensible. Boutons en dur (pas <Button>) : le composant
+                partagé est pensé pour un remplissage progressif au hover,
+                alors que ces deux pastilles doivent être pleines d'emblée --
+                même logique que les boutons faits main d'AIRecommendation.tsx. */}
+            <div className="flex flex-col gap-2">
+              <div
+                className={cn(
+                  "flex flex-col gap-3 rounded-2xl bg-[linear-gradient(160deg,#101223_0%,#181A30_55%,#20223D_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]",
+                  isCollapsed ? "p-2.5" : "p-4"
+                )}
+              >
+                {!isCollapsed && (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[13px] font-bold text-white">
+                      Passez à l&apos;offre Pro
+                    </span>
+                    <span className="text-[11.5px] text-white/50">
+                      IA illimitée, exports, projets illimités
+                    </span>
+                  </div>
+                )}
+                {/* Même mécanique que le composant <Button> partagé (voir
+                    ui/Button.tsx : SHELL + CIRCLE) -- reproduite à la main
+                    ici parce que son cercle de remplissage est câblé en dur
+                    sur bg-primary, alors que ces deux boutons ont chacun
+                    leur propre couleur de remplissage (indigo ici, noir pour
+                    la déconnexion juste en dessous). */}
+                <button
+                  type="button"
+                  title="Passer à la version Pro"
+                  aria-label={isCollapsed ? "Passer à la version Pro" : undefined}
+                  className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-[100px] border-[1.5px] border-white/20 bg-transparent px-3.5 py-3 text-[14px] font-bold text-white transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:rounded-xl hover:border-transparent active:scale-[0.97]"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-1/2 top-1/2 z-0 aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-gradient-to-br from-primary to-primary-container opacity-0 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-100 group-hover:opacity-100"
+                  />
+                  <span className="relative z-10 flex items-center gap-2">
+                    <Sparkles className="h-[16px] w-[16px] shrink-0" aria-hidden="true" />
+                    {!isCollapsed && "Passer à Pro"}
+                  </span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Se déconnecter"
+                aria-label={isCollapsed ? "Se déconnecter" : undefined}
+                className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-[100px] border-[1.5px] border-outline-variant bg-transparent px-3.5 py-3 text-[14px] font-bold text-on-surface-variant transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:rounded-xl hover:border-transparent hover:text-white active:scale-[0.97]"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-1/2 top-1/2 z-0 aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-[#101223] opacity-0 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-100 group-hover:opacity-100"
+                />
+                <span className="relative z-10 flex items-center gap-2">
+                  <LogOut className="h-[16px] w-[16px] shrink-0" aria-hidden="true" />
+                  {!isCollapsed && "Se déconnecter"}
+                </span>
+              </button>
+            </div>
           </div>
         </nav>
-
-        {/* Bas de sidebar : réglages + upsell */}
-        <div className="mt-4 flex flex-col gap-0.5 border-t border-white/10 pt-4">
-          <a
-            href="#"
-            className={`flex items-center gap-2.5 rounded-[6px] px-2.5 py-[7px] text-zinc-400 transition-colors hover:bg-white/5 hover:text-zinc-100 ${
-              isCollapsed ? "justify-center px-0" : ""
-            }`}
-            title={isCollapsed ? "Settings" : undefined}
-          >
-            <Settings className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
-            {!isCollapsed && <span className="text-[13px] tracking-wide">Settings</span>}
-          </a>
-
-          <div className="mt-3">
-            <Button
-              arrows={false}
-              size={isCollapsed ? "sm" : "md"}
-              className={cn("w-full", isCollapsed && "px-0")}
-              title="Passer à la version Pro"
-              aria-label={isCollapsed ? "Passer à la version Pro" : undefined}
-            >
-              <Sparkles className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-              {!isCollapsed && "Passer à Pro"}
-            </Button>
-          </div>
-        </div>
       </div>
     </aside>
   );

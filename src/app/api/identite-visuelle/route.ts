@@ -34,6 +34,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  
+
   // Client Supabase authentifié pour cette requête précise (voir
   // /api/entreprise/route.ts pour l'explication détaillée de ce pattern).
   const supabaseForRequest = createClient(

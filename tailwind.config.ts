@@ -8,6 +8,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Fond de la "coque" Dashboard (voir DashboardView.tsx) : le lavande
+        // pâle sur lequel flotte le panneau sidebar+contenu, distinct de
+        // `background` (encore utilisé tel quel par les pages non retouchées
+        // -- Inscription, BuildEntreprise...). Ne pas réutiliser ailleurs
+        // sans avoir aussi migré la page en question vers ce même look.
+        canvas: "#E9ECF8",
         tertiary: "#825100",
         "surface-tint": "#494bd6",
         "on-tertiary-container": "#fffbff",
