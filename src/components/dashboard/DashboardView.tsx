@@ -1,8 +1,11 @@
 import Sidebar from "./Sidebar";
 import TopNav from "./TopNav";
+import HeroFluidBackground from "./HeroFluidBackground";
+import HeroWelcomeText from "./HeroWelcomeText";
 import BrandIdentityShowcase from "./BrandIdentityShowcase";
 import ActiveProjectsKpi from "./ActiveProjectsKpi";
 import AIRecommendation from "./AIRecommendation";
+import DashboardNextSteps from "./DashboardNextSteps";
 
 export default function DashboardView() {
   return (
@@ -20,12 +23,19 @@ export default function DashboardView() {
 
           <div className="relative z-0 flex-1 overflow-y-auto p-gutter">
             <div className="max-w-container-max mx-auto space-y-xl pb-2xl">
-              {/* Ligne de tuiles KPI : BrandIdentityShowcase + ActiveProjectsKpi
-                  occupent 2 cases, les 2 autres attendent les prochains KPI. */}
-              <div className="grid grid-cols-1 gap-sm sm:grid-cols-2 lg:grid-cols-4">
-                <BrandIdentityShowcase />
-                <ActiveProjectsKpi />
-              </div>
+              {/* Hero section du dashboard : fond animé (HeroFluidBackground)
+                  derrière un texte de bienvenue centré + la ligne de tuiles
+                  KPI. BrandIdentityShowcase + ActiveProjectsKpi occupent 2
+                  cases, les 2 autres attendent les prochains KPI. */}
+              <section className="relative flex min-h-[440px] flex-col items-center justify-center gap-xl overflow-hidden rounded-3xl p-lg">
+                <HeroFluidBackground />
+                <HeroWelcomeText />
+                <div className="relative z-10 grid w-full grid-cols-1 gap-sm sm:grid-cols-2 lg:grid-cols-4">
+                  <BrandIdentityShowcase />
+                  <ActiveProjectsKpi />
+                </div>
+              </section>
+              <DashboardNextSteps />
               <AIRecommendation />
             </div>
           </div>
