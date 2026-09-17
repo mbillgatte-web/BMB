@@ -34,11 +34,8 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
       { icon: Folder, label: "Projects" },
-      { icon: BrainCircuit, label: "Etude de faisabilité" },
-      { icon: ListChecks, label: "Business Plan" },
-      { icon: ClipboardList, label: "Taches" },
-      { icon: FileText, label: "Livrables" },
       { icon: ChartNoAxesCombined, label: "Demarche administrative" },
+     
     ],
   },
   {
@@ -58,6 +55,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { icon: ImagePlus, label: "Visuels marketing", link: "/Visuels" },
     ],
   },
+   
 ];
 
 /**

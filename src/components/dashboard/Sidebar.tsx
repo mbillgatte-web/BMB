@@ -254,7 +254,7 @@ export default function Sidebar() {
                     <span className="text-[13px] font-bold text-white">
                       Passez à l&apos;offre Pro
                     </span>
-                    <span className="text-[11.5px] text-white/50">
+                    <span className="text-[11.5px] text-white">
                       IA illimitée, exports, projets illimités
                     </span>
                   </div>
