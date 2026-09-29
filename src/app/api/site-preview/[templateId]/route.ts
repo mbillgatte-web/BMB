@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { createClient } from "@supabase/supabase-js";
+import { createServerSupabase } from "@/lib/supabase/server";
 import { renderSiteTemplate } from "@/lib/renderSiteTemplate";
+import { getSite } from "@/data/site";
 
 const TEMPLATES_DIR = path.join(process.cwd(), "public", "Templates");
 
@@ -47,23 +48,13 @@ export async function GET(
   const entrepriseId = request.nextUrl.searchParams.get("entrepriseId");
 
   if (entrepriseId) {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    // Le HTML déjà construit pour cette entreprise contient DÉJÀ sa
+    // couleur/police/logo "gravés" dedans, donc s'il existe on le sert tel
+    // quel, sans repasser par renderSiteTemplate. Absence de ligne (ou
+    // erreur de lecture) -> gabarit par défaut ci-dessous.
+    const site = await getSite(createServerSupabase(), entrepriseId, templateId).catch(
+      () => null
     );
-
-    // Le HTML déjà construit pour cette entreprise (voir buildInitialSite.ts
-    // à la création, ou /api/edit-site après une édition IA) -- il contient
-    // DÉJÀ sa couleur/police/logo "gravés" dedans, donc s'il existe on le
-    // sert tel quel, sans repasser par renderSiteTemplate. Absence de ligne
-    // = template jamais choisi par cette entreprise -> on retombe sur le
-    // gabarit par défaut ci-dessous.
-    const { data: site } = await supabase
-      .from("site")
-      .select("html")
-      .eq("entreprise_id", entrepriseId)
-      .eq("template_id", templateId)
-      .maybeSingle();
 
     if (site?.html) {
       return new NextResponse(site.html, {

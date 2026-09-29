@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
+import { uploaderImageSite } from "@/data/site";
 import { CATEGORIES, TEMPLATES, type SiteTemplate } from "./templates-data";
 
 /**
@@ -143,25 +144,15 @@ export default function TemplateGallery() {
     setUploadingImage(true);
     setEditError("");
 
-    const extension = file.name.split(".").pop() ?? "jpg";
-    // Un nom unique par fichier (pas juste l'entrepriseId comme pour le
-    // logo) : une entreprise peut épingler plusieurs photos différentes au
-    // fil de ses éditions, pas une seule image fixe à écraser.
-    const path = `${entreprise.id}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("site-images")
-      .upload(path, file);
-
-    setUploadingImage(false);
-
-    if (uploadError) {
-      setEditError(`Échec de l'envoi de l'image : ${uploadError.message}`);
+    let publicUrl: string;
+    try {
+      publicUrl = await uploaderImageSite(supabase, entreprise.id, file);
+    } catch (err) {
+      setUploadingImage(false);
+      setEditError(`Échec de l'envoi de l'image : ${(err as Error).message}`);
       return;
     }
-
-    const publicUrl = supabase.storage.from("site-images").getPublicUrl(path)
-      .data.publicUrl;
+    setUploadingImage(false);
 
     setAttachedImageUrl(publicUrl);
     setAttachedImageName(file.name);

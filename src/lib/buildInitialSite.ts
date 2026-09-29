@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { renderSiteTemplate, type TemplateIdentity } from "./renderSiteTemplate";
+import { getEntreprise } from "@/data/entreprise";
+import { getIdentiteVisuelle } from "@/data/identiteVisuelle";
 
 /**
  * Construit le contenu ET le HTML de départ d'un site, pour une entreprise
@@ -26,13 +28,11 @@ export async function buildInitialSite(
   const contentPath = path.join(templateDir, "content.json");
   const defaultContent = JSON.parse(fs.readFileSync(contentPath, "utf-8"));
 
-  const [{ data: entreprise }, { data: identiteRow }] = await Promise.all([
-    supabase.from("entreprise").select("nom, contact").eq("id", entrepriseId).maybeSingle(),
-    supabase
-      .from("identite_visuelle")
-      .select("couleur_primaire, police_titre, police_texte, logo_url")
-      .eq("entreprise_id", entrepriseId)
-      .maybeSingle(),
+  // En cas d'erreur de lecture, on garde le contenu/style par défaut du
+  // template plutôt que de faire échouer toute la création du site.
+  const [entreprise, identiteRow] = await Promise.all([
+    getEntreprise(supabase, entrepriseId).catch(() => null),
+    getIdentiteVisuelle(supabase, entrepriseId).catch(() => null),
   ]);
 
   if (entreprise?.nom) {

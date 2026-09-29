@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { supabase } from '@/lib/supabaseClient'
+import { createServerSupabase } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   const { email, password } = await request.json()
@@ -11,6 +11,10 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     )
   }
+
+  // Client neuf pour CETTE requête : un client partagé garderait en mémoire la
+  // session du dernier utilisateur connecté, pour tous les autres.
+  const supabase = createServerSupabase()
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,

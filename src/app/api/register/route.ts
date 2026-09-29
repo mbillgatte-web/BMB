@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { creerCompte } from "@/data/compte";
 
 export async function POST(request: NextRequest) {
   const { email, password , nom , prenom,  contact} = await request.json();
@@ -21,6 +22,10 @@ export async function POST(request: NextRequest) {
 
 
 // creation du user
+// Client neuf pour CETTE requête : après signUp il porte la session du nouvel
+// utilisateur, ce qui permet l'insert dans "compte" juste en dessous, sans
+// risque de mélange avec une autre inscription simultanée.
+  const supabase = createServerSupabase();
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -35,22 +40,16 @@ export async function POST(request: NextRequest) {
 
 
   if (!data.user) {
-    return NextResponse.json({ error: "Erreur lors de la création de l'utilisateur" }, 
+    return NextResponse.json({ error: "Erreur lors de la création de l'utilisateur" },
       { status: 500 });
   }
 
 // creer simultaneement le compte du user
 
-  const { error:  profileError } = await supabase.from("compte").insert({
-      id: data.user.id , 
-      nom, 
-      prenom, 
-      contact,
-  });
-
-
-  if (profileError) {
-    return NextResponse.json({ error: profileError.message },
+  try {
+    await creerCompte(supabase, { id: data.user.id, nom, prenom, contact });
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message },
        { status: 500 });
   }
 

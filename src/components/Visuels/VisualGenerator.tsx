@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, Download, RefreshCw } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 import {

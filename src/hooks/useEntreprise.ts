@@ -1,16 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-
-export interface Entreprise {
-  id: string;
-  nom: string;
-  slogan: string | null;
-  secteur_activite: string | null;
-  contact: string | null;
-  adresse: string | null;
-}
+import { supabase } from "@/lib/supabase/browser";
+import { type Entreprise, listEntreprisesDuCompte } from "@/data/entreprise";
 
 interface UseEntrepriseResult {
   entreprise: Entreprise | null;
@@ -51,19 +43,15 @@ export function useEntreprise(): UseEntrepriseResult {
       return;
     }
 
-    const { data, error: fetchError } = await supabase
-      .from("entreprise")
-      .select("id, nom, slogan, secteur_activite, contact, adresse")
-      .eq("compte_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (fetchError) {
-      setError(fetchError.message);
+    let list: Entreprise[];
+    try {
+      list = await listEntreprisesDuCompte(supabase, user.id);
+    } catch (err) {
+      setError((err as Error).message);
       setLoading(false);
       return;
     }
 
-    const list = data ?? [];
     setEntreprises(list);
 
     // Priorité à ce qui est mémorisé dans localStorage, seulement s'il

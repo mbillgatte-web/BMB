@@ -1,19 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-
-export interface IdentiteVisuelle {
-  id: string;
-  entreprise_id: string;
-  palette_mode: string | null;
-  couleur_primaire: string | null;
-  couleur_fond: string | null;
-  couleur_accent: string | null;
-  police_titre: string | null;
-  police_texte: string | null;
-  logo_url: string | null;
-}
+import { supabase } from "@/lib/supabase/browser";
+import { type IdentiteVisuelle, getIdentiteVisuelle } from "@/data/identiteVisuelle";
 
 interface UseIdentiteVisuelleResult {
   identiteVisuelle: IdentiteVisuelle | null;
@@ -57,22 +46,13 @@ export function useIdentiteVisuelle(
     let cancelled = false;
 
     (async () => {
-      const { data, error: fetchError } = await supabase
-        .from("identite_visuelle")
-        .select(
-          "id, entreprise_id, palette_mode, couleur_primaire, couleur_fond, couleur_accent, police_titre, police_texte, logo_url"
-        )
-        .eq("entreprise_id", entrepriseId)
-        .maybeSingle(); // pas d'erreur si rien n'existe encore pour cette entreprise
-
-      if (cancelled) return;
-
-      if (fetchError) {
-        setError(fetchError.message);
-      } else {
-        setIdentiteVisuelle(data ?? null);
+      try {
+        const data = await getIdentiteVisuelle(supabase, entrepriseId);
+        if (!cancelled) setIdentiteVisuelle(data);
+      } catch (err) {
+        if (!cancelled) setError((err as Error).message);
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     })();
 
     return () => {

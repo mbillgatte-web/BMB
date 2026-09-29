@@ -3,9 +3,10 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
+import { uploaderLogo } from "@/data/identiteVisuelle";
 
 interface LogoBuilderProps {
   /** Appelé quand un fichier logo valide est importé (drag & drop ou input) */
@@ -120,22 +121,13 @@ export default function LogoBuilder({
     let logoUrl: string | null = identiteVisuelle?.logo_url ?? null;
 
     if (logoFile) {
-      const extension = logoFile.name.split(".").pop() ?? "png";
-      // Chemin dans le bucket "logos" : un dossier par entreprise pour
-      // éviter les collisions de noms entre utilisateurs.
-      const path = `${entrepriseId}/logo.${extension}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("logos")
-        .upload(path, logoFile, { upsert: true });
-
-      if (uploadError) {
+      try {
+        logoUrl = await uploaderLogo(supabase, entrepriseId, logoFile);
+      } catch (err) {
         setSaving(false);
-        setError(`Échec de l'envoi du logo : ${uploadError.message}`);
+        setError(`Échec de l'envoi du logo : ${(err as Error).message}`);
         return;
       }
-
-      logoUrl = supabase.storage.from("logos").getPublicUrl(path).data.publicUrl;
     }
 
     // Même mécanisme que EntrepriseForm.tsx : on a besoin du jeton de

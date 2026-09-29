@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { GOOGLE_FONT_QUERY } from "./googleFonts";
 
-/** Sous-ensemble de IdentiteVisuelle (voir useIdentiteVisuelle.ts) réellement utilisé ici. */
+/** Sous-ensemble de IdentiteVisuelle (voir src/data/identiteVisuelle.ts) réellement utilisé ici. */
 export interface TemplateIdentity {
   couleur_primaire?: string | null;
   police_titre?: string | null;

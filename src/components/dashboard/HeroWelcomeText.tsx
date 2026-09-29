@@ -23,9 +23,9 @@ export default function HeroWelcomeText() {
               elementLevelClassName="will-change-transform text-white"
             />
         </span>
-       . 
+       .
       </h1>
-  
+
     </div>
   );
 }

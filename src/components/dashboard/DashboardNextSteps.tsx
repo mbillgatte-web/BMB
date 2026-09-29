@@ -85,24 +85,24 @@ export default function DashboardNextSteps() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-between rounded-2xl bg-[#14162A] p-lg text-white shadow-sm">
+      <div className="flex flex-col justify-between rounded-2xl bg-gradient-to-br from-primary to-primary-container p-lg text-white shadow-sm">
         <div>
           <div className="flex items-center justify-between gap-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#AEB1FF]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
               <Sparkles className="h-5 w-5" aria-hidden="true" />
             </span>
-            <span className="font-label-sm text-[10px] uppercase tracking-[0.12em] text-white/50">À faire maintenant</span>
+            <span className="font-label-sm text-[10px] uppercase tracking-[0.12em] text-white/80">À faire maintenant</span>
           </div>
           <h2 className="mt-7 font-headline-sm text-headline-sm text-white">
             {loading ? "Préparation de votre prochaine étape" : nextStep ? nextStep.label : "Votre identité est prête"}
           </h2>
-          <p className="mt-2 font-body-sm text-body-sm text-white/60">
+          <p className="mt-2 font-body-sm text-body-sm text-white/85">
             {nextStep ? "Une petite étape suffit pour faire progresser votre projet." : "Vous pouvez maintenant explorer vos modèles et créer vos premiers visuels."}
           </p>
         </div>
         <Link
           href={nextStep ? (nextStep.key === "entreprise" ? nextStep.href : withEntreprise(nextStep.href)) : "/Templates"}
-          className="mt-8 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 font-label-md text-label-md text-[#14162A] transition-transform hover:-translate-y-0.5"
+          className="mt-8 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 font-label-md text-label-md text-primary transition-transform hover:-translate-y-0.5"
         >
           <Palette className="h-4 w-4" aria-hidden="true" />
           {nextStep ? "Continuer" : "Voir les modèles"}

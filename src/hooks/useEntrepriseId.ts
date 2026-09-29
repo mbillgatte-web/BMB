@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
+import { listEntreprisesDuCompte } from "@/data/entreprise";
 
 interface UseEntrepriseIdResult {
   entrepriseId: string | null;
@@ -55,17 +56,18 @@ export function useEntrepriseId(): UseEntrepriseIdResult {
         return;
       }
 
-      // La policy RLS "select" ne renvoie de toute façon que les lignes de
-      // ce compte ; le .eq() est surtout là pour la lisibilité.
-      const { data, error: fetchError } = await supabase
-        .from("entreprise")
-        .select("id")
-        .eq("compte_id", user.id);
+      let data;
+      let fetchError = "";
+      try {
+        data = await listEntreprisesDuCompte(supabase, user.id);
+      } catch (err) {
+        fetchError = (err as Error).message;
+      }
 
       if (cancelled) return;
 
       if (fetchError) {
-        setError(fetchError.message);
+        setError(fetchError);
       } else if (!data || data.length === 0) {
         setError(
           "Aucune entreprise trouvée pour ce compte. Crée-en une d'abord."

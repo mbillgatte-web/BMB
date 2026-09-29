@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServerSupabase } from "@/lib/supabase/server";
 import fs from "fs";
 import path from "path";
 
@@ -45,11 +45,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const supabaseForRequest = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { global: { headers: { Authorization: authHeader } } }
-  );
+  const supabaseForRequest = createServerSupabase(authHeader);
 
   // Contrairement à /api/identite-visuelle, cette route ne touche aucune
   // table protégée par RLS (qui aurait sinon rejeté gratuitement un jeton

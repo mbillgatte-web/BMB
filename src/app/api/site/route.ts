@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 import path from "path";
+import { createServerSupabase } from "@/lib/supabase/server";
 import { buildInitialSite } from "@/lib/buildInitialSite";
+import { creerSite, getSite, mettreAJourSite } from "@/data/site";
 
 const TEMPLATES_DIR = path.join(process.cwd(), "public", "Templates");
 
@@ -14,11 +15,11 @@ const SAFE_TEMPLATE_ID = /^[a-zA-Z0-9_-]+$/;
  * POST /api/site — appelée quand l'utilisateur clique "Choisir" sur un
  * template (voir TemplateGallery.tsx -> handleChoose).
  *
- * Crée la ligne "site" de cette entreprise pour ce template si elle n'existe
- * pas encore (voir buildInitialSite.ts pour comment le contenu ET le HTML de
- * départ sont construits), ou renvoie celle qui existe déjà -- pour ne pas
- * écraser les modifications IA déjà faites si l'utilisateur re-clique
- * "Choisir" sur un template déjà en cours d'édition.
+ * Crée le site de cette entreprise pour ce template s'il n'existe pas encore
+ * (voir buildInitialSite.ts pour comment le contenu ET le HTML de départ sont
+ * construits), ou renvoie celui qui existe déjà -- pour ne pas écraser les
+ * modifications IA déjà faites si l'utilisateur re-clique "Choisir" sur un
+ * template déjà en cours d'édition.
  */
 export async function POST(request: NextRequest) {
   const { entrepriseId, templateId } = await request.json();
@@ -51,83 +52,31 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const supabaseForRequest = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { global: { headers: { Authorization: authHeader } } }
-  );
+  const supabase = createServerSupabase(authHeader);
 
-  // On regarde d'abord si un site existe déjà pour ce couple entreprise +
-  // template, plutôt qu'un upsert avec contrainte unique côté BD (aucune
-  // contrainte de ce type n'a été posée sur la table -- une entreprise peut
-  // avoir plusieurs sites, seul le couple entreprise+template doit rester
-  // unique en pratique).
-  const { data: existing, error: selectError } = await supabaseForRequest
-    .from("site")
-    .select("id, entreprise_id, template_id, content, html")
-    .eq("entreprise_id", entrepriseId)
-    .eq("template_id", templateId)
-    .maybeSingle();
+  try {
+    const existing = await getSite(supabase, entrepriseId, templateId);
 
-  if (selectError) {
-    return NextResponse.json({ error: selectError.message }, { status: 500 });
-  }
-
-  if (existing) {
-    if (existing.html) {
+    if (existing?.html) {
       return NextResponse.json({ site: existing });
     }
 
-    // Ligne créée AVANT l'ajout de la colonne "html" (ou jamais remplie
-    // pour une autre raison) -- sans ce rattrapage, /api/site-preview
-    // n'aurait jamais rien à servir pour ce site et retomberait sur le
-    // gabarit générique par défaut. Sans risque d'écraser une édition IA :
-    // /api/edit-site exige déjà un `html` existant pour fonctionner, donc
-    // si cette colonne est vide, aucune édition n'a pu avoir lieu dessus.
-    const { content, html } = await buildInitialSite(
-      supabaseForRequest,
-      entrepriseId,
-      templateDir
-    );
+    const { content, html } = await buildInitialSite(supabase, entrepriseId, templateDir);
 
-    const { data: healed, error: healError } = await supabaseForRequest
-      .from("site")
-      .update({ content, html })
-      .eq("id", existing.id)
-      .select("id, entreprise_id, template_id, content, html")
-      .single();
-
-    if (healError) {
-      return NextResponse.json({ error: healError.message }, { status: 500 });
+    if (existing) {
+      // Ligne créée AVANT l'ajout de la colonne "html" (ou jamais remplie
+      // pour une autre raison) -- sans ce rattrapage, /api/site-preview
+      // n'aurait jamais rien à servir pour ce site et retomberait sur le
+      // gabarit générique par défaut. Sans risque d'écraser une édition IA :
+      // /api/edit-site exige déjà un `html` existant pour fonctionner, donc
+      // si cette colonne est vide, aucune édition n'a pu avoir lieu dessus.
+      const healed = await mettreAJourSite(supabase, existing.id, { content, html });
+      return NextResponse.json({ site: healed });
     }
 
-    return NextResponse.json({ site: healed });
+    const created = await creerSite(supabase, { entrepriseId, templateId, content, html });
+    return NextResponse.json({ site: created });
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
-
-  const { content, html } = await buildInitialSite(
-    supabaseForRequest,
-    entrepriseId,
-    templateDir
-  );
-
-  const { data: created, error: insertError } = await supabaseForRequest
-    .from("site")
-    .insert({
-      entreprise_id: entrepriseId,
-      template_id: templateId,
-      content,
-      html,
-    })
-    .select("id, entreprise_id, template_id, content, html")
-    .single();
-
-  if (insertError) {
-    // "row-level security policy" -> vérifie que la policy site_insert_own
-    // compare bien entreprise.compte_id (via jointure) à auth.uid().
-    // "column site.html does not exist" -> exécute le SQL fourni pour
-    // ajouter cette colonne (voir le message envoyé au sujet du HTML).
-    return NextResponse.json({ error: insertError.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ site: created });
 }

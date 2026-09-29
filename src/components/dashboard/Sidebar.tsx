@@ -7,8 +7,9 @@ import { Settings, Sparkles, ChevronDown, LogOut } from "lucide-react";
 import { MenuToggle } from "@/components/menuToggle/bouttonmenu";
 import { cn } from "@/lib/cn";
 import { useEntreprise } from "@/hooks/useEntreprise";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { NAV_GROUPS } from "./nav-items";
+import EntrepriseSwitcher from "./EntrepriseSwitcher";
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -52,26 +53,10 @@ export default function Sidebar() {
         {/* En-tête : sélecteur d'entreprise + repli */}
         <div
           className={`flex items-center pb-8 ${
-            isCollapsed ? "justify-center" : "justify-between gap-3 px-2"
+            isCollapsed ? "flex-col gap-3" : "justify-between gap-2 px-0.5"
           }`}
         >
-          {!isCollapsed && (
-            // Titre pur, plus aucune affordance de sélection (ni bouton ni
-            // menu) : juste le nom de l'entreprise en en-tête, comme demandé.
-            <div className="flex min-w-0 flex-1 items-center gap-3">
-              <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-container font-extrabold text-[15px] text-on-primary shadow-[0_8px_18px_-8px_rgba(70,72,212,0.55)]">
-                {(entreprise?.nom ?? "B").charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[15px] font-bold leading-tight text-on-surface">
-                  {entreprise?.nom ?? "Build My Business"}
-                </p>
-                <p className="mt-0.5 text-[12px] leading-none text-on-surface-variant/70">
-                  Strategic Suite
-                </p>
-              </div>
-            </div>
-          )}
+          <EntrepriseSwitcher collapsed={isCollapsed} />
 
           <MenuToggle
             open={!isCollapsed}
@@ -233,7 +218,7 @@ export default function Sidebar() {
               </a>
             </div>
 
-            {/* Encart Pro (seul aplat sombre de l'écran -- voir l'aperçu
+            {/* Encart Pro (aplat violet de l'écran -- voir l'aperçu
                 "Indigo Clair" validé avant cette implémentation) et
                 déconnexion, au même gabarit de bouton (rounded-xl, py-3,
                 font-bold) pour un poids visuel comparable -- seule la
@@ -245,7 +230,7 @@ export default function Sidebar() {
             <div className="flex flex-col gap-2">
               <div
                 className={cn(
-                  "flex flex-col gap-3 rounded-2xl bg-[linear-gradient(160deg,#101223_0%,#181A30_55%,#20223D_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]",
+                  "flex flex-col gap-3 rounded-2xl bg-[linear-gradient(160deg,#3739B7_0%,#4648D4_55%,#6063EE_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]",
                   isCollapsed ? "p-2.5" : "p-4"
                 )}
               >
@@ -263,8 +248,8 @@ export default function Sidebar() {
                     ui/Button.tsx : SHELL + CIRCLE) -- reproduite à la main
                     ici parce que son cercle de remplissage est câblé en dur
                     sur bg-primary, alors que ces deux boutons ont chacun
-                    leur propre couleur de remplissage (indigo ici, noir pour
-                    la déconnexion juste en dessous). */}
+                    leur propre couleur de remplissage (indigo ici, violet
+                    au survol de la déconnexion juste en dessous). */}
                 <button
                   type="button"
                   title="Passer à la version Pro"
@@ -291,7 +276,7 @@ export default function Sidebar() {
               >
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute left-1/2 top-1/2 z-0 aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-[#101223] opacity-0 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-100 group-hover:opacity-100"
+                  className="pointer-events-none absolute left-1/2 top-1/2 z-0 aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-primary opacity-0 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-100 group-hover:opacity-100"
                 />
                 <span className="relative z-10 flex items-center gap-2">
                   <LogOut className="h-[16px] w-[16px] shrink-0" aria-hidden="true" />

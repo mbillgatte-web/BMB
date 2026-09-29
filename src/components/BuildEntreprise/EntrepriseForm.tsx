@@ -4,16 +4,8 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import FormInput from "./FormInput";
 import FormSelect from "./FormSelect";
-import { supabase } from "@/lib/supabaseClient";
-
-const SECTEURS = [
-  { value: "commerce", label: "Commerce & vente" },
-  { value: "technologie", label: "Technologie & Numérique" },
-  { value: "education", label: "Éducation & Formation" },
-  { value: "Restaurant", label: "Restaurant et Consomation" },
-  { value: "Beauté", label: "Beauté cosmetique" },
-  { value: "autre", label: "Autre" },
-];
+import { supabase } from "@/lib/supabase/browser";
+import { SECTEURS } from "@/data/entreprise";
 
 export default function EntrepriseForm() {
   const router = useRouter();
