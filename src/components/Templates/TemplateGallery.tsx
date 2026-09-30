@@ -6,15 +6,46 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 import { uploaderImageSite } from "@/data/site";
 import { CATEGORIES, TEMPLATES, type SiteTemplate } from "./templates-data";
+import ChatComposer, { type Raccourci } from "./ChatComposer";
+
+// Exemples qui défilent dans la zone vide, et raccourcis proposés une fois
+// la zone dépliée (voir ChatComposer). Adaptés à l'édition d'un modèle.
+const EXEMPLES_EDITION = [
+  "Remplace les plats par ceux de mon restaurant…",
+  "Mets mes horaires du mardi au dimanche…",
+  "Change le titre principal…",
+  "Ajoute une section sur la livraison…",
+];
+const RACCOURCIS_EDITION: Raccourci[] = [
+  { libelle: "Réécrire les textes", texte: "Réécris les textes pour qu'ils parlent de " },
+  { libelle: "Changer les horaires", texte: "Mets les horaires suivants : " },
+  { libelle: "Modifier le menu", texte: "Remplace les plats du menu par : " },
+  { libelle: "Changer le slogan", texte: "Change le slogan du hero en : " },
+];
 
 /**
- * Construit l'URL d'une vignette placeholder (placehold.co) pour un
- * template donné, en attendant de vraies captures d'écran de templates
- * réels. Format: largeur x hauteur / couleur de fond / couleur de texte.
+ * Vignette d'un template. Pour un template opérationnel (templateId), c'est
+ * une vraie capture d'écran de son rendu, générée par
+ * `npm run templates:capture` (scripts/capture-templates.mjs) dans
+ * public/Templates/<id>/preview.png. Pour une simple entrée de catalogue
+ * (pas encore de fichiers), on garde un placeholder coloré (placehold.co).
  */
 function thumbnailUrl(template: SiteTemplate, size = "640x400") {
+  if (template.templateId) return `/Templates/${template.templateId}/preview.png`;
   const label = encodeURIComponent(template.name);
   return `https://placehold.co/${size}/${template.accentColor}/FFFFFF?text=${label}`;
+}
+
+/**
+ * Ordre d'affichage : les templates opérationnels (avec de vrais fichiers,
+ * donc choisissables) d'abord, les entrées « Bientôt disponible » ensuite.
+ * Le tri est stable : à disponibilité égale, l'ordre de templates-data.ts
+ * est conservé.
+ */
+function sortAvailableFirst(templates: SiteTemplate[]) {
+  return [...templates].sort(
+    (a, b) => Number(Boolean(b.templateId)) - Number(Boolean(a.templateId))
+  );
 }
 
 /**
@@ -76,10 +107,11 @@ export default function TemplateGallery() {
 
   const selectedTemplate = TEMPLATES.find((t) => t.id === selectedTemplateId);
 
-  const visibleTemplates =
+  const visibleTemplates = sortAvailableFirst(
     activeCategory === "Tous"
       ? TEMPLATES
-      : TEMPLATES.filter((t) => t.category === activeCategory);
+      : TEMPLATES.filter((t) => t.category === activeCategory)
+  );
 
   const handleChoose = async (template: SiteTemplate) => {
     if (!template.templateId) return;
@@ -394,79 +426,39 @@ export default function TemplateGallery() {
               )}
             </div>
 
-            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
-              <label
-                htmlFor="site-prompt"
-                className="mb-2 block font-label-md text-label-md text-on-surface"
-              >
+            {/* Même composeur que le générateur de site par IA
+                (ChatComposer) : zone qui se déplie, exemples animés, image
+                jointe, dictée et raccourcis. Envoi = handleEdit. */}
+            <div>
+              <p className="mb-2 font-label-md text-label-md text-on-surface">
                 Que voulez-vous modifier ?
-              </label>
-              <textarea
-                id="site-prompt"
-                rows={6}
+              </p>
+              <ChatComposer
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Ex: Remplace le contenu par celui de mon restaurant avec des plats comme le eru et l'okok, et des horaires du mardi au dimanche..."
-                className="w-full resize-none rounded-lg border border-outline-variant bg-white p-3 text-body-sm font-body-sm placeholder:text-secondary focus:border-primary focus:ring-1 focus:ring-primary"
+                onChange={setPrompt}
+                onSubmit={handleEdit}
+                disabled={editing}
+                exemples={EXEMPLES_EDITION}
+                raccourcis={RACCOURCIS_EDITION}
+                onJoindre={handleAttachImage}
+                envoiPieceJointe={uploadingImage}
+                pieceJointe={
+                  attachedImageUrl && attachedImageName
+                    ? { url: attachedImageUrl, nom: attachedImageName }
+                    : null
+                }
+                onRetirerPieceJointe={() => {
+                  setAttachedImageUrl(null);
+                  setAttachedImageName(null);
+                }}
               />
-
-              {/* Vignette de confirmation de l'image épinglée (voir
-                  handleAttachImage) -- affichée seulement une fois l'upload
-                  terminé, avec un bouton pour la retirer avant d'envoyer. */}
-              {attachedImageName && (
-                <div className="mt-2 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
-                  <span className="material-symbols-outlined text-[16px] text-primary">
-                    image
-                  </span>
-                  <span className="flex-1 truncate font-body-sm text-body-sm text-on-surface">
-                    {attachedImageName}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAttachedImageUrl(null);
-                      setAttachedImageName(null);
-                    }}
-                    aria-label="Retirer l'image épinglée"
-                    className="text-on-surface-variant transition-colors hover:text-red-700"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">
-                      close
-                    </span>
-                  </button>
-                </div>
-              )}
-
-              <div className="mt-2 flex items-center justify-between">
-                <label
-                  htmlFor="site-image-upload"
-                  className={`flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant transition-colors ${
-                    uploadingImage
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer hover:text-primary"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    attach_file
-                  </span>
-                  {uploadingImage ? "Envoi de l'image..." : "Épingler une image"}
-                </label>
-                <input
-                  id="site-image-upload"
-                  type="file"
-                  accept="image/*"
-                  disabled={uploadingImage}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleAttachImage(file);
-                    // Permet de réépingler le même fichier une 2e fois (sinon
-                    // le navigateur ignore un <input type="file"> dont la
-                    // valeur n'a pas changé).
-                    e.target.value = "";
-                  }}
-                  className="hidden"
-                />
-              </div>
+              <p className="mt-2 px-2 text-center text-[11px] text-outline">
+                {editing
+                  ? "Modification en cours…"
+                  : uploadingImage
+                    ? "Envoi de l'image…"
+                    : "Entrée pour envoyer · Maj + Entrée pour aller à la ligne"}
+              </p>
             </div>
 
             {editError && (
@@ -474,18 +466,6 @@ export default function TemplateGallery() {
                 {editError}
               </p>
             )}
-
-            <button
-              type="button"
-              onClick={handleEdit}
-              disabled={editing}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 font-label-md text-label-md text-white shadow-sm transition-all disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                auto_awesome
-              </span>
-              {editing ? "Modification en cours..." : "Modifier avec l'IA"}
-            </button>
 
             <button
               type="button"
@@ -563,7 +543,8 @@ export default function TemplateGallery() {
                 <img
                   src={thumbnailUrl(template)}
                   alt={`Aperçu du template ${template.name}`}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                  className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
                 />
                 <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 font-label-sm text-label-sm text-on-surface shadow-sm">
                   {template.category}

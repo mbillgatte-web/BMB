@@ -42,10 +42,18 @@ type Props = {
   exemples: string[];
   /** Pastilles affichées quand la zone est dépliée ; elles pré-remplissent la demande. */
   raccourcis?: Raccourci[];
-  onJoindre: (fichier: File) => void;
+  /** Absent = pas de bouton « joindre une image » (ex. palette, typographie). */
+  onJoindre?: (fichier: File) => void;
   envoiPieceJointe?: boolean;
   pieceJointe?: { url: string; nom: string } | null;
   onRetirerPieceJointe?: () => void;
+  /**
+   * Autorise l'envoi avec une zone vide (ex. visuels marketing : la
+   * description est optionnelle, l'identité de l'entreprise suffit).
+   */
+  autoriserVide?: boolean;
+  /** Placeholder une fois la zone dépliée (par défaut « Votre demande… »). */
+  placeholder?: string;
 };
 
 /**
@@ -64,8 +72,12 @@ export default function ChatComposer({
   envoiPieceJointe,
   pieceJointe,
   onRetirerPieceJointe,
+  autoriserVide = false,
+  placeholder = "Votre demande…",
 }: Props) {
   const reduceMotion = useReducedMotion();
+  // Peut-on envoyer ? Texte non vide, sauf si l'appelant accepte le vide.
+  const envoyable = (autoriserVide || Boolean(value.trim())) && !disabled;
   const [actif, setActif] = useState(false);
   const [indexExemple, setIndexExemple] = useState(0);
   const [afficherExemple, setAfficherExemple] = useState(true);
@@ -194,6 +206,7 @@ export default function ChatComposer({
 
       {/* Ligne de saisie */}
       <div className="flex items-end gap-1.5 p-2.5">
+        {onJoindre && (
         <label
           className={cn(
             "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors",
@@ -216,8 +229,9 @@ export default function ChatComposer({
             }}
           />
         </label>
+        )}
 
-        <div className="relative min-w-0 flex-1 self-center">
+        <div className={cn("relative min-w-0 flex-1 self-center", !onJoindre && "pl-2")}>
           <textarea
             ref={saisieRef}
             value={value}
@@ -226,13 +240,13 @@ export default function ChatComposer({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                if (value.trim() && !disabled) onSubmit();
+                if (envoyable) onSubmit();
               }
             }}
             rows={1}
             disabled={disabled}
             aria-label="Votre message à l'assistant"
-            placeholder={deplie ? "Votre demande…" : undefined}
+            placeholder={deplie ? placeholder : undefined}
             className="relative z-10 max-h-40 min-h-10 w-full resize-none border-0 bg-transparent px-1 py-2.5 text-[15px] leading-6 text-on-surface placeholder:text-outline focus:outline-none focus:ring-0 focus-visible:outline-none [field-sizing:content]"
           />
 
@@ -306,11 +320,11 @@ export default function ChatComposer({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            if (value.trim() && !disabled) onSubmit();
+            if (envoyable) onSubmit();
           }}
-          disabled={!value.trim() || disabled}
-          whileHover={value.trim() && !disabled ? { scale: 1.06 } : undefined}
-          whileTap={value.trim() && !disabled ? { scale: 0.92 } : undefined}
+          disabled={!envoyable}
+          whileHover={envoyable ? { scale: 1.06 } : undefined}
+          whileTap={envoyable ? { scale: 0.92 } : undefined}
           title="Envoyer"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-[0_8px_18px_-8px_rgba(70,72,212,0.8)] transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-outline disabled:shadow-none"
         >

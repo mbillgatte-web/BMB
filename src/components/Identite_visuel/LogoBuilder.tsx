@@ -7,6 +7,8 @@ import { supabase } from "@/lib/supabase/browser";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 import { uploaderLogo } from "@/data/identiteVisuelle";
+import ChatComposer from "@/components/Templates/ChatComposer";
+import SoonBadge from "@/components/ui/SoonBadge";
 
 interface LogoBuilderProps {
   /** Appelé quand un fichier logo valide est importé (drag & drop ou input) */
@@ -346,37 +348,28 @@ export default function LogoBuilder({
               <h3 className="text-headline-sm font-headline-sm text-on-surface">
                 Générer avec l&apos;IA
               </h3>
+              {!onGenerateWithAI && <SoonBadge />}
             </div>
             <p className="relative z-10 text-body-sm font-body-sm text-secondary">
               Décrivez le concept de votre marque, les éléments clés, et le
               style souhaité (ex: minimaliste, vintage, typographique).
             </p>
-            <div className="relative z-10 flex flex-col gap-sm">
-              <label className="sr-only" htmlFor="ai-prompt">
-                Description du logo
-              </label>
-              <textarea
-                id="ai-prompt"
-                rows={3}
+            {/* Même composeur que le générateur de site (ChatComposer).
+                Tant que onGenerateWithAI n'est pas branché, la zone reste
+                visible mais désactivée (badge « Bientôt » dans le titre). */}
+            <div className="relative z-10">
+              <ChatComposer
                 value={aiPrompt}
-                onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="Ex: Un logo minimaliste pour un café,couleurs chaudes..."
-                className="w-full resize-none rounded-lg border border-outline-variant bg-white p-md text-body-md font-body-md text-on-surface focus:border-primary focus:ring focus:ring-primary/20"
+                onChange={setAiPrompt}
+                onSubmit={handleAIGenerate}
+                disabled={!onGenerateWithAI}
+                placeholder="Décrivez votre logo…"
+                exemples={[
+                  "Un logo minimaliste pour un café, couleurs chaudes…",
+                  "Un monogramme élégant pour un cabinet d'avocats…",
+                  "Un logo typographique pour une école de code…",
+                ]}
               />
-
-              <div className="flex flex-wrap items-center justify-between gap-sm">
-                <button
-                  type="button"
-                  onClick={handleAIGenerate}
-                  disabled={!aiPrompt.trim()}
-                  className="flex shrink-0 items-center gap-xs rounded-lg bg-primary-container px-lg py-sm text-label-md font-label-md text-on-primary-container shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    magic_button
-                  </span>
-                  Générer
-                </button>
-              </div>
             </div>
           </div>
         </div>

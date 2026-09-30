@@ -4,7 +4,8 @@ import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
-
+import ChatComposer from "@/components/Templates/ChatComposer";
+import SoonBadge from "@/components/ui/SoonBadge";
 
 type PaletteMode = 2 | 3;
 
@@ -326,23 +327,26 @@ export default function PaletteBuilder({
               auto_awesome
             </span>
             <h3 className="text-label-md font-label-md font-bold text-on-surface">
-              Generer avec l'IA
+              Générer avec l&apos;IA
             </h3>
+            {!onGenerateWithAI && <SoonBadge />}
           </div>
-          <div className="relative z-10 flex flex-col gap-3">
-            <textarea
+          {/* Même composeur que le générateur de site (ChatComposer).
+              Tant que onGenerateWithAI n'est pas branché, la zone reste
+              visible mais désactivée (badge « Bientôt » dans le titre). */}
+          <div className="relative z-10">
+            <ChatComposer
               value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              className="w-full bg-white border border-surface-variant rounded-lg p-3 text-body-sm font-body-sm placeholder:text-secondary focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none h-20"
-              placeholder="e.g. 'A calming wellness brand with soft earthy tones and a clean modern aesthetic.'"
+              onChange={setAiPrompt}
+              onSubmit={handleAIGenerate}
+              disabled={!onGenerateWithAI}
+              placeholder="Décrivez l'ambiance de votre marque…"
+              exemples={[
+                "Une marque de bien-être, tons terreux et doux…",
+                "Un cabinet sérieux, bleu profond et gris clair…",
+                "Un fast-food énergique, orange et noir…",
+              ]}
             />
-            <button
-              onClick={handleAIGenerate}
-              disabled={!aiPrompt.trim()}
-              className="self-end bg-surface text-on-surface border border-surface-variant font-label-sm text-label-sm px-4 py-2 rounded-md hover:bg-surface-variant transition-colors shadow-sm flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Generere
-            </button>
           </div>
         </div>
 
