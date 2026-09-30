@@ -1,0 +1,11 @@
+{
+  "_comment": "Look d'origine du template NetSolutions (voir assets/css/style.css) : fond sombre profond avec grille fine, titres Space Grotesk, texte IBM Plex Sans, accent vert-bleu net. --ns-primary porte la couleur d'accent ; ses nuances sont dérivées en CSS avec color-mix(). Les fonds sombres et le texte clair restent intacts pour préserver le contraste. IBM Plex Mono (étiquettes techniques) est décorative et chargée à part dans index.html.",
+  "colorPrimary": "#1fb59b",
+  "fontHeading": "Space Grotesk",
+  "fontBody": "IBM Plex Sans",
+  "cssVars": {
+    "primary": "--ns-primary",
+    "heading": "--ns-font-heading",
+    "body": "--ns-font-body"
+  }
+}

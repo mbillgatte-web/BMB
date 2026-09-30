@@ -1,34 +1,91 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowLeft, Lock, Mail, Phone, User } from "lucide-react";
 import Button from "@/components/ui/Button";
+import SoonBadge from "@/components/ui/SoonBadge";
+import GoogleIcon from "@/components/ui/GoogleIcon";
+import { FormError, PasswordField, TextField } from "@/components/ui/Field";
 import { supabase } from "@/lib/supabase/browser";
+import { cn } from "@/lib/cn";
+
+const MOT_DE_PASSE_MIN = 6;
+
+const ETAPES = [
+  { titre: "Vous", sousTitre: "Pour savoir à qui nous parlons." },
+  { titre: "Votre accès", sousTitre: "L'email et le mot de passe qui vous serviront à vous connecter." },
+] as const;
+
+type FieldErrors = { password?: string; confirmPassword?: string };
+
+// Messages Supabase (en anglais) les plus fréquents à l'inscription.
+function traduireErreur(message: string | undefined): string {
+  if (!message) return "Inscription impossible pour le moment. Réessayez dans un instant.";
+  if (/already registered/i.test(message)) {
+    return "Un compte existe déjà avec cet email. Connectez-vous plutôt.";
+  }
+  if (/invalid.*email|email.*invalid/i.test(message)) {
+    return "Cette adresse email n'est pas valide.";
+  }
+  return message;
+}
+
+/** Score 0 à 4 : longueur, chiffres, majuscules, caractères spéciaux. */
+function solidite(motDePasse: string): { score: number; libelle: string } {
+  if (!motDePasse) return { score: 0, libelle: "" };
+  if (motDePasse.length < MOT_DE_PASSE_MIN) return { score: 1, libelle: "Trop court" };
+  let score = 1;
+  if (motDePasse.length >= 10) score++;
+  if (/\d/.test(motDePasse) && /[a-zA-Z]/.test(motDePasse)) score++;
+  if (/[A-Z]/.test(motDePasse) && /[^a-zA-Z0-9]/.test(motDePasse)) score++;
+  return { score, libelle: ["", "Faible", "Correct", "Bon", "Solide"][score] };
+}
+
+const COULEUR_SOLIDITE = ["", "bg-error", "bg-amber-500", "bg-primary", "bg-secondary"];
 
 export default function RegisterForm() {
+  const [etape, setEtape] = useState<0 | 1>(0);
+  const [direction, setDirection] = useState(1);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [prenom, setPrenom] = useState("");
   const [contact, setContact] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const reduceMotion = useReducedMotion();
+
+  const allerA = (cible: 0 | 1) => {
+    setDirection(cible > etape ? 1 : -1);
+    setEtape(cible);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
 
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas");
-      setLoading(false);
+    // Étape 1 : les champs `required` sont déjà validés par le navigateur.
+    if (etape === 0) {
+      allerA(1);
       return;
     }
+
+    setError("");
+    const errors: FieldErrors = {};
+    if (password.length < MOT_DE_PASSE_MIN) {
+      errors.password = `Au moins ${MOT_DE_PASSE_MIN} caractères.`;
+    }
+    if (confirmPassword !== password) {
+      errors.confirmPassword = "Les deux mots de passe ne correspondent pas.";
+    }
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    setLoading(true);
 
     const res = await fetch("/api/register", {
       method: "POST",
@@ -39,10 +96,10 @@ export default function RegisterForm() {
     });
 
     const data = await res.json();
-    setLoading(false);
 
     if (!res.ok) {
-      setError(data.error || "Erreur lors de l'inscription");
+      setLoading(false);
+      setError(traduireErreur(data.error));
       return;
     }
 
@@ -59,270 +116,191 @@ export default function RegisterForm() {
     router.push("/dashboard");
   };
 
+  const force = solidite(password);
+  const decalage = reduceMotion ? 0 : 24;
+
   return (
-    <div className="w-full max-w-[460px]">
-      {/* ===== HEADER / LOGO ===== */}
-      <div className="mb-10">
-        
+    <div className="stagger-in">
+      <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.02em] text-on-surface">
+        Créer un compte
+      </h1>
 
-        <div className="space-y-2">
-          <h1 className="font-headline-lg text-headline-lg text-on-surface hidden md:block lg:hidden">
-            Créez votre compte
-          </h1>
-
-          <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface block md:hidden">
-            Créez votre compte
-          </h1>
-          <p className="font-body-md text-body-md text-on-surface-variant max-w-[380px]">
-            Rejoignez des milliers d’entrepreneurs et commencez à bâtir votre
-            projet dès aujourd’hui.
-          </p>
-        </div>
-      </div>
-
-      {/* ===== FORMULAIRE ===== */}
-      <form className="space-y-5" onSubmit={handleSubmit}>
-        {/* Nom */}
-        <div className="space-y-1.5">
-          <label
-            htmlFor="name"
-            className="block font-body-sm text-body-sm text-on-surface-variant"
-          >
-            Nom complet
-          </label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] text-outline">
-              person
+      {/* Progression : deux segments qui se remplissent */}
+      <div className="mt-6">
+        <div className="flex gap-2" aria-hidden="true">
+          {ETAPES.map((e, i) => (
+            <span key={e.titre} className="h-1 flex-1 overflow-hidden rounded-full bg-surface-container-high">
+              <motion.span
+                className="block h-full origin-left rounded-full bg-primary"
+                initial={false}
+                animate={{ scaleX: i <= etape ? 1 : 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.45, ease: [0.2, 0.7, 0.2, 1] }}
+              />
             </span>
-            <input
-              id="nom"
-              name="nom"
-              type="text"
-              placeholder="Mbeppa"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-            />
-          </div>
+          ))}
         </div>
-
-        
-
-
-        {/* PreNom */}
-        <div className="space-y-1.5">
-          <label
-            htmlFor="prenom"
-            className="block font-body-sm text-body-sm text-on-surface-variant"
-          >
-            Prenom
-          </label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] text-outline">
-              person
-            </span>
-            <input
-              id="prenom"
-              name="prenom"
-              type="text"
-              placeholder="Bill"
-              required
-              value={prenom}
-              onChange={(e) => setPrenom(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-            />
-          </div>
-        </div>
-
-
-                {/* Contact*/}
-        <div className="space-y-1.5">
-          <label
-            htmlFor="contact"
-            className="block font-body-sm text-body-sm text-on-surface-variant"
-          >
-            Tel
-          </label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] text-outline">
-              phone
-            </span>
-            <input
-              id="contact"
-              name="contact"
-              type="tel"
-              placeholder="(+237) 6 XXX"
-              required
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-            />
-          </div>
-        </div>
-
-
-
-        {/* Email */}
-        <div className="space-y-1.5">
-          <label
-            htmlFor="email"
-            className="block font-body-sm text-body-sm text-on-surface-variant"
-          >
-            Adresse email
-          </label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] text-outline">
-              mail
-            </span>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="nom@entreprise.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-            />
-          </div>
-        </div>
-
-        {/* Mot de passe */}
-        <div className="space-y-1.5">
-          <label
-            htmlFor="password"
-            className="block font-body-sm text-body-sm text-on-surface-variant"
-          >
-            Mot de passe
-          </label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] text-outline">
-              lock
-            </span>
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-11 pr-12 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-            />
-            <Button
-              variant="icon"
-              size="sm"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                {showPassword ? "visibility_off" : "visibility"}
-              </span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Confirmation mot de passe */}
-        <div className="space-y-1.5">
-          <label
-            htmlFor="confirmPassword"
-            className="block font-body-sm text-body-sm text-on-surface-variant"
-          >
-            Confirmer le mot de passe
-          </label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] text-outline">
-              lock
-            </span>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="••••••••"
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full pl-11 pr-12 py-3 rounded-xl border border-outline-variant bg-surface text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-            />
-            <Button
-              variant="icon"
-              size="sm"
-              onClick={() => setShowConfirmPassword((v) => !v)}
-              aria-label={
-                showConfirmPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
-              }
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                {showConfirmPassword ? "visibility_off" : "visibility"}
-              </span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Erreur */}
-        {error && (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 font-body-sm text-body-sm">
-            <span className="material-symbols-outlined text-[18px]">error</span>
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* Bouton principal */}
-        <Button type="submit" size="lg" loading={loading} className="w-full">
-          {loading ? "Inscription en cours..." : "Créer mon compte"}
-        </Button>
-
-        {/* Séparateur */}
-        <div className="relative py-2">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-outline-variant/60" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="px-4 bg-surface-container-lowest font-body-sm text-body-sm text-on-surface-variant">
-              ou continuer avec
-            </span>
-          </div>
-        </div>
-
-        {/* Google */}
-        <Button variant="secondary" size="lg" className="w-full">
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
-            <path
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              fill="#4285F4"
-            />
-            <path
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              fill="#34A853"
-            />
-            <path
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              fill="#FBBC05"
-            />
-            <path
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              fill="#EA4335"
-            />
-          </svg>
-          Continuer avec Google
-        </Button>
-      </form>
-
-      {/* Lien connexion */}
-      <div className="mt-8 pt-6 border-t border-outline-variant/40 text-center">
-        <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Vous avez déjà un compte ?{" "}
-          <Link
-            href="/"
-            className="font-label-md text-label-md text-primary hover:text-[#4F46E5] transition-colors"
-          >
-            Se connecter
-          </Link>
+        <p className="mt-3 text-sm text-on-surface-variant">
+          <span className="font-medium text-on-surface">
+            Étape {etape + 1} sur {ETAPES.length} · {ETAPES[etape].titre}
+          </span>
+          <span className="block">{ETAPES[etape].sousTitre}</span>
         </p>
       </div>
+
+      <form className="mt-7" onSubmit={handleSubmit}>
+        <AnimatePresence mode="wait" initial={false} custom={direction}>
+          <motion.div
+            key={etape}
+            custom={direction}
+            initial={{ opacity: 0, x: direction * decalage }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: direction * -decalage }}
+            transition={{ duration: reduceMotion ? 0 : 0.25, ease: [0.2, 0.7, 0.2, 1] }}
+            className="space-y-5"
+          >
+            {etape === 0 ? (
+              <>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <TextField
+                    label="Prénom"
+                    icon={User}
+                    name="prenom"
+                    autoComplete="given-name"
+                    required
+                    autoFocus
+                    value={prenom}
+                    onChange={(e) => setPrenom(e.target.value)}
+                  />
+                  <TextField
+                    label="Nom"
+                    icon={User}
+                    name="nom"
+                    autoComplete="family-name"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+
+                <TextField
+                  label="Téléphone"
+                  icon={Phone}
+                  type="tel"
+                  name="contact"
+                  autoComplete="tel"
+                  placeholder="+237 6XX XX XX XX"
+                  required
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                />
+
+                <Button type="submit" size="lg" className="w-full">
+                  Continuer
+                </Button>
+              </>
+            ) : (
+              <>
+                <TextField
+                  label="Adresse email"
+                  icon={Mail}
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  placeholder="vous@entreprise.com"
+                  required
+                  autoFocus
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+
+                <div>
+                  <PasswordField
+                    label="Mot de passe"
+                    icon={Lock}
+                    name="password"
+                    autoComplete="new-password"
+                    required
+                    error={fieldErrors.password}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (fieldErrors.password) setFieldErrors((f) => ({ ...f, password: undefined }));
+                    }}
+                  />
+                  {!fieldErrors.password && (
+                    <div className="mt-2 flex items-center gap-3" aria-live="polite">
+                      <div className="flex flex-1 gap-1" aria-hidden="true">
+                        {[1, 2, 3, 4].map((n) => (
+                          <span key={n} className="h-1 flex-1 overflow-hidden rounded-full bg-surface-container-high">
+                            <motion.span
+                              className={cn("block h-full origin-left rounded-full", COULEUR_SOLIDITE[force.score])}
+                              initial={false}
+                              animate={{ scaleX: n <= force.score ? 1 : 0 }}
+                              transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeOut" }}
+                            />
+                          </span>
+                        ))}
+                      </div>
+                      <span className="w-20 text-right text-xs text-on-surface-variant">
+                        {force.libelle || `${MOT_DE_PASSE_MIN} caractères min.`}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <PasswordField
+                  label="Confirmer le mot de passe"
+                  icon={Lock}
+                  name="confirmPassword"
+                  autoComplete="new-password"
+                  required
+                  error={fieldErrors.confirmPassword}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (fieldErrors.confirmPassword) {
+                      setFieldErrors((f) => ({ ...f, confirmPassword: undefined }));
+                    }
+                  }}
+                />
+
+                {error && <FormError>{error}</FormError>}
+
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    onClick={() => allerA(0)}
+                    className="shrink-0 px-3"
+                  >
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                    Retour
+                  </Button>
+                  <Button type="submit" size="lg" loading={loading} className="flex-1">
+                    {loading ? "Création du compte…" : "Créer mon compte"}
+                  </Button>
+                </div>
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </form>
+
+      {etape === 0 && (
+        <div>
+          <div className="my-6 flex items-center gap-3 text-xs text-outline">
+            <span className="h-px flex-1 bg-outline-variant" />
+            ou
+            <span className="h-px flex-1 bg-outline-variant" />
+          </div>
+
+          <Button variant="secondary" size="lg" className="w-full" disabled>
+            <GoogleIcon />
+            Continuer avec Google
+            <SoonBadge />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

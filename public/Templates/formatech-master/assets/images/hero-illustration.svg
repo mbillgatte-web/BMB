@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 480" width="560" height="480" role="img" aria-labelledby="ft-hero-title">
+  <title id="ft-hero-title">Écran d'ordinateur affichant un tableur et un graphique</title>
+  <defs>
+    <pattern id="ft-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0v24" fill="none" stroke="#e6dcc8" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- fond : cercle et grille -->
+  <circle cx="300" cy="250" r="200" fill="#efe4cf"/>
+  <rect x="120" y="60" width="330" height="240" fill="url(#ft-grid)" opacity="0.7"/>
+
+  <!-- écran -->
+  <rect x="96" y="72" width="368" height="248" rx="12" fill="#1e1a16"/>
+  <rect x="108" y="84" width="344" height="224" rx="6" fill="#fbf7ee"/>
+  <!-- barre de fenêtre -->
+  <rect x="108" y="84" width="344" height="22" rx="6" fill="#ece3d0"/>
+  <circle cx="122" cy="95" r="4" fill="#b8461e"/>
+  <circle cx="136" cy="95" r="4" fill="#d9c9a8"/>
+  <circle cx="150" cy="95" r="4" fill="#d9c9a8"/>
+  <!-- tableur -->
+  <g stroke="#e3d8c2" stroke-width="1">
+    <path d="M108 128h344M108 152h344M108 176h344M108 200h344M108 224h344M108 248h344M108 272h344"/>
+    <path d="M160 106v202M232 106v202M304 106v202M376 106v202"/>
+  </g>
+  <rect x="108" y="106" width="344" height="22" fill="#f1e9d8"/>
+  <g fill="#8a7b66" font-family="Manrope, Arial, sans-serif" font-size="11" font-weight="600">
+    <text x="118" y="121">Mois</text>
+    <text x="170" y="121">Ventes</text>
+    <text x="242" y="121">Charges</text>
+    <text x="314" y="121">Marge</text>
+    <text x="386" y="121">Objectif</text>
+  </g>
+  <g fill="#3d352c" font-family="Manrope, Arial, sans-serif" font-size="11">
+    <text x="118" y="145">Janvier</text><text x="170" y="145">1 240 000</text><text x="242" y="145">860 000</text><text x="314" y="145">380 000</text>
+    <text x="118" y="169">Février</text><text x="170" y="169">1 310 000</text><text x="242" y="169">890 000</text><text x="314" y="169">420 000</text>
+    <text x="118" y="193">Mars</text><text x="170" y="193">1 480 000</text><text x="242" y="193">910 000</text><text x="314" y="193">570 000</text>
+    <text x="118" y="217">Avril</text><text x="170" y="217">1 390 000</text><text x="242" y="217">905 000</text><text x="314" y="217">485 000</text>
+    <text x="118" y="241">Mai</text><text x="170" y="241">1 610 000</text><text x="242" y="241">940 000</text><text x="314" y="241">670 000</text>
+  </g>
+  <!-- cellule sélectionnée -->
+  <rect x="304" y="224" width="72" height="24" fill="none" stroke="#b8461e" stroke-width="2"/>
+  <rect x="373" y="245" width="6" height="6" fill="#b8461e"/>
+  <!-- barre de formule -->
+  <rect x="384" y="132" width="60" height="112" fill="#fbf7ee"/>
+  <g fill="#b8461e">
+    <rect x="392" y="220" width="8" height="20"/>
+    <rect x="404" y="204" width="8" height="36"/>
+    <rect x="416" y="184" width="8" height="56"/>
+    <rect x="428" y="196" width="8" height="44"/>
+    <rect x="440" y="172" width="8" height="68"/>
+  </g>
+  <path d="M392 240h56" stroke="#3d352c" stroke-width="1.5"/>
+
+  <!-- pied de l'écran -->
+  <path d="M250 320h60l10 28h-80z" fill="#1e1a16"/>
+  <rect x="200" y="348" width="160" height="8" rx="4" fill="#1e1a16"/>
+
+  <!-- clavier -->
+  <rect x="150" y="372" width="260" height="46" rx="8" fill="#1e1a16"/>
+  <g fill="#3d352c">
+    <rect x="162" y="382" width="14" height="10" rx="2"/><rect x="180" y="382" width="14" height="10" rx="2"/><rect x="198" y="382" width="14" height="10" rx="2"/><rect x="216" y="382" width="14" height="10" rx="2"/><rect x="234" y="382" width="14" height="10" rx="2"/><rect x="252" y="382" width="14" height="10" rx="2"/><rect x="270" y="382" width="14" height="10" rx="2"/><rect x="288" y="382" width="14" height="10" rx="2"/><rect x="306" y="382" width="14" height="10" rx="2"/><rect x="324" y="382" width="14" height="10" rx="2"/><rect x="342" y="382" width="14" height="10" rx="2"/><rect x="360" y="382" width="14" height="10" rx="2"/><rect x="378" y="382" width="20" height="10" rx="2"/>
+    <rect x="166" y="396" width="14" height="10" rx="2"/><rect x="184" y="396" width="14" height="10" rx="2"/><rect x="202" y="396" width="90" height="10" rx="2"/><rect x="296" y="396" width="14" height="10" rx="2"/><rect x="314" y="396" width="14" height="10" rx="2"/><rect x="332" y="396" width="14" height="10" rx="2"/><rect x="350" y="396" width="44" height="10" rx="2"/>
+  </g>
+
+  <!-- carte certificat flottante -->
+  <g transform="translate(400 260) rotate(-6)">
+    <rect x="0" y="0" width="128" height="84" rx="6" fill="#ffffff" stroke="#e3d8c2"/>
+    <rect x="10" y="12" width="70" height="6" rx="3" fill="#1e1a16"/>
+    <rect x="10" y="26" width="108" height="4" rx="2" fill="#d9c9a8"/>
+    <rect x="10" y="36" width="90" height="4" rx="2" fill="#d9c9a8"/>
+    <rect x="10" y="46" width="100" height="4" rx="2" fill="#d9c9a8"/>
+    <circle cx="104" cy="66" r="11" fill="#b8461e"/>
+    <path d="M99 66l4 4 7-8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M10 68h50" stroke="#1e1a16" stroke-width="1.5"/>
+  </g>
+
+  <!-- petite feuille avec la souris -->
+  <g transform="translate(60 300)">
+    <rect x="0" y="0" width="44" height="64" rx="22" fill="#1e1a16"/>
+    <path d="M22 8v18" stroke="#fbf7ee" stroke-width="2" stroke-linecap="round"/>
+    <path d="M6 30h32" stroke="#fbf7ee" stroke-width="1" opacity=".4"/>
+  </g>
+</svg>

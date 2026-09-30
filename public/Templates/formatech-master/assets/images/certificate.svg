@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 320" width="420" height="320" role="img" aria-labelledby="ft-cert-title">
+  <title id="ft-cert-title">Certificat de fin de formation</title>
+  <rect x="30" y="30" width="360" height="260" rx="6" fill="#fbf7ee"/>
+  <rect x="42" y="42" width="336" height="236" rx="3" fill="none" stroke="#1e1a16" stroke-width="1.5"/>
+  <rect x="48" y="48" width="324" height="224" rx="2" fill="none" stroke="#d9c9a8" stroke-width="1"/>
+  <text x="210" y="92" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#1e1a16">Certificat</text>
+  <text x="210" y="112" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" letter-spacing="3" fill="#8a7b66">DE FIN DE FORMATION</text>
+  <path d="M120 126h180" stroke="#b8461e" stroke-width="2"/>
+  <rect x="110" y="146" width="200" height="6" rx="3" fill="#1e1a16"/>
+  <rect x="90" y="164" width="240" height="4" rx="2" fill="#d9c9a8"/>
+  <rect x="120" y="176" width="180" height="4" rx="2" fill="#d9c9a8"/>
+  <rect x="104" y="188" width="212" height="4" rx="2" fill="#d9c9a8"/>
+  <!-- signature -->
+  <path d="M70 246c10-14 18-14 24-2s14 10 20-6 12-8 18 4" fill="none" stroke="#1e1a16" stroke-width="1.5" stroke-linecap="round"/>
+  <rect x="64" y="256" width="86" height="3" rx="1.5" fill="#8a7b66"/>
+  <!-- sceau -->
+  <circle cx="318" cy="238" r="26" fill="#b8461e"/>
+  <circle cx="318" cy="238" r="19" fill="none" stroke="#fbf7ee" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <path d="M309 238l6 6 12-13" fill="none" stroke="#fbf7ee" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- ruban -->
+  <path d="M306 258l-8 34 20-10 20 10-8-34" fill="#b8461e" opacity=".85"/>
+</svg>

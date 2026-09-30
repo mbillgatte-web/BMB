@@ -1,6 +1,7 @@
 
 import type { Metadata } from "next";
 import {
+  Geist,
   Inter,
   Playfair_Display,
   Montserrat,
@@ -15,6 +16,14 @@ import "./globals.css";
 
 // Chaque police est chargée UNE SEULE FOIS ici, optimisée et
 // auto-hébergée par Next.js (pas de requête vers Google au runtime).
+
+// Police de l'INTERFACE de la plateforme (voir fontFamily dans
+// tailwind.config.ts). Les autres polices ci-dessous servent aux choix de
+// typographie des entreprises (voir police.tsx), pas à l'interface.
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+});
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -65,7 +74,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${playfair.variable} ${montserrat.variable} ${openSans.variable} ${merriweather.variable} ${lato.variable} ${manrope.variable}`}
+      className={`${geist.variable} ${inter.variable} ${playfair.variable} ${montserrat.variable} ${openSans.variable} ${merriweather.variable} ${lato.variable} ${manrope.variable}`}
     >
       <head>
         {/* Material Symbols n'a pas d'équivalent next/font officiel */}

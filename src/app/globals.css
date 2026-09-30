@@ -12,7 +12,70 @@
 }
 
 body {
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  background-color: #fafafa;
+  color: #18181b;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: rgb(70 72 212 / 0.18);
+}
+
+/* Contour de focus visible pour la navigation au clavier, partout où un
+   composant n'en définit pas déjà un. Dans la couche "base" pour que les
+   classes Tailwind d'un composant (ex. focus-visible:outline-none) puissent
+   le remplacer : une règle hors couche l'emporterait toujours sur elles. */
+@layer base {
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid #4648d4;
+    outline-offset: 2px;
+  }
+}
+
+/* Chiffres de même largeur (compteurs, pourcentages) : évite que le texte
+   bouge quand la valeur change. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Entrée en cascade : chaque enfant direct apparaît en glissant vers le
+   haut, avec un léger décalage par rapport au précédent. */
+.stagger-in > * {
+  animation: rise-in 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.stagger-in > :nth-child(1) { animation-delay: 40ms; }
+.stagger-in > :nth-child(2) { animation-delay: 90ms; }
+.stagger-in > :nth-child(3) { animation-delay: 140ms; }
+.stagger-in > :nth-child(4) { animation-delay: 190ms; }
+.stagger-in > :nth-child(5) { animation-delay: 240ms; }
+.stagger-in > :nth-child(6) { animation-delay: 290ms; }
+.stagger-in > :nth-child(7) { animation-delay: 340ms; }
+.stagger-in > :nth-child(8) { animation-delay: 390ms; }
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise-in {
+  animation: rise-in 280ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 
@@ -91,33 +154,6 @@ body {
   -webkit-font-feature-settings: "liga";
   font-feature-settings: "liga" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
-}
-
-@keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-  100% {
-    transform: translate(0px, 0px) scale(1);
-  }
-}
-
-.animate-blob {
-  animation: blob 7s infinite;
-}
-
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-  animation-delay: 4s;
 }
 
 /* Défilement horizontal continu utilisé par PortfolioGallery.tsx (version

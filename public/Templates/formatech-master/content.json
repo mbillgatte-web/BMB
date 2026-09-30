@@ -1,0 +1,298 @@
+{
+  "meta": {
+    "title": "Formatech - Centre de formation en informatique et bureautique",
+    "description": "Formations Word, Excel, maintenance informatique, réseaux et développement web. Sessions du soir et du week-end, certificat de fin de formation, inscription par WhatsApp."
+  },
+  "brand": {
+    "name": "Formatech",
+    "logo": "./favicon.svg",
+    "tagline": "Centre de formation informatique"
+  },
+  "topbar": {
+    "phone": "+237 6 00 00 00 00",
+    "phoneHref": "237600000000",
+    "email": "contact@moncentre.cm",
+    "address": "Carrefour Bastos, Yaoundé"
+  },
+  "nav": {
+    "formations": "Formations",
+    "method": "Déroulement",
+    "sessions": "Sessions",
+    "pricing": "Tarifs",
+    "team": "Formateurs",
+    "faq": "Questions",
+    "cta": "S'inscrire"
+  },
+  "hero": {
+    "eyebrow": "Bureautique, maintenance, réseaux et web",
+    "title": "Apprenez l'informatique",
+    "titleAccent": "qui sert vraiment au travail.",
+    "text": "Des cours pratiques en petits groupes, sur de vrais ordinateurs, avec un formateur à côté de vous. Vous repartez avec des compétences utilisables dès le lendemain et un certificat de fin de formation.",
+    "cta": "S'inscrire à une session",
+    "secondary": "Voir les formations",
+    "image": "./assets/images/hero-illustration.svg",
+    "imageAlt": "Illustration d'un écran d'ordinateur affichant un tableur et un graphique",
+    "note1Label": "Groupes",
+    "note1Value": "8 personnes maximum",
+    "note2Label": "Rythme",
+    "note2Value": "Soir, journée ou week-end",
+    "note3Label": "Fin de formation",
+    "note3Value": "Certificat remis"
+  },
+  "strip": {
+    "label": "Prochaines rentrées",
+    "items": [
+      { "date": "Date à définir", "title": "Excel de A à Z" },
+      { "date": "Date à définir", "title": "Maintenance informatique" },
+      { "date": "Date à définir", "title": "Création de sites web" }
+    ]
+  },
+  "programme": {
+    "eyebrow": "Catalogue",
+    "title": "Six formations, un seul objectif : être opérationnel.",
+    "text": "Chaque formation alterne explication courte et exercice sur machine. Le programme détaillé est remis au premier cours.",
+    "durationLabel": "Durée",
+    "levelLabel": "Niveau",
+    "priceLabel": "À partir de",
+    "cta": "S'inscrire",
+    "whatsappText": "Bonjour, je souhaite m'inscrire à la formation",
+    "items": [
+      {
+        "number": "01",
+        "title": "Word et Excel pour le bureau",
+        "text": "Courriers, rapports, tableaux de suivi, formules essentielles, mise en page et impression propre.",
+        "duration": "4 semaines",
+        "level": "Débutant",
+        "price": "45 000 FCFA"
+      },
+      {
+        "number": "02",
+        "title": "Excel avancé et tableaux de bord",
+        "text": "Fonctions de recherche, tableaux croisés dynamiques, graphiques, mise en forme conditionnelle et automatisation simple.",
+        "duration": "3 semaines",
+        "level": "Intermédiaire",
+        "price": "60 000 FCFA"
+      },
+      {
+        "number": "03",
+        "title": "Maintenance et dépannage informatique",
+        "text": "Montage, diagnostic des pannes courantes, installation de Windows, sauvegarde et protection contre les virus.",
+        "duration": "6 semaines",
+        "level": "Débutant",
+        "price": "85 000 FCFA"
+      },
+      {
+        "number": "04",
+        "title": "Réseaux informatiques",
+        "text": "Câblage, adressage IP, configuration d'un routeur et d'un point Wi-Fi, partage de fichiers et d'imprimantes.",
+        "duration": "6 semaines",
+        "level": "Intermédiaire",
+        "price": "95 000 FCFA"
+      },
+      {
+        "number": "05",
+        "title": "Création de sites web",
+        "text": "HTML, CSS et bases de JavaScript, puis mise en ligne d'un premier site vitrine que vous construisez vous-même.",
+        "duration": "8 semaines",
+        "level": "Débutant",
+        "price": "120 000 FCFA"
+      },
+      {
+        "number": "06",
+        "title": "Outils numériques pour entrepreneurs",
+        "text": "Messagerie professionnelle, documents partagés, facturation simple, réseaux sociaux et sécurité des comptes.",
+        "duration": "2 semaines",
+        "level": "Tous niveaux",
+        "price": "35 000 FCFA"
+      }
+    ]
+  },
+  "method": {
+    "eyebrow": "Déroulement",
+    "title": "Comment se passe une formation chez nous",
+    "steps": [
+      {
+        "title": "Entretien de positionnement",
+        "text": "Un échange de quinze minutes, sur place ou par WhatsApp, pour vérifier que la formation correspond à votre niveau et à votre objectif."
+      },
+      {
+        "title": "Cours sur machine",
+        "text": "Un poste par participant. Le formateur explique, montre, puis vous laisse faire. Les exercices reprennent des situations réelles de bureau."
+      },
+      {
+        "title": "Projet de fin de formation",
+        "text": "Vous réalisez un travail complet (tableau de bord, site, réseau configuré) que vous pouvez présenter à un employeur."
+      },
+      {
+        "title": "Certificat et suivi",
+        "text": "Remise du certificat de fin de formation et accès au groupe des anciens pour poser vos questions après la formation."
+      }
+    ]
+  },
+  "sessions": {
+    "eyebrow": "Calendrier",
+    "title": "Sessions à venir",
+    "text": "Mettez à jour ce tableau à chaque nouvelle rentrée. Les places sont confirmées à l'inscription.",
+    "colFormation": "Formation",
+    "colStart": "Début",
+    "colSchedule": "Horaire",
+    "colPlaces": "Places",
+    "cta": "Réserver",
+    "whatsappText": "Bonjour, je souhaite réserver une place pour la session",
+    "rows": [
+      { "formation": "Word et Excel pour le bureau", "start": "Date à définir", "schedule": "Lundi, mercredi, vendredi 18h - 20h", "places": "Places disponibles" },
+      { "formation": "Excel avancé et tableaux de bord", "start": "Date à définir", "schedule": "Samedi 9h - 13h", "places": "Places disponibles" },
+      { "formation": "Maintenance et dépannage informatique", "start": "Date à définir", "schedule": "Mardi et jeudi 17h - 20h", "places": "Places disponibles" },
+      { "formation": "Création de sites web", "start": "Date à définir", "schedule": "Samedi 14h - 18h", "places": "Places disponibles" }
+    ]
+  },
+  "pricing": {
+    "eyebrow": "Tarifs",
+    "title": "Trois façons de suivre une formation",
+    "text": "Les prix indiqués sont par personne et comprennent le support de cours et le certificat. Paiement possible en deux fois.",
+    "whatsappText": "Bonjour, je souhaite des informations sur la formule",
+    "featured": {
+      "name": "Cours du soir",
+      "price": "À partir de 35 000 FCFA",
+      "period": "par formation",
+      "text": "La formule la plus suivie : trois soirs par semaine, de 18h à 20h, pour se former sans quitter son emploi.",
+      "items": [
+        "Un poste par participant",
+        "Support de cours imprimé",
+        "Exercices corrigés entre les séances",
+        "Certificat de fin de formation"
+      ],
+      "cta": "Choisir cette formule"
+    },
+    "others": [
+      {
+        "name": "Journée intensive",
+        "price": "À partir de 25 000 FCFA",
+        "period": "la journée",
+        "text": "Un thème précis traité en une journée complète : tableaux croisés, publipostage, installation de Windows.",
+        "cta": "Demander les dates"
+      },
+      {
+        "name": "Formation en entreprise",
+        "price": "Sur devis",
+        "period": "par groupe",
+        "text": "Nous venons dans vos locaux avec un programme adapté à vos outils et à vos documents.",
+        "cta": "Demander un devis"
+      }
+    ]
+  },
+  "team": {
+    "eyebrow": "Formateurs",
+    "title": "Des formateurs qui exercent le métier qu'ils enseignent",
+    "text": "Remplacez ces fiches par vos formateurs : nom, spécialité et une phrase sur leur parcours.",
+    "members": [
+      {
+        "initials": "PN",
+        "name": "Prénom Nom",
+        "role": "Formateur bureautique",
+        "bio": "Décrivez ici son parcours en une ou deux phrases : années d'expérience, entreprises, diplômes.",
+        "photo": "./assets/images/avatar.svg"
+      },
+      {
+        "initials": "PN",
+        "name": "Prénom Nom",
+        "role": "Formateur maintenance et réseaux",
+        "bio": "Décrivez ici son parcours en une ou deux phrases : années d'expérience, entreprises, diplômes.",
+        "photo": "./assets/images/avatar.svg"
+      },
+      {
+        "initials": "PN",
+        "name": "Prénom Nom",
+        "role": "Formatrice développement web",
+        "bio": "Décrivez ici son parcours en une ou deux phrases : années d'expérience, entreprises, diplômes.",
+        "photo": "./assets/images/avatar.svg"
+      }
+    ]
+  },
+  "certificate": {
+    "eyebrow": "Certificat",
+    "title": "Un certificat qui décrit ce que vous savez faire",
+    "text": "À la fin de chaque formation, nous remettons un certificat de fin de formation qui précise les compétences travaillées et le projet réalisé. Indiquez ici si votre centre est agréé et par quel organisme.",
+    "items": [
+      "Intitulé de la formation et durée",
+      "Compétences validées lors du projet final",
+      "Signature du formateur et cachet du centre"
+    ],
+    "image": "./assets/images/certificate.svg",
+    "imageAlt": "Illustration d'un certificat de fin de formation"
+  },
+  "testimonials": {
+    "eyebrow": "Témoignages",
+    "title": "Ce que disent les anciens participants",
+    "text": "Remplacez ces exemples par les avis réels de vos participants, avec leur accord.",
+    "items": [
+      {
+        "quote": "Écrivez ici l'avis d'un ancien participant, avec son accord.",
+        "name": "Prénom Nom",
+        "role": "Formation suivie, année"
+      },
+      {
+        "quote": "Écrivez ici l'avis d'un ancien participant, avec son accord.",
+        "name": "Prénom Nom",
+        "role": "Formation suivie, année"
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Questions fréquentes",
+    "title": "Avant de vous inscrire",
+    "items": [
+      {
+        "question": "Faut-il avoir son propre ordinateur ?",
+        "answer": "Non. Chaque participant dispose d'un poste pendant les cours. Si vous avez un ordinateur portable, vous pouvez l'apporter pour travailler sur votre propre machine."
+      },
+      {
+        "question": "Je n'ai jamais utilisé un ordinateur, est-ce possible ?",
+        "answer": "Oui. Les formations de niveau débutant commencent par la prise en main du clavier, de la souris et de Windows. L'entretien de positionnement permet de vous orienter vers la bonne formation."
+      },
+      {
+        "question": "Comment se passe le paiement ?",
+        "answer": "Le règlement se fait au centre, par Mobile Money ou en espèces, en une ou deux fois. La place est confirmée après le premier versement."
+      },
+      {
+        "question": "Que se passe-t-il si je manque un cours ?",
+        "answer": "Le support de cours et les exercices vous sont transmis, et vous pouvez rattraper la séance lors de la session suivante sans frais."
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Inscription",
+    "title": "Réservez votre place",
+    "text": "Remplissez ce formulaire : votre demande s'ouvre dans WhatsApp, déjà rédigée. Nous vous répondons pendant les horaires d'ouverture.",
+    "form": {
+      "name": "Votre nom",
+      "phone": "Votre numéro WhatsApp",
+      "formation": "Formation souhaitée",
+      "schedule": "Rythme souhaité",
+      "scheduleOptions": ["Cours du soir", "Journée intensive", "Week-end", "Formation en entreprise"],
+      "message": "Une question, une précision ?",
+      "submit": "Envoyer la demande sur WhatsApp",
+      "whatsappIntro": "Bonjour, je souhaite m'inscrire à une formation."
+    },
+    "hoursTitle": "Horaires du centre",
+    "hours": [
+      "Lundi - Vendredi : 8h - 20h",
+      "Samedi : 9h - 18h",
+      "Dimanche : fermé"
+    ],
+    "addressTitle": "Adresse",
+    "directions": "Indiquez ici un repère pour trouver le centre (immeuble, étage, à côté de...)."
+  },
+  "footer": {
+    "text": "Centre de formation en informatique et bureautique. Cours pratiques, petits groupes, certificat de fin de formation.",
+    "social": {
+      "facebook": "#",
+      "instagram": "#",
+      "linkedin": "#"
+    },
+    "navTitle": "Navigation",
+    "contactTitle": "Contact",
+    "year": "2026",
+    "rights": "Tous droits réservés."
+  }
+}

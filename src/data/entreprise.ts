@@ -31,8 +31,8 @@ export const SECTEURS = [
   { value: "commerce", label: "Commerce & vente" },
   { value: "technologie", label: "Technologie & Numérique" },
   { value: "education", label: "Éducation & Formation" },
-  { value: "Restaurant", label: "Restaurant et Consomation" },
-  { value: "Beauté", label: "Beauté cosmetique" },
+  { value: "Restaurant", label: "Restauration" },
+  { value: "Beauté", label: "Beauté & cosmétique" },
   { value: "autre", label: "Autre" },
 ];
 

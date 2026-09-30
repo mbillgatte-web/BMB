@@ -1,0 +1,11 @@
+{
+  "_comment": "Look d'origine du template Foodie (voir assets/css/style.css). cssVars indique quelles variables CSS du template reçoivent la couleur principale et les polices de l'identité visuelle de l'entreprise (voir renderSiteTemplate.ts). --dark-orange et --tangerine sont les nuances de survol de l'orange : on les aligne sur la couleur de l'entreprise pour ne pas mélanger deux teintes. --cinnabar (rouge des badges/prix barrés) et les gris/noirs restent intacts, comme pour Grilli.",
+  "colorPrimary": "hsl(32, 100%, 59%)",
+  "fontHeading": "Rubik",
+  "fontBody": "Roboto",
+  "cssVars": {
+    "primary": ["--deep-saffron", "--dark-orange", "--tangerine"],
+    "heading": "--ff-rubik",
+    "body": "--ff-roboto"
+  }
+}

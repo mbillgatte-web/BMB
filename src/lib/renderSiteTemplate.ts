@@ -14,6 +14,31 @@ interface TemplateStyle {
   colorPrimary: string;
   fontHeading: string;
   fontBody: string;
+  /**
+   * Noms des variables CSS du template à écraser avec l'identité visuelle.
+   * Chaque template a ses propres noms (Grilli : --gold-crayola, Foodie :
+   * --deep-saffron...), déclarés dans son style.json. `primary` peut lister
+   * plusieurs variables (ex: la couleur principale ET ses nuances de survol)
+   * pour qu'une seule couleur d'entreprise remplace toute la famille.
+   * Absent = valeurs par défaut de Grilli (premier template, avant que ce
+   * champ existe).
+   */
+  cssVars?: {
+    primary?: string | string[];
+    heading?: string | string[];
+    body?: string | string[];
+  };
+}
+
+const DEFAULT_CSS_VARS = {
+  primary: ["--gold-crayola"],
+  heading: ["--fontFamily-forum"],
+  body: ["--fontFamily-dm_sans"],
+};
+
+function toList(value: string | string[] | undefined, fallback: string[]): string[] {
+  if (value === undefined) return fallback;
+  return Array.isArray(value) ? value : [value];
 }
 
 /**
@@ -78,12 +103,16 @@ function buildStyleData(defaultStyle: TemplateStyle, identite?: TemplateIdentity
     ? `https://fonts.googleapis.com/css2?${fontQueries.join("&")}&display=swap`
     : "";
 
-  const cssOverrides =
-    `<style>:root{` +
-    `--gold-crayola:${colorPrimary};` +
-    `--fontFamily-forum:'${fontHeading}';` +
-    `--fontFamily-dm_sans:'${fontBody}';` +
-    `}</style>`;
+  const vars = defaultStyle.cssVars ?? {};
+  const declarations = [
+    ...toList(vars.primary, DEFAULT_CSS_VARS.primary).map((v) => `${v}:${colorPrimary};`),
+    ...toList(vars.heading, DEFAULT_CSS_VARS.heading).map((v) => `${v}:'${fontHeading}';`),
+    ...toList(vars.body, DEFAULT_CSS_VARS.body).map((v) => `${v}:'${fontBody}';`),
+  ];
+
+  // Les surcharges vont dans <head> APRÈS le style.css du template, donc ce
+  // bloc :root gagne sur les déclarations d'origine à spécificité égale.
+  const cssOverrides = `<style>:root{${declarations.join("")}}</style>`;
 
   return { googleFontsHref, cssOverrides };
 }

@@ -1,0 +1,265 @@
+{
+  "meta": {
+    "title": "Foodie - Burgers, pizzas et plats à emporter",
+    "description": "Restaurant rapide : burgers, pizzas, poulet et boissons. Commande par WhatsApp, livraison et réservation de table."
+  },
+  "brand": {
+    "name": "Foodie",
+    "logo": "./favicon.svg"
+  },
+  "topbar": {
+    "phone": "+237 6 00 00 00 00",
+    "phoneHref": "237600000000",
+    "email": "contact@monrestaurant.cm",
+    "address": "Rue de la Joie, Bonapriso, Douala"
+  },
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "menu": "Menu",
+    "blog": "Actualités",
+    "contact": "Contact",
+    "reservation": "Réserver"
+  },
+  "search": {
+    "label": "Rechercher",
+    "placeholder": "Un plat, une boisson..."
+  },
+  "hero": {
+    "subtitle": "Manger, dormir et",
+    "title": "Le meilleur burger de la ville !",
+    "text": "Des burgers généreux, des pizzas croustillantes et du poulet grillé, préparés à la minute avec des produits frais du marché.",
+    "cta": "Réserver une table",
+    "image": "./assets/images/hero-banner.png"
+  },
+  "promo": {
+    "items": [
+      {
+        "title": "Pizza maison",
+        "text": "Pâte fine préparée chaque matin, garnie au moment de la commande.",
+        "image": "./assets/images/promo-1.png"
+      },
+      {
+        "title": "Boissons fraîches",
+        "text": "Jus naturels, sodas et cocktails sans alcool servis bien frais.",
+        "image": "./assets/images/promo-2.png"
+      },
+      {
+        "title": "Frites croustillantes",
+        "text": "Pommes de terre fraîches, coupées sur place et frites deux fois.",
+        "image": "./assets/images/promo-3.png"
+      },
+      {
+        "title": "Burger signature",
+        "text": "Bœuf grillé, fromage fondu, sauce maison et pain brioché.",
+        "image": "./assets/images/promo-4.png"
+      },
+      {
+        "title": "Poulet épicé",
+        "text": "Mariné aux épices locales puis grillé au feu de bois.",
+        "image": "./assets/images/promo-5.png"
+      }
+    ]
+  },
+  "about": {
+    "title": "Burgers, pizzas et grillades",
+    "titleAccent": "au cœur de la ville !",
+    "text": "Depuis notre ouverture, nous cuisinons des plats simples et généreux avec des ingrédients achetés chaque jour au marché. Sur place, à emporter ou livré chez vous.",
+    "items": [
+      "Produits frais et cuisine maison",
+      "Espace famille et coin enfants",
+      "Ambiance musicale le week-end",
+      "Livraison rapide dans tout le quartier"
+    ],
+    "cta": "Voir le menu",
+    "image": "./assets/images/about-banner.png"
+  },
+  "menu": {
+    "subtitle": "Plats populaires",
+    "title": "Nos délicieux",
+    "titleAccent": "plats",
+    "text": "Une sélection de nos meilleures ventes. Commandez directement par WhatsApp.",
+    "filters": ["Tout", "Pizza", "Burger", "Boissons", "Sandwich"],
+    "orderLabel": "Commander",
+    "priceLabel": "Prix :",
+    "items": [
+      {
+        "name": "Poulet frit à volonté",
+        "category": "Poulet",
+        "badge": "-15%",
+        "price": "4 500 FCFA",
+        "oldPrice": "5 300 FCFA",
+        "image": "./assets/images/food-menu-1.png"
+      },
+      {
+        "name": "Burger double bœuf",
+        "category": "Burger",
+        "badge": "-10%",
+        "price": "3 500 FCFA",
+        "oldPrice": "3 900 FCFA",
+        "image": "./assets/images/food-menu-2.png"
+      },
+      {
+        "name": "Pizza quatre fromages",
+        "category": "Pizza",
+        "badge": "-25%",
+        "price": "6 000 FCFA",
+        "oldPrice": "8 000 FCFA",
+        "image": "./assets/images/food-menu-3.png"
+      },
+      {
+        "name": "Burrito au bœuf",
+        "category": "Sandwich",
+        "badge": "-20%",
+        "price": "3 000 FCFA",
+        "oldPrice": "3 750 FCFA",
+        "image": "./assets/images/food-menu-4.png"
+      },
+      {
+        "name": "Nuggets de poulet BBQ",
+        "category": "Poulet",
+        "badge": "-5%",
+        "price": "2 500 FCFA",
+        "oldPrice": "2 650 FCFA",
+        "image": "./assets/images/food-menu-5.png"
+      },
+      {
+        "name": "Poulet grillé aux épices",
+        "category": "Poulet",
+        "badge": "-15%",
+        "price": "4 000 FCFA",
+        "oldPrice": "4 700 FCFA",
+        "image": "./assets/images/food-menu-6.png"
+      }
+    ]
+  },
+  "cta": {
+    "title": "Des burgers de qualité,",
+    "titleAccent": "préparés à la minute !",
+    "text": "Viande fraîche du jour, pain brioché maison et sauces préparées en cuisine. Le goût d'un vrai burger, sans attendre.",
+    "button": "Commander",
+    "image": "./assets/images/cta-banner.png"
+  },
+  "delivery": {
+    "title": "Livré",
+    "titleAccent": "à l'heure",
+    "titleEnd": "et au bon endroit",
+    "text": "Nos livreurs couvrent tout le quartier. Commandez par WhatsApp, on vous confirme le délai tout de suite.",
+    "button": "Nous contacter"
+  },
+  "testimonial": {
+    "subtitle": "Témoignages",
+    "title": "Ce que disent",
+    "titleAccent": "nos clients",
+    "text": "Remplacez ces exemples par les avis réels de vos clients.",
+    "items": [
+      {
+        "name": "Prénom Nom",
+        "role": "Client régulier",
+        "quote": "Écrivez ici l'avis d'un client, avec son accord.",
+        "avatar": "./assets/images/avatar-1.jpg"
+      },
+      {
+        "name": "Prénom Nom",
+        "role": "Cliente",
+        "quote": "Écrivez ici l'avis d'un client, avec son accord.",
+        "avatar": "./assets/images/avatar-2.jpg"
+      },
+      {
+        "name": "Prénom Nom",
+        "role": "Client",
+        "quote": "Écrivez ici l'avis d'un client, avec son accord.",
+        "avatar": "./assets/images/avatar-3.jpg"
+      }
+    ]
+  },
+  "banner": {
+    "cta": "Commander",
+    "items": [
+      {
+        "subtitle": "Offre de la semaine",
+        "title": "Menu burger + frites + boisson",
+        "text": "Valable du lundi au vendredi, midi et soir",
+        "image": "./assets/images/banner-1.jpg"
+      },
+      {
+        "title": "Pizzas maison",
+        "text": "Cuites au feu de bois",
+        "image": "./assets/images/banner-2.jpg"
+      },
+      {
+        "title": "Burgers américains",
+        "text": "Bœuf 100 % pur",
+        "image": "./assets/images/banner-3.jpg"
+      },
+      {
+        "title": "Pizza à partager",
+        "text": "Format familial, idéale pour 4 personnes",
+        "image": "./assets/images/banner-4.jpg"
+      }
+    ]
+  },
+  "blog": {
+    "subtitle": "Actualités",
+    "title": "Tout sur",
+    "titleAccent": "notre cuisine",
+    "text": "Nouveautés du menu, événements et coulisses du restaurant.",
+    "readMore": "Lire la suite",
+    "posts": [
+      {
+        "title": "Nouvelle carte de pizzas",
+        "category": "Pizza",
+        "date": "1 janvier 2026",
+        "dateIso": "2026-01-01",
+        "author": "L'équipe",
+        "excerpt": "Trois nouvelles recettes arrivent sur la carte ce mois-ci. Venez les goûter.",
+        "image": "./assets/images/blog-1.jpg"
+      },
+      {
+        "title": "Nos secrets pour un poulet croustillant",
+        "category": "Poulet",
+        "date": "1 janvier 2026",
+        "dateIso": "2026-01-01",
+        "author": "L'équipe",
+        "excerpt": "Marinade, panure et cuisson : on vous explique comment on s'y prend en cuisine.",
+        "image": "./assets/images/blog-2.jpg"
+      },
+      {
+        "title": "Soirée spéciale ce week-end",
+        "category": "Événement",
+        "date": "1 janvier 2026",
+        "dateIso": "2026-01-01",
+        "author": "L'équipe",
+        "excerpt": "Musique live et menu découverte samedi soir. Pensez à réserver votre table.",
+        "image": "./assets/images/blog-3.jpg"
+      }
+    ]
+  },
+  "footer": {
+    "text": "Burgers, pizzas et grillades préparés avec des produits frais. Sur place, à emporter ou en livraison.",
+    "social": {
+      "facebook": "#",
+      "instagram": "#",
+      "tiktok": "#"
+    },
+    "contactTitle": "Contact",
+    "hoursTitle": "Horaires",
+    "hours": [
+      "Lundi - Vendredi : 11h - 22h",
+      "Samedi : 11h - minuit",
+      "Dimanche : 12h - 21h"
+    ],
+    "form": {
+      "title": "Réserver une table",
+      "name": "Votre nom",
+      "phone": "Votre téléphone",
+      "person": "personne",
+      "persons": "personnes",
+      "date": "Date de réservation",
+      "message": "Message (optionnel)",
+      "submit": "Réserver via WhatsApp"
+    },
+    "year": "2026",
+    "rights": "Tous droits réservés."
+  }
+}

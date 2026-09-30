@@ -22,6 +22,38 @@ export interface Site {
 
 const COLONNES = "id, entreprise_id, template_id, content, html";
 
+/**
+ * Identifiant réservé du site créé par conversation avec l'IA, sans partir
+ * d'un template (voir /api/generate-site). Il occupe la place d'un template
+ * dans le couple (entreprise_id, template_id) : un seul site IA par
+ * entreprise. Aucun dossier public/Templates/ia n'existe derrière.
+ */
+export const SITE_IA_ID = "ia";
+
+/** Un message de la conversation de création du site IA. */
+export interface MessageSiteIA {
+  role: "user" | "assistant";
+  text: string;
+  /** Image épinglée par l'utilisateur avec ce message, s'il y en a une. */
+  imageUrl?: string;
+}
+
+/**
+ * La conversation est rangée dans la colonne `content` du site IA (qui, pour
+ * un site issu d'un template, contient le content.json de ce template).
+ */
+export function messagesDuSiteIA(site: Site | null): MessageSiteIA[] {
+  const messages = site?.content?.messages;
+  if (!Array.isArray(messages)) return [];
+  return messages.filter(
+    (m): m is MessageSiteIA =>
+      typeof m === "object" &&
+      m !== null &&
+      (m.role === "user" || m.role === "assistant") &&
+      typeof m.text === "string"
+  );
+}
+
 /** Le site d'une entreprise pour un template donné, ou null s'il n'a jamais été choisi. */
 export async function getSite(
   supabase: SupabaseClient,

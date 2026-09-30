@@ -1,6 +1,6 @@
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopNav from "@/components/dashboard/TopNav";
-import TemplateGallery from "@/components/Templates/TemplateGallery";
+import SiteWebSection from "@/components/Templates/SiteWebSection";
 
 export default function TemplatesPage() {
   return (
@@ -12,7 +12,7 @@ export default function TemplatesPage() {
 
         <main className="flex-1 overflow-y-auto p-6 lg:p-12">
           <div className="mx-auto w-full max-w-[1280px] pb-24">
-            <TemplateGallery />
+            <SiteWebSection />
           </div>
         </main>
       </div>

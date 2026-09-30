@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{meta.title}}</title>
+  <meta name="description" content="{{meta.description}}">
+
+  <!-- favicon : logo de l'entreprise (identité visuelle) ou favicon du template -->
+  <link rel="icon" href="{{brand.logo}}">
+
+  <!-- polices titres/texte : style.json ou identité visuelle (voir renderSiteTemplate.ts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="{{style.googleFontsHref}}" rel="stylesheet">
+
+  <link rel="stylesheet" href="./assets/css/style.css">
+
+  <!-- surcharges couleur/police injectées APRÈS le CSS du template -->
+  {{style.cssOverrides}}
+</head>
+
+<body id="top">
+
+  <a class="skip-link" href="#services">Aller au contenu</a>
+
+  <!-- EN-TÊTE -->
+  <header class="header" data-header>
+    <div class="container header-inner">
+      <a href="#top" class="brand">
+        <img src="{{brand.logo}}" alt="" width="32" height="32" class="brand-logo">
+        <span class="brand-name">{{brand.name}}</span>
+      </a>
+
+      <nav class="nav" id="nav" data-nav aria-label="Navigation principale">
+        <ul class="nav-list">
+          <li><a href="#services" data-nav-link>{{nav.services}}</a></li>
+          <li><a href="#methode" data-nav-link>{{nav.method}}</a></li>
+          <li><a href="#cas" data-nav-link>{{nav.cases}}</a></li>
+          <li><a href="#offres" data-nav-link>{{nav.pricing}}</a></li>
+          <li><a href="#faq" data-nav-link>{{nav.faq}}</a></li>
+        </ul>
+        <a href="#rendez-vous" class="nav-cta" data-nav-link>
+          {{nav.cta}}
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </nav>
+
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav" data-nav-toggle>
+        <span class="nav-toggle-text" data-nav-toggle-text>Menu</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <h1 class="hero-title" id="hero-title">
+          <span class="line"><span class="line-inner" style="--i: 0">{{hero.title}}</span></span>
+          <span class="line"><span class="line-inner accent" style="--i: 1">{{hero.titleAccent}}</span></span>
+        </h1>
+        <div class="hero-aside" data-reveal>
+          <p class="hero-text">{{hero.text}}</p>
+          <div class="hero-actions">
+            <a href="#rendez-vous" class="btn btn-primary">{{hero.cta}}</a>
+            <a href="#methode" class="link-arrow">
+              {{hero.secondary}}
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+          <p class="hero-note">{{hero.note}}</p>
+        </div>
+        <figure class="hero-figure" data-reveal>
+          <img src="{{hero.image}}" alt="{{hero.imageAlt}}" width="1200" height="520" loading="eager">
+        </figure>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section" id="services" aria-labelledby="services-title">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">{{services.eyebrow}}</p>
+          <h2 class="section-title" id="services-title">{{services.title}}</h2>
+          <p class="section-text">{{services.text}}</p>
+        </header>
+
+        <div class="offers" data-reveal-group>
+          <article class="offer offer--wide" data-reveal>
+            <p class="offer-number">{{services.items.0.number}}</p>
+            <h3 class="offer-title">{{services.items.0.title}}</h3>
+            <p class="offer-text">{{services.items.0.text}}</p>
+            <ul class="offer-list">
+              <li>{{services.items.0.list.0}}</li>
+              <li>{{services.items.0.list.1}}</li>
+              <li>{{services.items.0.list.2}}</li>
+              <li>{{services.items.0.list.3}}</li>
+            </ul>
+            <a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{services.whatsappText}} : {{services.items.0.title}}" target="_blank" rel="noopener">
+              {{services.cta}}
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </article>
+          <article class="offer" data-reveal>
+            <p class="offer-number">{{services.items.1.number}}</p>
+            <h3 class="offer-title">{{services.items.1.title}}</h3>
+            <p class="offer-text">{{services.items.1.text}}</p>
+            <ul class="offer-list">
+              <li>{{services.items.1.list.0}}</li>
+              <li>{{services.items.1.list.1}}</li>
+              <li>{{services.items.1.list.2}}</li>
+            </ul>
+            <a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{services.whatsappText}} : {{services.items.1.title}}" target="_blank" rel="noopener">
+              {{services.cta}}
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </article>
+          <article class="offer" data-reveal>
+            <p class="offer-number">{{services.items.2.number}}</p>
+            <h3 class="offer-title">{{services.items.2.title}}</h3>
+            <p class="offer-text">{{services.items.2.text}}</p>
+            <ul class="offer-list">
+              <li>{{services.items.2.list.0}}</li>
+              <li>{{services.items.2.list.1}}</li>
+              <li>{{services.items.2.list.2}}</li>
+            </ul>
+            <a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{services.whatsappText}} : {{services.items.2.title}}" target="_blank" rel="noopener">
+              {{services.cta}}
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </article>
+          <article class="offer offer--wide" data-reveal>
+            <p class="offer-number">{{services.items.3.number}}</p>
+            <h3 class="offer-title">{{services.items.3.title}}</h3>
+            <p class="offer-text">{{services.items.3.text}}</p>
+            <ul class="offer-list">
+              <li>{{services.items.3.list.0}}</li>
+              <li>{{services.items.3.list.1}}</li>
+              <li>{{services.items.3.list.2}}</li>
+            </ul>
+            <a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{services.whatsappText}} : {{services.items.3.title}}" target="_blank" rel="noopener">
+              {{services.cta}}
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÉTHODE -->
+    <section class="section section--rule" id="methode" aria-labelledby="method-title">
+      <div class="container method-grid">
+        <header class="section-head method-head" data-reveal>
+          <p class="eyebrow">{{method.eyebrow}}</p>
+          <h2 class="section-title" id="method-title">{{method.title}}</h2>
+          <p class="section-text">{{method.text}}</p>
+        </header>
+        <ol class="steps" data-reveal-group>
+          <li class="step" data-reveal>
+            <span class="step-number" aria-hidden="true">{{method.steps.0.number}}</span>
+            <div>
+              <h3 class="step-title">{{method.steps.0.title}}</h3>
+              <p class="step-text">{{method.steps.0.text}}</p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-number" aria-hidden="true">{{method.steps.1.number}}</span>
+            <div>
+              <h3 class="step-title">{{method.steps.1.title}}</h3>
+              <p class="step-text">{{method.steps.1.text}}</p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-number" aria-hidden="true">{{method.steps.2.number}}</span>
+            <div>
+              <h3 class="step-title">{{method.steps.2.title}}</h3>
+              <p class="step-text">{{method.steps.2.text}}</p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-number" aria-hidden="true">{{method.steps.3.number}}</span>
+            <div>
+              <h3 class="step-title">{{method.steps.3.title}}</h3>
+              <p class="step-text">{{method.steps.3.text}}</p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-number" aria-hidden="true">{{method.steps.4.number}}</span>
+            <div>
+              <h3 class="step-title">{{method.steps.4.title}}</h3>
+              <p class="step-text">{{method.steps.4.text}}</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- CAS D'USAGE -->
+    <section class="section section--tinted" id="cas" aria-labelledby="cases-title">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">{{cases.eyebrow}}</p>
+          <h2 class="section-title" id="cases-title">{{cases.title}}</h2>
+          <p class="section-text">{{cases.text}}</p>
+        </header>
+        <div class="cases" data-reveal-group>
+          <article class="case" data-reveal>
+            <h3 class="case-sector">{{cases.items.0.sector}}</h3>
+            <div class="case-pair">
+              <div class="case-before">
+                <p class="case-label">{{cases.beforeLabel}}</p>
+                <p>{{cases.items.0.before}}</p>
+              </div>
+              <div class="case-after">
+                <p class="case-label">{{cases.afterLabel}}</p>
+                <p>{{cases.items.0.after}}</p>
+              </div>
+            </div>
+          </article>
+          <article class="case" data-reveal>
+            <h3 class="case-sector">{{cases.items.1.sector}}</h3>
+            <div class="case-pair">
+              <div class="case-before">
+                <p class="case-label">{{cases.beforeLabel}}</p>
+                <p>{{cases.items.1.before}}</p>
+              </div>
+              <div class="case-after">
+                <p class="case-label">{{cases.afterLabel}}</p>
+                <p>{{cases.items.1.after}}</p>
+              </div>
+            </div>
+          </article>
+          <article class="case" data-reveal>
+            <h3 class="case-sector">{{cases.items.2.sector}}</h3>
+            <div class="case-pair">
+              <div class="case-before">
+                <p class="case-label">{{cases.beforeLabel}}</p>
+                <p>{{cases.items.2.before}}</p>
+              </div>
+              <div class="case-after">
+                <p class="case-label">{{cases.afterLabel}}</p>
+                <p>{{cases.items.2.after}}</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- OFFRES -->
+    <section class="section" id="offres" aria-labelledby="pricing-title">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">{{pricing.eyebrow}}</p>
+          <h2 class="section-title" id="pricing-title">{{pricing.title}}</h2>
+          <p class="section-text">{{pricing.text}}</p>
+        </header>
+        <div class="plans" data-reveal-group>
+          <article class="plan" data-reveal>
+            <h3 class="plan-name">{{pricing.items.0.name}}</h3>
+            <p class="plan-price">{{pricing.items.0.price}}</p>
+            <p class="plan-period">{{pricing.items.0.period}}</p>
+            <p class="plan-text">{{pricing.items.0.text}}</p>
+            <a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{pricing.whatsappText}} : {{pricing.items.0.name}}" target="_blank" rel="noopener">
+              {{pricing.cta}}
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </article>
+          <article class="plan" data-reveal>
+            <h3 class="plan-name">{{pricing.items.1.name}}</h3>
+            <p class="plan-price">{{pricing.items.1.price}}</p>
+            <p class="plan-period">{{pricing.items.1.period}}</p>
+            <p class="plan-text">{{pricing.items.1.text}}</p>
+            <a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{pricing.whatsappText}} : {{pricing.items.1.name}}" target="_blank" rel="noopener">
+              {{pricing.cta}}
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </article>
+          <article class="plan" data-reveal>
+            <h3 class="plan-name">{{pricing.items.2.name}}</h3>
+            <p class="plan-price">{{pricing.items.2.price}}</p>
+            <p class="plan-period">{{pricing.items.2.period}}</p>
+            <p class="plan-text">{{pricing.items.2.text}}</p>
+            <a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{pricing.whatsappText}} : {{pricing.items.2.name}}" target="_blank" rel="noopener">
+              {{pricing.cta}}
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ÉQUIPE -->
+    <section class="section section--rule" id="equipe" aria-labelledby="team-title">
+      <div class="container team-grid">
+        <header class="section-head team-head" data-reveal>
+          <p class="eyebrow">{{team.eyebrow}}</p>
+          <h2 class="section-title" id="team-title">{{team.title}}</h2>
+          <p class="section-text">{{team.text}}</p>
+        </header>
+        <ul class="team" data-reveal-group>
+          <li class="member" data-reveal>
+            <img class="member-photo" src="{{team.members.0.photo}}" alt="" width="320" height="400" loading="lazy">
+            <h3 class="member-name">{{team.members.0.name}}</h3>
+            <p class="member-role">{{team.members.0.role}}</p>
+            <p class="member-bio">{{team.members.0.bio}}</p>
+          </li>
+          <li class="member member--offset" data-reveal>
+            <img class="member-photo" src="{{team.members.1.photo}}" alt="" width="320" height="400" loading="lazy">
+            <h3 class="member-name">{{team.members.1.name}}</h3>
+            <p class="member-role">{{team.members.1.role}}</p>
+            <p class="member-bio">{{team.members.1.bio}}</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- TÉMOIGNAGES -->
+    <section class="section section--tinted" id="temoignages" aria-labelledby="testimonials-title">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">{{testimonials.eyebrow}}</p>
+          <h2 class="section-title" id="testimonials-title">{{testimonials.title}}</h2>
+          <p class="section-text">{{testimonials.text}}</p>
+        </header>
+        <div class="quotes" data-reveal-group>
+          <figure class="quote quote--lead" data-reveal>
+            <blockquote><p>{{testimonials.items.0.quote}}</p></blockquote>
+            <figcaption><strong>{{testimonials.items.0.name}}</strong><span>{{testimonials.items.0.role}}</span></figcaption>
+          </figure>
+          <figure class="quote" data-reveal>
+            <blockquote><p>{{testimonials.items.1.quote}}</p></blockquote>
+            <figcaption><strong>{{testimonials.items.1.name}}</strong><span>{{testimonials.items.1.role}}</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq" aria-labelledby="faq-title">
+      <div class="container faq-grid">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">{{faq.eyebrow}}</p>
+          <h2 class="section-title" id="faq-title">{{faq.title}}</h2>
+        </header>
+        <div class="faq" data-reveal-group>
+          <details class="faq-item" data-reveal>
+            <summary><span>{{faq.items.0.question}}</span><span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-answer"><p>{{faq.items.0.answer}}</p></div>
+          </details>
+          <details class="faq-item" data-reveal>
+            <summary><span>{{faq.items.1.question}}</span><span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-answer"><p>{{faq.items.1.answer}}</p></div>
+          </details>
+          <details class="faq-item" data-reveal>
+            <summary><span>{{faq.items.2.question}}</span><span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-answer"><p>{{faq.items.2.answer}}</p></div>
+          </details>
+          <details class="faq-item" data-reveal>
+            <summary><span>{{faq.items.3.question}}</span><span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-answer"><p>{{faq.items.3.answer}}</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- RENDEZ-VOUS -->
+    <section class="section section--dark" id="rendez-vous" aria-labelledby="contact-title">
+      <div class="container contact-grid">
+        <div class="contact-copy" data-reveal>
+          <p class="eyebrow">{{contact.eyebrow}}</p>
+          <h2 class="section-title" id="contact-title">{{contact.title}}</h2>
+          <p class="section-text">{{contact.text}}</p>
+
+          <dl class="contact-details">
+            <div>
+              <dt>{{contact.altTitle}}</dt>
+              <dd><a href="mailto:{{topbar.email}}">{{topbar.email}}</a><br><a href="tel:+{{topbar.phoneHref}}">{{topbar.phone}}</a></dd>
+            </div>
+            <div>
+              <dt>{{contact.hoursTitle}}</dt>
+              <dd>{{contact.hours.0}}<br>{{contact.hours.1}}<br>{{contact.hours.2}}</dd>
+            </div>
+            <div>
+              <dt>{{footer.contactTitle}}</dt>
+              <dd>{{topbar.address}}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Formulaire -> WhatsApp (pas de serveur) : voir assets/js/script.js -->
+        <form class="form" data-whatsapp-form data-phone="{{topbar.phoneHref}}" data-intro="{{contact.form.whatsappIntro}}" data-reveal>
+          <div class="field">
+            <label for="f-name">{{contact.form.name}}</label>
+            <input id="f-name" name="nom" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="f-company">{{contact.form.company}}</label>
+            <input id="f-company" name="entreprise" type="text" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="f-phone">{{contact.form.phone}}</label>
+            <input id="f-phone" name="telephone" type="tel" autocomplete="tel" required>
+          </div>
+          <div class="field">
+            <label for="f-slot">{{contact.form.slot}}</label>
+            <select id="f-slot" name="creneau">
+              <option value="{{contact.form.slotOptions.0}}">{{contact.form.slotOptions.0}}</option>
+              <option value="{{contact.form.slotOptions.1}}">{{contact.form.slotOptions.1}}</option>
+              <option value="{{contact.form.slotOptions.2}}">{{contact.form.slotOptions.2}}</option>
+            </select>
+          </div>
+          <div class="field field--full">
+            <label for="f-topic">{{contact.form.topic}}</label>
+            <select id="f-topic" name="sujet" required>
+              <option value="{{services.items.0.title}}">{{services.items.0.title}}</option>
+              <option value="{{services.items.1.title}}">{{services.items.1.title}}</option>
+              <option value="{{services.items.2.title}}">{{services.items.2.title}}</option>
+              <option value="{{services.items.3.title}}">{{services.items.3.title}}</option>
+            </select>
+          </div>
+          <div class="field field--full">
+            <label for="f-message">{{contact.form.message}}</label>
+            <textarea id="f-message" name="message" rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn btn-light field--full">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1 1 8.6 18.8z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M9.5 9.5c0 3 2 5 5 5l1-1.5-1.8-.9-.8.8c-1-.4-1.6-1-2-2l.8-.8-.9-1.8z" fill="currentColor"/></svg>
+            {{contact.form.submit}}
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PIED DE PAGE -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-big" aria-hidden="true">{{brand.name}}</p>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <p>{{footer.text}}</p>
+          <ul class="social" aria-label="Réseaux sociaux">
+            <li><a href="{{footer.social.linkedin}}">LinkedIn</a></li>
+            <li><a href="{{footer.social.instagram}}">Instagram</a></li>
+            <li><a href="{{footer.social.whatsapp}}">WhatsApp</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2 class="footer-title">{{footer.navTitle}}</h2>
+          <ul class="footer-links">
+            <li><a href="#services">{{nav.services}}</a></li>
+            <li><a href="#methode">{{nav.method}}</a></li>
+            <li><a href="#offres">{{nav.pricing}}</a></li>
+            <li><a href="#rendez-vous">{{nav.cta}}</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2 class="footer-title">{{footer.contactTitle}}</h2>
+          <address class="footer-address">
+            <a href="tel:+{{topbar.phoneHref}}">{{topbar.phone}}</a>
+            <a href="mailto:{{topbar.email}}">{{topbar.email}}</a>
+            <span>{{topbar.address}}</span>
+          </address>
+        </div>
+        <div class="footer-col">
+          <h2 class="footer-title">{{contact.hoursTitle}}</h2>
+          <ul class="footer-links">
+            <li>{{contact.hours.0}}</li>
+            <li>{{contact.hours.1}}</li>
+            <li>{{contact.hours.2}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; {{footer.year}} {{brand.name}}. {{footer.rights}}</p>
+        <a href="#top" class="back-top">Haut de page</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./assets/js/script.js"></script>
+</body>
+
+</html>

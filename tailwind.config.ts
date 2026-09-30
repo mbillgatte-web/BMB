@@ -49,6 +49,9 @@ const config: Config = {
         "inverse-on-surface": "#f2effb",
         "on-tertiary-fixed": "#2a1700",
         primary: "#4648d4",
+        // Utilisées par les écrans Connexion/Inscription (Field.tsx...).
+        "primary-hover": "#3B3DBA",
+        "border-strong": "#D4D4D8",
         secondary: "#006c49",
         "surface-container-highest": "#e4e1ed",
         "on-secondary-fixed-variant": "#005236",

@@ -1,13 +1,10 @@
 import {
-  LayoutDashboard,
-  Folder,
-  BrainCircuit,
-  ListChecks,
   ClipboardList,
-  FileText,
-  ChartNoAxesCombined,
-  LayoutTemplate,
+  FolderKanban,
   ImagePlus,
+  LayoutDashboard,
+  LayoutTemplate,
+  Palette,
   type LucideIcon,
 } from "lucide-react";
 
@@ -32,17 +29,16 @@ export type NavGroup = {
 export const NAV_GROUPS: NavGroup[] = [
   {
     items: [
-      { icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
-      { icon: Folder, label: "Projects" },
-      { icon: ChartNoAxesCombined, label: "Demarche administrative" },
-     
+      { icon: LayoutDashboard, label: "Tableau de bord", link: "/dashboard" },
+      { icon: FolderKanban, label: "Projets" },
+      { icon: ClipboardList, label: "Démarches administratives" },
     ],
   },
   {
     heading: "Marque",
     items: [
       {
-        icon: Folder,
+        icon: Palette,
         label: "Identité visuelle",
         children: [
           { label: "Vue d'ensemble", link: "/IdentiteVisuelle" },
@@ -55,7 +51,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { icon: ImagePlus, label: "Visuels marketing", link: "/Visuels" },
     ],
   },
-   
 ];
 
 /**
