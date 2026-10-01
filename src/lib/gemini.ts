@@ -5,12 +5,15 @@
 const GEMINI_MODEL = process.env.GEMINI_TEXT_MODEL || "gemini-3.6-flash";
 
 // Modèles essayés si le principal reste surchargé, dans l'ordre. Réglable
-// dans .env.local (noms séparés par des virgules). Par défaut : un Flash
-// stable de la génération précédente d'abord (moins demandé, donc rarement
-// saturé en même temps que le plus récent), puis l'alias "gemini-flash-latest"
-// (qui pointe souvent vers le même modèle que le principal).
+// dans .env.local (noms séparés par des virgules). Par défaut : d'autres
+// Flash de la même famille (la surcharge touche rarement tous les modèles en
+// même temps), puis un Flash-Lite en dernier recours (moins soigné en
+// design, mais presque toujours disponible). Liste vérifiée le 01/10/2026
+// avec la clé du projet : gemini-2.5-flash n'est plus ouvert aux nouveaux
+// comptes (404), ne pas le remettre.
 const MODELES_SECOURS = (
-  process.env.GEMINI_TEXT_FALLBACK_MODELS || "gemini-2.5-flash,gemini-flash-latest"
+  process.env.GEMINI_TEXT_FALLBACK_MODELS ||
+  "gemini-3.5-flash,gemini-3.8-flash,gemini-flash-latest,gemini-3.1-flash-lite"
 )
   .split(",")
   .map((m) => m.trim())
