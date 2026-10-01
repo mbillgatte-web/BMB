@@ -389,8 +389,9 @@ export default function TypographyBuilder({
         </p>
       )}
 
-      {/* Barre d'action "Continue" : sticky au composant, pas au viewport global */}
-      <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
+      {/* Barre d'action "Continue" : sticky au composant, pas au viewport
+          global. Sous sm elle reste dans le flux (voir PaletteBuilder.tsx). */}
+      <div className="col-span-full z-40 flex justify-end pt-2 sm:sticky sm:bottom-4">
         <button
           type="button"
           onClick={handleContinue}

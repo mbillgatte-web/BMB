@@ -390,8 +390,10 @@ export default function PaletteBuilder({
       )}
 
       {/* Barre d'action "Continue" : sticky au bas du composant, jamais
-          ancrée au viewport global (contrairement à `fixed`). */}
-      <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
+          ancrée au viewport global (contrairement à `fixed`). Sous sm elle
+          reste dans le flux : collée en bas, elle recouvrait les contrôles
+          sur un téléphone. */}
+      <div className="col-span-full z-40 flex justify-end pt-2 sm:sticky sm:bottom-4">
         <button
           type="button"
           onClick={handleContinue}

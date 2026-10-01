@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Grilli - Amazing & Delicious Food",
-    "description": "This is a Restaurant html template made by codewithsadee"
+    "description": "Restaurant : carte du jour, spécialités, réservation de table et événements. Commande et réservation par WhatsApp."
   },
   "brand": {
     "name": "Grilli",
@@ -15,7 +15,13 @@
     "email": "booking@restaurant.com"
   },
   "nav": {
-    "items": ["Home", "Menus", "About Us", "Our Chefs", "Contact"],
+    "items": [
+      "Home",
+      "Menus",
+      "About Us",
+      "Our Chefs",
+      "Contact"
+    ],
     "ctaLabel": "Find A Table",
     "sidebar": {
       "title": "Visit Us",
@@ -58,9 +64,18 @@
     "title": "We Offer Top Notch",
     "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry lorem Ipsum has been the industrys standard dummy text ever.",
     "items": [
-      { "image": "./assets/images/service-1.jpg", "name": "Breakfast" },
-      { "image": "./assets/images/service-2.jpg", "name": "Appetizers" },
-      { "image": "./assets/images/service-3.jpg", "name": "Drinks" }
+      {
+        "image": "./assets/images/service-1.jpg",
+        "name": "Breakfast"
+      },
+      {
+        "image": "./assets/images/service-2.jpg",
+        "name": "Appetizers"
+      },
+      {
+        "image": "./assets/images/service-3.jpg",
+        "name": "Drinks"
+      }
     ]
   },
   "about": {
@@ -88,12 +103,48 @@
     "note": "During winter daily from 7:00 pm to 9:00 pm",
     "ctaLabel": "View All Menu",
     "items": [
-      { "image": "./assets/images/menu-1.png", "name": "Greek Salad", "badge": "Seasonal", "price": "$25.50", "description": "Tomatoes, green bell pepper, sliced cucumber onion, olives, and feta cheese." },
-      { "image": "./assets/images/menu-2.png", "name": "Lasagne", "badge": "", "price": "$40.00", "description": "Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices" },
-      { "image": "./assets/images/menu-3.png", "name": "Butternut Pumpkin", "badge": "", "price": "$10.00", "description": "Typesetting industry lorem Lorem Ipsum is simply dummy text of the priand." },
-      { "image": "./assets/images/menu-4.png", "name": "Tokusen Wagyu", "badge": "New", "price": "$39.00", "description": "Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices." },
-      { "image": "./assets/images/menu-5.png", "name": "Olivas Rellenas", "badge": "", "price": "$25.00", "description": "Avocados with crab meat, red onion, crab salad stuffed red bell pepper and green bell pepper." },
-      { "image": "./assets/images/menu-6.png", "name": "Opu Fish", "badge": "", "price": "$49.00", "description": "Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices" }
+      {
+        "image": "./assets/images/menu-1.png",
+        "name": "Greek Salad",
+        "badge": "Seasonal",
+        "price": "$25.50",
+        "description": "Tomatoes, green bell pepper, sliced cucumber onion, olives, and feta cheese."
+      },
+      {
+        "image": "./assets/images/menu-2.png",
+        "name": "Lasagne",
+        "badge": "",
+        "price": "$40.00",
+        "description": "Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices"
+      },
+      {
+        "image": "./assets/images/menu-3.png",
+        "name": "Butternut Pumpkin",
+        "badge": "",
+        "price": "$10.00",
+        "description": "Typesetting industry lorem Lorem Ipsum is simply dummy text of the priand."
+      },
+      {
+        "image": "./assets/images/menu-4.png",
+        "name": "Tokusen Wagyu",
+        "badge": "New",
+        "price": "$39.00",
+        "description": "Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices."
+      },
+      {
+        "image": "./assets/images/menu-5.png",
+        "name": "Olivas Rellenas",
+        "badge": "",
+        "price": "$25.00",
+        "description": "Avocados with crab meat, red onion, crab salad stuffed red bell pepper and green bell pepper."
+      },
+      {
+        "image": "./assets/images/menu-6.png",
+        "name": "Opu Fish",
+        "badge": "",
+        "price": "$49.00",
+        "description": "Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices"
+      }
     ]
   },
   "testimonial": {
@@ -123,10 +174,26 @@
     "subtitle": "Why Choose Us",
     "title": "Our Strength",
     "items": [
-      { "icon": "./assets/images/features-icon-1.png", "title": "Hygienic Food", "text": "Lorem Ipsum is simply dummy printing and typesetting." },
-      { "icon": "./assets/images/features-icon-2.png", "title": "Fresh Environment", "text": "Lorem Ipsum is simply dummy printing and typesetting." },
-      { "icon": "./assets/images/features-icon-3.png", "title": "Skilled Chefs", "text": "Lorem Ipsum is simply dummy printing and typesetting." },
-      { "icon": "./assets/images/features-icon-4.png", "title": "Event & Party", "text": "Lorem Ipsum is simply dummy printing and typesetting." }
+      {
+        "icon": "./assets/images/features-icon-1.png",
+        "title": "Hygienic Food",
+        "text": "Lorem Ipsum is simply dummy printing and typesetting."
+      },
+      {
+        "icon": "./assets/images/features-icon-2.png",
+        "title": "Fresh Environment",
+        "text": "Lorem Ipsum is simply dummy printing and typesetting."
+      },
+      {
+        "icon": "./assets/images/features-icon-3.png",
+        "title": "Skilled Chefs",
+        "text": "Lorem Ipsum is simply dummy printing and typesetting."
+      },
+      {
+        "icon": "./assets/images/features-icon-4.png",
+        "title": "Event & Party",
+        "text": "Lorem Ipsum is simply dummy printing and typesetting."
+      }
     ]
   },
   "events": {
@@ -134,9 +201,27 @@
     "title": "Upcoming Event",
     "ctaLabel": "View Our Blog",
     "items": [
-      { "image": "./assets/images/event-1.jpg", "date": "2022-09-15", "dateLabel": "15/09/2022", "category": "Food, Flavour", "title": "Flavour so good you’ll try to eat with your eyes." },
-      { "image": "./assets/images/event-2.jpg", "date": "2022-09-08", "dateLabel": "08/09/2022", "category": "Healthy Food", "title": "Flavour so good you’ll try to eat with your eyes." },
-      { "image": "./assets/images/event-3.jpg", "date": "2022-09-03", "dateLabel": "03/09/2022", "category": "Recipie", "title": "Flavour so good you’ll try to eat with your eyes." }
+      {
+        "image": "./assets/images/event-1.jpg",
+        "date": "2022-09-15",
+        "dateLabel": "15/09/2022",
+        "category": "Food, Flavour",
+        "title": "Flavour so good you’ll try to eat with your eyes."
+      },
+      {
+        "image": "./assets/images/event-2.jpg",
+        "date": "2022-09-08",
+        "dateLabel": "08/09/2022",
+        "category": "Healthy Food",
+        "title": "Flavour so good you’ll try to eat with your eyes."
+      },
+      {
+        "image": "./assets/images/event-3.jpg",
+        "date": "2022-09-03",
+        "dateLabel": "03/09/2022",
+        "category": "Recipie",
+        "title": "Flavour so good you’ll try to eat with your eyes."
+      }
     ]
   },
   "footer": {
@@ -147,7 +232,13 @@
     "hours": "Open : 09:00 am - 01:00 pm",
     "newsletterTitle": "Get News & Offers",
     "newsletterText": "Subscribe us & Get 25% Off.",
-    "socialLinks": ["Facebook", "Instagram", "Twitter", "Youtube", "Google Map"],
+    "socialLinks": [
+      "Facebook",
+      "Instagram",
+      "Twitter",
+      "Youtube",
+      "Google Map"
+    ],
     "copyright": "© 2022 Grilli. All Rights Reserved"
   }
 }

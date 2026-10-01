@@ -27,7 +27,7 @@ export default function SiteWebSection() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-headline-lg text-headline-lg text-on-surface">Mon site web</h1>
-          <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
+          <p className="mt-1 text-[15px] leading-6 text-on-surface">
             {mode === "modeles"
               ? "Choisissez un modèle, puis adaptez-le à votre activité."
               : "Décrivez le site que vous voulez : l'IA le construit avec votre identité visuelle."}
@@ -49,8 +49,9 @@ export default function SiteWebSection() {
                 aria-selected={actif}
                 onClick={() => setMode(valeur)}
                 className={cn(
-                  "relative flex items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-medium transition-colors duration-200",
-                  actif ? "text-on-primary" : "text-on-surface-variant hover:text-on-surface"
+                  "relative flex min-h-9 items-center gap-2 rounded-lg px-4 py-2 text-[14px] font-semibold transition-colors duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
+                  actif ? "text-on-primary" : "text-on-surface hover:text-primary"
                 )}
               >
                 {actif && (

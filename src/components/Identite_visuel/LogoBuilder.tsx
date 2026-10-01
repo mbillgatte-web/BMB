@@ -381,8 +381,9 @@ export default function LogoBuilder({
         </p>
       )}
 
-      {/* Barre d'action finale : envoie palette + typographie + logo en base */}
-      <div className="sticky bottom-4 z-40 flex justify-end pt-2">
+      {/* Barre d'action finale : envoie palette + typographie + logo en base.
+          Sous sm elle reste dans le flux (voir PaletteBuilder.tsx). */}
+      <div className="z-40 flex justify-end pt-2 sm:sticky sm:bottom-4">
         <button
           type="button"
           onClick={handleFinish}

@@ -4,14 +4,20 @@ import Link from "next/link";
 import { ArrowUpRight, Folder, ImageIcon, Palette, Type } from "lucide-react";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
+import { useProjetsActifs } from "@/hooks/useProjetsActifs";
 import { FONT_FAMILY_VARS } from "@/components/Identite_visuel/police";
 
 export default function IdentityKpis() {
-  const { entreprise, entreprises, loading: loadingEntreprise } = useEntreprise();
+  const { entreprise, loading: loadingEntreprise } = useEntreprise();
   const { identiteVisuelle, loading: loadingIdentite } = useIdentiteVisuelle(
     entreprise?.id ?? null
   );
-  const loading = loadingEntreprise || loadingIdentite;
+  // « Projets actifs » = projets « idée » ou « en cours » de l'entreprise
+  // sélectionnée (table projet), plus le nombre d'entreprises du compte.
+  const { nombre: projetsActifs, loading: loadingProjets } = useProjetsActifs(
+    entreprise?.id ?? null
+  );
+  const loading = loadingEntreprise || loadingIdentite || loadingProjets;
   const withEntreprise = (href: string) =>
     entreprise ? `${href}?entrepriseId=${entreprise.id}` : href;
 
@@ -100,13 +106,13 @@ export default function IdentityKpis() {
     },
     {
       label: "Projets actifs",
-      detail: `${entreprises.length} projet${entreprises.length > 1 ? "s" : ""}`,
-      href: "/dashboard",
+      detail: `${projetsActifs} projet${projetsActifs > 1 ? "s" : ""}`,
+      href: "/Projets",
       icon: Folder,
       ready: true,
       content: (
         <span className="font-mono-stats text-[2.15rem] font-bold leading-none text-on-surface">
-          {entreprises.length}
+          {projetsActifs}
         </span>
       ),
       iconClass: "bg-secondary-container/30 text-secondary",

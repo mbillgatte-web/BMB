@@ -9,7 +9,7 @@ export default function IdentiteVisuellePage() {
     <div className="flex h-screen overflow-hidden bg-background text-on-background antialiased">
       <Sidebar />
 
-      <div className="relative flex h-screen flex-1 flex-col overflow-hidden bg-[#F9FAFB]">
+      <div className="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-[#F9FAFB]">
         <TopNav />
 
         <main className="flex-1 overflow-y-auto p-6 lg:p-12">

@@ -14,6 +14,7 @@ import {
   type MessageSiteIA,
 } from "@/data/site";
 import ChatComposer, { type Raccourci } from "./ChatComposer";
+import PublicationSite from "./PublicationSite";
 
 const SUGGESTIONS = [
   "Un site vitrine qui présente mes services, mes horaires et un bouton pour me contacter sur WhatsApp",
@@ -384,6 +385,16 @@ export default function SiteChatBuilder() {
             <span className="sr-only">Plein écran</span>
           </button>
         </div>
+
+        {/* Mise en ligne du site IA (voir PublicationSite.tsx) : publiable
+            seulement une fois qu'un HTML existe. */}
+        <PublicationSite
+          variante="compact"
+          entrepriseId={entreprise?.id}
+          templateId={SITE_IA_ID}
+          publiable={Boolean(html)}
+          refreshToken={html?.length ?? 0}
+        />
 
         <div className="relative flex flex-1 justify-center overflow-hidden bg-surface-container-low">
           {html ? (
