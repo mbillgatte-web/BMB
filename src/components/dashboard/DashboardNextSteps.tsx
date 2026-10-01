@@ -32,12 +32,19 @@ export default function DashboardNextSteps() {
     entreprise ? `${href}?entrepriseId=${entreprise.id}` : href;
 
   return (
-    <section className="grid gap-md lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
-      <div className="rounded-2xl border border-outline-variant/80 bg-surface p-lg shadow-sm">
+    // Sous `md`, la section passe en `display: contents` et ses deux cartes
+    // sont réordonnées dans la colonne du DashboardView : « À faire
+    // maintenant » en tête de page, la feuille de route après la bande
+    // d'avancement. À partir de `md`, grille inchangée.
+    <section className="grid gap-md max-md:contents lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+      <div className="rounded-2xl border border-outline-variant/80 bg-surface p-md shadow-sm max-md:-order-1 md:p-lg">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+          {/* `min-w-0 flex-1` sous `md` : le texte se resserre pour laisser
+              le badge de progression à sa droite au lieu de le rejeter seul
+              sur une ligne en dessous. */}
+          <div className="max-md:min-w-0 max-md:flex-1">
             <p className="font-label-sm text-label-sm uppercase text-primary">Votre feuille de route</p>
-            <h2 className="mt-2 font-headline-md text-headline-md text-on-surface">
+            <h2 className="mt-2 font-headline-md text-headline-sm text-on-surface md:text-headline-md">
               Construisez une marque cohérente
             </h2>
             <p className="mt-2 max-w-[34rem] font-body-sm text-body-sm text-on-surface-variant">
@@ -57,7 +64,7 @@ export default function DashboardNextSteps() {
           />
         </div>
 
-        <div className="mt-lg grid gap-2 sm:grid-cols-2">
+        <div className="mt-lg grid gap-2 md:grid-cols-2">
           {steps.map((step) => {
             const isComplete = status[step.key];
             const href = step.key === "entreprise" ? step.href : withEntreprise(step.href);
@@ -85,7 +92,7 @@ export default function DashboardNextSteps() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-between rounded-2xl bg-gradient-to-br from-primary to-primary-container p-lg text-white shadow-sm">
+      <div className="flex flex-col justify-between rounded-2xl bg-gradient-to-br from-primary to-primary-container p-md text-white shadow-sm max-md:-order-3 md:p-lg">
         <div>
           <div className="flex items-center justify-between gap-4">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
@@ -93,7 +100,7 @@ export default function DashboardNextSteps() {
             </span>
             <span className="font-label-sm text-[10px] uppercase tracking-[0.12em] text-white/80">À faire maintenant</span>
           </div>
-          <h2 className="mt-7 font-headline-sm text-headline-sm text-white">
+          <h2 className="mt-4 font-headline-sm text-headline-sm text-white md:mt-7">
             {loading ? "Préparation de votre prochaine étape" : nextStep ? nextStep.label : "Votre identité est prête"}
           </h2>
           <p className="mt-2 font-body-sm text-body-sm text-white/85">
@@ -102,7 +109,7 @@ export default function DashboardNextSteps() {
         </div>
         <Link
           href={nextStep ? (nextStep.key === "entreprise" ? nextStep.href : withEntreprise(nextStep.href)) : "/Templates"}
-          className="mt-8 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 font-label-md text-label-md text-primary transition-transform hover:-translate-y-0.5"
+          className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 font-label-md text-label-md text-primary transition-transform hover:-translate-y-0.5 active:scale-[0.98] md:mt-8"
         >
           <Palette className="h-4 w-4" aria-hidden="true" />
           {nextStep ? "Continuer" : "Voir les modèles"}
