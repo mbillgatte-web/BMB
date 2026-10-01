@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail } from "lucide-react";
 import Button from "@/components/ui/Button";
-import SoonBadge from "@/components/ui/SoonBadge";
 import GoogleIcon from "@/components/ui/GoogleIcon";
 import { FormError, PasswordField, TextField } from "@/components/ui/Field";
 import { supabase } from "@/lib/supabase/browser";
@@ -14,6 +13,9 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // Fonctions pas encore branchées : un clic affiche un court message sous
+  // le contrôle concerné au lieu de ne rien faire.
+  const [annonce, setAnnonce] = useState<"google" | "oubli" | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,15 +57,17 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="stagger-in">
-      <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.02em] text-on-surface">
-        Connexion
+    <div className="cascade-floue">
+      {/* Titre neutre : la page sert autant à la première connexion (juste
+          après l'inscription) qu'aux suivantes. */}
+      <h1 className="text-[32px] font-normal leading-[1.1] tracking-[-0.03em] text-on-surface">
+        <em className="font-semibold text-primary">Bienvenue</em>.
       </h1>
-      <p className="mt-2 text-[15px] text-on-surface-variant">
-        Reprenez là où vous vous êtes arrêté.
+      <p className="mt-2 text-[15px] leading-relaxed text-on-surface">
+        Connectez-vous pour accéder à vos projets, votre identité visuelle et votre site.
       </p>
 
-      <form className="stagger-in mt-8 space-y-5" onSubmit={handleSubmit}>
+      <form className="cascade-floue mt-7 space-y-5 [--cascade-depart:240ms]" onSubmit={handleSubmit}>
         <TextField
           label="Adresse email"
           icon={Mail}
@@ -84,23 +88,17 @@ export default function LoginForm() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          hint={annonce === "oubli" ? "La réinitialisation du mot de passe arrive bientôt." : undefined}
           labelAside={
-            <span className="inline-flex items-center gap-1.5 text-[13px] text-outline">
-              Mot de passe oublié
-              <SoonBadge />
-            </span>
+            <button
+              type="button"
+              onClick={() => setAnnonce("oubli")}
+              className="-my-2 cursor-pointer rounded-md py-2 text-[13px] font-medium text-primary underline-offset-4 transition-colors hover:text-primary-hover hover:underline"
+            >
+              Mot de passe oublié ?
+            </button>
           }
         />
-
-        <label className="flex w-fit cursor-not-allowed items-center gap-2.5 text-sm text-outline">
-          <input
-            type="checkbox"
-            disabled
-            className="h-4 w-4 rounded border-border-strong text-primary"
-          />
-          Se souvenir de moi
-          <SoonBadge />
-        </label>
 
         {error && <FormError>{error}</FormError>}
 
@@ -109,17 +107,43 @@ export default function LoginForm() {
         </Button>
       </form>
 
-      <div className="my-6 flex items-center gap-3 text-[13px] text-outline">
-        <span className="h-px flex-1 bg-outline-variant" />
-        ou
-        <span className="h-px flex-1 bg-outline-variant" />
-      </div>
+      {/* Email d'abord (le moyen principal), Google ensuite en alternative. */}
+      <Separateur>Ou</Separateur>
 
-      <Button variant="secondary" size="lg" className="w-full" disabled>
-        <GoogleIcon />
-        Continuer avec Google
-        <SoonBadge />
-      </Button>
+      <div>
+        <Button
+          variant="secondary"
+          size="lg"
+          className="w-full"
+          aria-describedby={annonce === "google" ? "annonce-google" : undefined}
+          onClick={() => setAnnonce("google")}
+        >
+          <GoogleIcon />
+          Continuer avec Google
+        </Button>
+        {annonce === "google" && (
+          <p id="annonce-google" role="status" className="animate-rise-in mt-2 text-center text-[13px] text-on-surface-variant">
+            La connexion avec Google arrive bientôt.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Séparateur « OU PAR EMAIL » en petites capitales espacées. */
+export function Separateur({
+  children,
+  className = "my-6",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`${className} flex items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant`}>
+      <span className="h-px flex-1 bg-outline-variant" aria-hidden="true" />
+      {children}
+      <span className="h-px flex-1 bg-outline-variant" aria-hidden="true" />
     </div>
   );
 }

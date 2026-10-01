@@ -17,9 +17,11 @@ type FieldProps = Omit<ComponentPropsWithoutRef<"input">, "id"> & {
   labelAside?: ReactNode;
 };
 
-// Au focus : bordure violette + halo qui s'élargit (transition 200 ms).
+// Au repos : fond légèrement teinté. Au focus : fond blanc, bordure violette
+// et anneau qui s'élargit (transition 200 ms).
 const INPUT =
-  "block h-12 w-full rounded-xl border bg-surface-container-lowest text-[15px] text-on-surface " +
+  "block h-12 w-full rounded-[10px] border bg-surface-container-low text-[15px] text-on-surface " +
+  "focus:bg-white " +
   "placeholder:text-outline/60 transition-all duration-200 ease-out " +
   "focus:outline-none focus:ring-4 " +
   "disabled:cursor-not-allowed disabled:bg-surface-container disabled:text-outline";
@@ -139,7 +141,7 @@ export function PasswordField({ label, icon, hint, error, labelAside, className,
         onClick={() => setVisible((v) => !v)}
         aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
         aria-pressed={visible}
-        className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-outline transition-colors hover:bg-primary/10 hover:text-primary"
+        className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-outline transition-colors hover:bg-primary/10 hover:text-primary"
       >
         {visible ? (
           <EyeOff className="h-[18px] w-[18px]" aria-hidden="true" />
