@@ -9,9 +9,10 @@
  * src/components/Identite_visuel/police.tsx (les 7 polices proposées à
  * l'utilisateur pour son identité visuelle) -- une police choisie là-bas
  * mais absente d'ici ne s'affichera jamais correctement dans un template.
- * Les 2 dernières entrées (Forum, DM Sans) sont les polices d'origine du
- * template Grilli, pas des polices d'identité de marque -- gardées ici pour
- * que le rendu par défaut (sans identité configurée) fonctionne aussi.
+ * Les dernières entrées (Forum, DM Sans pour Grilli ; Rubik, Roboto pour
+ * Foodie) sont les polices d'origine des templates, pas des polices
+ * d'identité de marque -- gardées ici pour que le rendu par défaut (sans
+ * identité configurée) fonctionne aussi.
  */
 export const GOOGLE_FONT_QUERY: Record<string, string> = {
   Inter: "family=Inter:wght@400;700",
@@ -23,4 +24,11 @@ export const GOOGLE_FONT_QUERY: Record<string, string> = {
   Manrope: "family=Manrope:wght@400;700;800",
   Forum: "family=Forum",
   "DM Sans": "family=DM+Sans:wght@400;700",
+  Rubik: "family=Rubik:wght@400;500;600;700",
+  Roboto: "family=Roboto:wght@400;500",
+  // Polices d'origine des templates "Tech" (formatech, netsolutions, iastudio).
+  Fraunces: "family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400",
+  "Space Grotesk": "family=Space+Grotesk:wght@400;500;700",
+  "IBM Plex Sans": "family=IBM+Plex+Sans:wght@400;500;600",
+  "Instrument Serif": "family=Instrument+Serif:ital@0;1",
 };

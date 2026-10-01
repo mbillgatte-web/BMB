@@ -1,0 +1,236 @@
+{
+  "meta": {
+    "title": "IA Studio - Agence d'intelligence artificielle et d'automatisation",
+    "description": "Chatbots WhatsApp, automatisation de tâches, analyse de données et formation à l'IA pour les entreprises. Méthode en étapes, offres claires, prise de rendez-vous."
+  },
+  "brand": {
+    "name": "IA Studio",
+    "logo": "./favicon.svg",
+    "tagline": "IA et automatisation"
+  },
+  "topbar": {
+    "phone": "+237 6 00 00 00 00",
+    "phoneHref": "237600000000",
+    "email": "bonjour@monagence.cm",
+    "address": "Bonanjo, Douala"
+  },
+  "nav": {
+    "services": "Ce que nous faisons",
+    "method": "Méthode",
+    "cases": "Cas d'usage",
+    "pricing": "Offres",
+    "faq": "Questions",
+    "cta": "Prendre rendez-vous"
+  },
+  "hero": {
+    "title": "Moins de tâches répétitives,",
+    "titleAccent": "plus de temps pour vos clients.",
+    "text": "Nous construisons des assistants WhatsApp, des automatisations et des tableaux de bord pour les entreprises qui veulent répondre plus vite sans embaucher plus.",
+    "cta": "Prendre rendez-vous",
+    "secondary": "Voir la méthode",
+    "note": "Premier échange de 30 minutes, sans engagement.",
+    "image": "./assets/images/conversation.svg",
+    "imageAlt": "Illustration d'une conversation WhatsApp prise en charge par un assistant, reliée à un tableau de suivi"
+  },
+  "services": {
+    "eyebrow": "Ce que nous faisons",
+    "title": "Quatre façons de mettre l'IA au travail",
+    "text": "Chaque projet part d'un problème précis dans votre activité, pas d'une technologie.",
+    "cta": "En parler",
+    "whatsappText": "Bonjour, je souhaite en savoir plus sur",
+    "items": [
+      {
+        "number": "01",
+        "title": "Assistant WhatsApp",
+        "text": "Un assistant qui répond aux questions fréquentes, prend les commandes ou les rendez-vous, et passe la main à votre équipe quand il le faut.",
+        "list": ["Réponses aux questions fréquentes", "Prise de commande ou de rendez-vous", "Transfert à un humain", "Historique consultable"]
+      },
+      {
+        "number": "02",
+        "title": "Automatisation de tâches",
+        "text": "Relances, factures, saisies dans un tableur, rapports hebdomadaires : ce qui se répète peut être automatisé.",
+        "list": ["Relances clients et fournisseurs", "Génération de documents", "Synchronisation entre outils"]
+      },
+      {
+        "number": "03",
+        "title": "Analyse de données",
+        "text": "Un tableau de bord lisible à partir de vos ventes, de votre stock ou de vos messages, mis à jour sans intervention.",
+        "list": ["Tableau de bord ventes et stock", "Alertes automatiques", "Prévisions simples"]
+      },
+      {
+        "number": "04",
+        "title": "Formation à l'IA",
+        "text": "Une demi-journée ou une journée pour que votre équipe utilise les outils d'IA avec méthode, sur ses propres cas.",
+        "list": ["Ateliers sur vos documents", "Règles d'usage et confidentialité", "Support après la formation"]
+      }
+    ]
+  },
+  "method": {
+    "eyebrow": "Méthode",
+    "title": "Cinq étapes, du premier échange à la mise en service",
+    "text": "Vous savez à chaque étape ce qui est fait, ce que cela coûte et ce qu'il reste à décider.",
+    "steps": [
+      {
+        "number": "1",
+        "title": "Échange de cadrage",
+        "text": "Trente minutes pour comprendre votre activité, ce qui vous prend du temps et ce que vous attendez."
+      },
+      {
+        "number": "2",
+        "title": "Diagnostic",
+        "text": "Nous observons vos conversations, vos fichiers et vos outils, puis nous listons ce qui peut être automatisé et dans quel ordre."
+      },
+      {
+        "number": "3",
+        "title": "Prototype",
+        "text": "Une première version fonctionnelle, testée avec vous sur de vrais cas, avant tout développement complet."
+      },
+      {
+        "number": "4",
+        "title": "Mise en service",
+        "text": "Installation sur vos numéros et comptes, formation de l'équipe, documentation remise."
+      },
+      {
+        "number": "5",
+        "title": "Suivi",
+        "text": "Ajustements les premières semaines, puis un point mensuel si vous choisissez l'accompagnement."
+      }
+    ]
+  },
+  "cases": {
+    "eyebrow": "Cas d'usage",
+    "title": "Des situations concrètes",
+    "text": "Exemples de ce que nous mettons en place. Remplacez-les par vos propres réalisations quand elles sont livrées.",
+    "beforeLabel": "Avant",
+    "afterLabel": "Après",
+    "items": [
+      {
+        "sector": "Commerce en ligne",
+        "before": "Les questions sur les prix, la livraison et les disponibilités arrivent sur WhatsApp toute la journée et attendent qu'une personne soit libre.",
+        "after": "Un assistant répond immédiatement aux questions courantes et transmet les commandes confirmées à l'équipe, avec le récapitulatif."
+      },
+      {
+        "sector": "Cabinet ou clinique",
+        "before": "Les rendez-vous sont notés dans un cahier, les rappels se font par appel, les oublis sont fréquents.",
+        "after": "Prise de rendez-vous par WhatsApp, rappel automatique la veille, agenda partagé mis à jour."
+      },
+      {
+        "sector": "Distribution",
+        "before": "Les ventes sont saisies dans plusieurs fichiers, le stock réel n'est connu qu'en fin de mois.",
+        "after": "Un tableau de bord rassemble ventes et stock chaque matin, avec une alerte quand un produit passe sous le seuil."
+      }
+    ]
+  },
+  "pricing": {
+    "eyebrow": "Offres",
+    "title": "Trois façons de travailler ensemble",
+    "text": "Les montants sont indicatifs : adaptez-les à vos tarifs. Le diagnostic est déduit si un projet suit.",
+    "whatsappText": "Bonjour, je souhaite des informations sur l'offre",
+    "cta": "Demander cette offre",
+    "items": [
+      {
+        "name": "Diagnostic",
+        "price": "À partir de 75 000 FCFA",
+        "period": "une fois",
+        "text": "Une semaine pour analyser votre activité et vous remettre un plan d'automatisation priorisé, avec un chiffrage."
+      },
+      {
+        "name": "Projet",
+        "price": "À partir de 350 000 FCFA",
+        "period": "par projet",
+        "text": "Conception, prototype, mise en service et formation pour un assistant, une automatisation ou un tableau de bord."
+      },
+      {
+        "name": "Accompagnement",
+        "price": "À partir de 60 000 FCFA",
+        "period": "par mois",
+        "text": "Surveillance, ajustements, nouvelles réponses ajoutées à l'assistant et point mensuel avec votre équipe."
+      }
+    ]
+  },
+  "team": {
+    "eyebrow": "L'équipe",
+    "title": "Qui travaille sur votre projet",
+    "text": "Remplacez ces fiches par les personnes de votre agence.",
+    "members": [
+      {
+        "name": "Prénom Nom",
+        "role": "Fondateur, conception des assistants",
+        "bio": "Décrivez ici son parcours en une ou deux phrases : expériences, projets, ce qu'il apporte au client.",
+        "photo": "./assets/images/portrait.svg"
+      },
+      {
+        "name": "Prénom Nom",
+        "role": "Automatisation et données",
+        "bio": "Décrivez ici son parcours en une ou deux phrases : expériences, projets, ce qu'elle apporte au client.",
+        "photo": "./assets/images/portrait.svg"
+      }
+    ]
+  },
+  "testimonials": {
+    "eyebrow": "Témoignages",
+    "title": "Ce que disent nos clients",
+    "text": "Remplacez ces exemples par les avis réels de vos clients, avec leur accord.",
+    "items": [
+      { "quote": "Écrivez ici l'avis d'un client, avec son accord.", "name": "Prénom Nom", "role": "Fonction, entreprise" },
+      { "quote": "Écrivez ici l'avis d'un client, avec son accord.", "name": "Prénom Nom", "role": "Fonction, entreprise" }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Questions fréquentes",
+    "title": "Ce qu'on nous demande souvent",
+    "items": [
+      {
+        "question": "L'assistant WhatsApp fonctionne-t-il avec mon numéro actuel ?",
+        "answer": "Oui, dans la plupart des cas. Nous vérifions lors du cadrage si votre numéro peut être utilisé avec l'API WhatsApp Business, ou s'il vaut mieux en dédier un."
+      },
+      {
+        "question": "Que se passe-t-il quand l'assistant ne sait pas répondre ?",
+        "answer": "Il transmet la conversation à une personne de votre équipe, avec le contexte. Vous décidez des sujets qu'il traite seul et de ceux qu'il transfère systématiquement."
+      },
+      {
+        "question": "Où sont stockées nos données ?",
+        "answer": "Indiquez ici les outils utilisés et l'endroit où sont hébergées les données. Nous documentons ce point dans chaque projet et vous restez propriétaire de vos données."
+      },
+      {
+        "question": "Faut-il une équipe technique de notre côté ?",
+        "answer": "Non. Nous installons et formons. Une personne référente dans votre équipe suffit pour valider les réponses et nous signaler ce qui doit évoluer."
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Rendez-vous",
+    "title": "Parlons de votre activité",
+    "text": "Choisissez un sujet et un créneau : votre demande s'ouvre dans WhatsApp, déjà rédigée. Nous confirmons l'heure par retour.",
+    "form": {
+      "name": "Votre nom",
+      "company": "Entreprise",
+      "phone": "Votre numéro WhatsApp",
+      "topic": "Sujet du rendez-vous",
+      "slot": "Créneau préféré",
+      "slotOptions": ["Matin (9h - 12h)", "Après-midi (14h - 17h)", "Fin de journée (17h - 19h)"],
+      "message": "Ce que vous aimeriez automatiser",
+      "submit": "Demander un rendez-vous sur WhatsApp",
+      "whatsappIntro": "Bonjour, je souhaite prendre rendez-vous."
+    },
+    "altTitle": "Vous préférez écrire ?",
+    "hoursTitle": "Disponibilités",
+    "hours": [
+      "Lundi - Vendredi : 9h - 18h",
+      "Samedi : sur rendez-vous",
+      "Dimanche : fermé"
+    ]
+  },
+  "footer": {
+    "text": "Assistants WhatsApp, automatisation, analyse de données et formation à l'IA pour les entreprises.",
+    "social": {
+      "linkedin": "#",
+      "instagram": "#",
+      "whatsapp": "#"
+    },
+    "navTitle": "Navigation",
+    "contactTitle": "Contact",
+    "year": "2026",
+    "rights": "Tous droits réservés."
+  }
+}

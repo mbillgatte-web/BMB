@@ -1,0 +1,11 @@
+{
+  "_comment": "Look d'origine du template Formatech (voir assets/css/style.css) : fond crème, titres serif Fraunces, texte Manrope, couleur principale terracotta. --ft-primary porte la couleur principale ; ses nuances (survol, fonds pâles) sont dérivées en CSS avec color-mix(), donc une seule variable suffit. Le crème et l'encre restent intacts : le contraste du texte en dépend.",
+  "colorPrimary": "#b8461e",
+  "fontHeading": "Fraunces",
+  "fontBody": "Manrope",
+  "cssVars": {
+    "primary": "--ft-primary",
+    "heading": "--ft-font-heading",
+    "body": "--ft-font-body"
+  }
+}

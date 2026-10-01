@@ -4,7 +4,8 @@ import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
-
+import ChatComposer from "@/components/Templates/ChatComposer";
+import SoonBadge from "@/components/ui/SoonBadge";
 
 // Exporté pour VueEnsemble.tsx (aperçu en lecture seule des polices déjà
 // enregistrées, avec la même correspondance libellé -> variable CSS).
@@ -261,23 +262,26 @@ export default function TypographyBuilder({
               auto_awesome
             </span>
             <h4 className="text-label-md font-label-md font-bold text-on-surface">
-              Laissez l'IA vous aider !
+              Laissez l&apos;IA vous aider
             </h4>
+            {!onGenerateWithAI && <SoonBadge />}
           </div>
-          <div className="relative z-10 flex flex-col gap-3">
-            <textarea
+          {/* Même composeur que le générateur de site (ChatComposer).
+              Tant que onGenerateWithAI n'est pas branché, la zone reste
+              visible mais désactivée (badge « Bientôt » dans le titre). */}
+          <div className="relative z-10">
+            <ChatComposer
               value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder="e.g. Minimalist tech startup, Luxury fashion..."
-              className="h-20 w-full resize-none rounded-lg border border-surface-variant bg-white p-3 text-body-sm font-body-sm placeholder:text-secondary focus:border-primary focus:ring-1 focus:ring-primary"
+              onChange={setAiPrompt}
+              onSubmit={handleAIGenerate}
+              disabled={!onGenerateWithAI}
+              placeholder="Décrivez le style recherché…"
+              exemples={[
+                "Start-up tech, moderne et minimaliste…",
+                "Boutique de mode haut de gamme…",
+                "École, sérieuse mais accueillante…",
+              ]}
             />
-            <button
-              onClick={handleAIGenerate}
-              disabled={!aiPrompt.trim()}
-              className="self-end rounded-md border border-surface-variant bg-surface px-4 py-2 text-label-sm font-label-sm text-on-surface shadow-sm transition-colors hover:bg-surface-variant disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Generere
-            </button>
           </div>
         </div>
 
@@ -385,8 +389,9 @@ export default function TypographyBuilder({
         </p>
       )}
 
-      {/* Barre d'action "Continue" : sticky au composant, pas au viewport global */}
-      <div className="col-span-full sticky bottom-4 z-40 flex justify-end pt-2">
+      {/* Barre d'action "Continue" : sticky au composant, pas au viewport
+          global. Sous sm elle reste dans le flux (voir PaletteBuilder.tsx). */}
+      <div className="col-span-full z-40 flex justify-end pt-2 sm:sticky sm:bottom-4">
         <button
           type="button"
           onClick={handleContinue}

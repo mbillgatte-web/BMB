@@ -1,23 +1,29 @@
 import {
-  LayoutDashboard,
-  Folder,
-  BrainCircuit,
-  ListChecks,
-  ClipboardList,
+  Briefcase,
+  Eye,
   FileText,
-  ChartNoAxesCombined,
-  LayoutTemplate,
-  ImagePlus,
-  type LucideIcon,
-} from "lucide-react";
+  Globe,
+  Megaphone,
+  PaintBrush,
+  Sparkle,
+  SquaresFour,
+  Swatches,
+  TextAa,
+  type Icon,
+} from "@phosphor-icons/react";
+
+// Icônes Phosphor : la Sidebar les rend en « duotone » (inactif) ou « fill »
+// (page en cours), voir ItemIcon dans Sidebar.tsx.
+export type NavIcon = Icon;
 
 export type NavChild = {
+  icon: NavIcon;
   label: string;
   link: string;
 };
 
 export type NavItem = {
-  icon: LucideIcon;
+  icon: NavIcon;
   label: string;
   link?: string;
   children?: NavChild[];
@@ -32,30 +38,26 @@ export type NavGroup = {
 export const NAV_GROUPS: NavGroup[] = [
   {
     items: [
-      { icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
-      { icon: Folder, label: "Projects" },
-      { icon: BrainCircuit, label: "Etude de faisabilité" },
-      { icon: ListChecks, label: "Business Plan" },
-      { icon: ClipboardList, label: "Taches" },
-      { icon: FileText, label: "Livrables" },
-      { icon: ChartNoAxesCombined, label: "Demarche administrative" },
+      { icon: SquaresFour, label: "Tableau de bord", link: "/dashboard" },
+      { icon: Briefcase, label: "Projets", link: "/Projets" },
+      { icon: FileText, label: "Démarches administratives" },
     ],
   },
   {
     heading: "Marque",
     items: [
       {
-        icon: Folder,
+        icon: PaintBrush,
         label: "Identité visuelle",
         children: [
-          { label: "Vue d'ensemble", link: "/IdentiteVisuelle" },
-          { label: "Palette de couleurs", link: "/PaletteColor" },
-          { label: "Typographie", link: "/Typographie" },
-          { label: "Logo", link: "/Logo" },
+          { icon: Eye, label: "Vue d'ensemble", link: "/IdentiteVisuelle" },
+          { icon: Swatches, label: "Palette de couleurs", link: "/PaletteColor" },
+          { icon: TextAa, label: "Typographie", link: "/Typographie" },
+          { icon: Sparkle, label: "Logo", link: "/Logo" },
         ],
       },
-      { icon: LayoutTemplate, label: "Mon site web", link: "/Templates" },
-      { icon: ImagePlus, label: "Visuels marketing", link: "/Visuels" },
+      { icon: Globe, label: "Mon site web", link: "/Templates" },
+      { icon: Megaphone, label: "Visuels marketing", link: "/Visuels" },
     ],
   },
 ];

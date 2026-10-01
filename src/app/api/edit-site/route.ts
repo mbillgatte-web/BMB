@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { getSite, mettreAJourSite } from "@/data/site";
 
 // Même précaution que /api/site et /api/site-preview.
 const SAFE_TEMPLATE_ID = /^[a-zA-Z0-9_-]+$/;
@@ -67,24 +68,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
   }
 
-  const supabaseForRequest = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { global: { headers: { Authorization: authHeader } } }
-  );
+  const supabase = createServerSupabase(authHeader);
 
   // Le site doit déjà exister (créé via /api/site quand l'utilisateur a
   // cliqué "Choisir") -- cette route ne fait que le MODIFIER, jamais le
   // créer.
-  const { data: existing, error: selectError } = await supabaseForRequest
-    .from("site")
-    .select("id, html")
-    .eq("entreprise_id", entrepriseId)
-    .eq("template_id", templateId)
-    .maybeSingle();
-
-  if (selectError) {
-    return NextResponse.json({ error: selectError.message }, { status: 500 });
+  let existing;
+  try {
+    existing = await getSite(supabase, entrepriseId, templateId);
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
   if (!existing?.html) {
     return NextResponse.json(
@@ -212,16 +205,10 @@ export async function POST(request: NextRequest) {
 
   console.log(`[edit-site] OK -- nouveau HTML de ${newHtml.length} caractères sauvegardé.`);
 
-  const { data: updated, error: updateError } = await supabaseForRequest
-    .from("site")
-    .update({ html: newHtml, updated_at: new Date().toISOString() })
-    .eq("id", existing.id)
-    .select("id, html")
-    .single();
-
-  if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
+  try {
+    const updated = await mettreAJourSite(supabase, existing.id, { html: newHtml });
+    return NextResponse.json({ site: updated });
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
-
-  return NextResponse.json({ site: updated });
 }

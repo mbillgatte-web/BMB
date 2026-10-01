@@ -20,6 +20,7 @@ export const CATEGORIES = [
   "Portfolio",
   "E-commerce",
   "Corporate",
+  "Tech",
   "Santé",
 ] as const;
 
@@ -32,6 +33,15 @@ export const TEMPLATES: SiteTemplate[] = [
       "Page d'accueil complète pour restaurant : slider hero, menu détaillé avec prix, réservation en ligne, avis client et événements.",
     accentColor: "D4B483",
     templateId: "grilli-master",
+  },
+  {
+    id: "fast-food",
+    name: "Foodie",
+    category: "Restaurant",
+    description:
+      "Fast-food et restauration rapide : menu avec prix et promotions, commande et réservation par WhatsApp, avis clients, actualités.",
+    accentColor: "FF9D2D",
+    templateId: "foodie-master",
   },
   {
     id: "bistro-elegant",
@@ -82,12 +92,31 @@ export const TEMPLATES: SiteTemplate[] = [
     accentColor: "1D4ED8",
   },
   {
-    id: "corporate-startup",
-    name: "Corporate Startup",
-    category: "Corporate",
+    id: "formation-informatique",
+    name: "Formatech",
+    category: "Tech",
     description:
-      "Ton plus moderne avec sections produit, tarifs et témoignages clients.",
-    accentColor: "0891B2",
+      "Centre de formation en informatique et bureautique : catalogue des cours, sessions, tarifs, formateurs, certificat et inscription par WhatsApp.",
+    accentColor: "B8461E",
+    templateId: "formatech-master",
+  },
+  {
+    id: "services-it-reseaux",
+    name: "NetSolutions",
+    category: "Tech",
+    description:
+      "Société de services IT et réseaux : câblage, sécurité, vidéosurveillance, maintenance de parc, interventions et demande de devis.",
+    accentColor: "1FB59B",
+    templateId: "netsolutions-master",
+  },
+  {
+    id: "agence-ia-automatisation",
+    name: "IA Studio",
+    category: "Tech",
+    description:
+      "Agence d'IA et d'automatisation : chatbots WhatsApp, automatisation de tâches, analyse de données, méthode en étapes et prise de rendez-vous.",
+    accentColor: "1D4B3F",
+    templateId: "iastudio-master",
   },
   {
     id: "sante-clinique",

@@ -1,0 +1,213 @@
+{
+  "meta": {
+    "title": "NetSolutions - Services informatiques et réseaux pour entreprises",
+    "description": "Installation réseau, câblage, sécurité informatique, vidéosurveillance, maintenance de parc et support pour les entreprises. Devis et intervention rapides."
+  },
+  "brand": {
+    "name": "NetSolutions",
+    "logo": "./favicon.svg",
+    "tagline": "Services IT et réseaux"
+  },
+  "topbar": {
+    "phone": "+237 6 00 00 00 00",
+    "phoneHref": "237600000000",
+    "email": "contact@masociete.cm",
+    "address": "Akwa, Douala"
+  },
+  "nav": {
+    "services": "Services",
+    "process": "Interventions",
+    "maintenance": "Maintenance",
+    "sectors": "Clients",
+    "faq": "Questions",
+    "cta": "Demander un devis"
+  },
+  "hero": {
+    "label": "Installation réseau, sécurité, maintenance",
+    "title": "Un réseau qui tient,",
+    "titleAccent": "une équipe qui répond.",
+    "text": "Nous installons, sécurisons et maintenons l'informatique des PME, cabinets, écoles et commerces. Un interlocuteur unique, des interventions planifiées, un rapport après chaque passage.",
+    "cta": "Demander un devis",
+    "secondary": "Voir le déroulement d'une intervention",
+    "image": "./assets/images/network-diagram.svg",
+    "imageAlt": "Schéma d'un réseau d'entreprise : routeur, commutateur, serveur, postes de travail et caméras",
+    "stats": [
+      { "label": "Délai d'intervention", "value": "Indiquez votre délai (ex. sous 24 h)" },
+      { "label": "Zone couverte", "value": "Indiquez vos villes" },
+      { "label": "Astreinte", "value": "Indiquez vos horaires" }
+    ]
+  },
+  "services": {
+    "eyebrow": "Services",
+    "title": "Ce que nous prenons en charge",
+    "text": "Chaque prestation commence par une visite sur site et un devis écrit. Pas de matériel imposé : nous travaillons avec ce que vous avez quand c'est possible.",
+    "cta": "Demander un devis",
+    "whatsappText": "Bonjour, je souhaite un devis pour",
+    "items": [
+      {
+        "number": "01",
+        "title": "Installation et câblage réseau",
+        "text": "Étude du bâtiment, tirage de câbles, baie de brassage, prises murales étiquetées et test de chaque point.",
+        "tags": "Câblage cuivre et fibre, baie, Wi-Fi"
+      },
+      {
+        "number": "02",
+        "title": "Sécurité informatique",
+        "text": "Pare-feu, antivirus centralisé, sauvegardes automatiques et contrôle des accès pour protéger vos données.",
+        "tags": "Pare-feu, sauvegarde, accès"
+      },
+      {
+        "number": "03",
+        "title": "Vidéosurveillance",
+        "text": "Caméras IP, enregistreur, consultation à distance depuis votre téléphone et conservation des images.",
+        "tags": "Caméras IP, enregistreur, accès distant"
+      },
+      {
+        "number": "04",
+        "title": "Maintenance de parc",
+        "text": "Visites régulières, mises à jour, remplacement des pièces, inventaire du matériel et rapport d'intervention.",
+        "tags": "Contrat, inventaire, rapports"
+      },
+      {
+        "number": "05",
+        "title": "Serveurs et partage de fichiers",
+        "text": "Serveur de fichiers, comptes utilisateurs, imprimantes partagées et messagerie professionnelle.",
+        "tags": "Serveur, comptes, messagerie"
+      },
+      {
+        "number": "06",
+        "title": "Support et dépannage",
+        "text": "Assistance par téléphone ou WhatsApp, prise en main à distance et déplacement sur site si nécessaire.",
+        "tags": "Téléphone, à distance, sur site"
+      }
+    ]
+  },
+  "process": {
+    "eyebrow": "Interventions",
+    "title": "Comment se déroule une intervention",
+    "text": "Le même déroulé pour un dépannage ponctuel ou un chantier de câblage complet.",
+    "steps": [
+      {
+        "label": "Étape 1",
+        "title": "Demande",
+        "text": "Vous décrivez le besoin par WhatsApp, téléphone ou via le formulaire. Nous rappelons pour préciser."
+      },
+      {
+        "label": "Étape 2",
+        "title": "Visite et devis",
+        "text": "Un technicien passe sur site, relève l'existant et vous remet un devis détaillé, matériel et main-d'œuvre séparés."
+      },
+      {
+        "label": "Étape 3",
+        "title": "Intervention",
+        "text": "Travaux planifiés à l'horaire convenu, en dehors de vos heures d'activité si besoin."
+      },
+      {
+        "label": "Étape 4",
+        "title": "Rapport et suivi",
+        "text": "Vous recevez un rapport avec photos, schéma du réseau et identifiants. Garantie sur l'installation."
+      }
+    ]
+  },
+  "maintenance": {
+    "eyebrow": "Maintenance de parc",
+    "title": "Contrats de maintenance",
+    "text": "Un forfait mensuel selon le nombre de postes. Les prix ci-dessous sont indicatifs : adaptez-les à votre grille.",
+    "colFeature": "Prestation",
+    "whatsappText": "Bonjour, je souhaite des informations sur le contrat",
+    "cta": "Demander ce contrat",
+    "plans": [
+      { "name": "Essentiel", "price": "25 000 FCFA", "period": "par mois", "posts": "Jusqu'à 5 postes" },
+      { "name": "Confort", "price": "60 000 FCFA", "period": "par mois", "posts": "Jusqu'à 15 postes" },
+      { "name": "Complet", "price": "Sur devis", "period": "par mois", "posts": "Plus de 15 postes" }
+    ],
+    "rows": [
+      { "feature": "Visite préventive", "a": "Trimestrielle", "b": "Mensuelle", "c": "Bimensuelle" },
+      { "feature": "Support à distance", "a": "Heures ouvrées", "b": "Heures ouvrées", "c": "Étendu" },
+      { "feature": "Déplacement sur site", "a": "Facturé", "b": "2 inclus par mois", "c": "Illimité" },
+      { "feature": "Sauvegarde surveillée", "a": "Non", "b": "Oui", "c": "Oui" },
+      { "feature": "Inventaire et rapport", "a": "Annuel", "b": "Trimestriel", "c": "Mensuel" }
+    ]
+  },
+  "sectors": {
+    "eyebrow": "Clients professionnels",
+    "title": "Les structures que nous équipons",
+    "text": "Remplacez cette liste par vos secteurs réels. N'ajoutez des noms de clients qu'avec leur accord écrit.",
+    "items": [
+      "PME et bureaux",
+      "Cabinets médicaux et pharmacies",
+      "Écoles et centres de formation",
+      "Hôtels et restaurants",
+      "Commerces et boutiques",
+      "Cabinets d'avocats et comptables",
+      "Agences et ONG",
+      "Entrepôts et ateliers"
+    ]
+  },
+  "testimonials": {
+    "eyebrow": "Témoignages",
+    "title": "Ce que disent nos clients",
+    "text": "Remplacez ces exemples par les avis réels de vos clients, avec leur accord.",
+    "items": [
+      { "quote": "Écrivez ici l'avis d'un client, avec son accord.", "name": "Prénom Nom", "role": "Fonction, entreprise" },
+      { "quote": "Écrivez ici l'avis d'un client, avec son accord.", "name": "Prénom Nom", "role": "Fonction, entreprise" }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Questions fréquentes",
+    "title": "Avant de nous appeler",
+    "items": [
+      {
+        "question": "Intervenez-vous en dehors de votre ville ?",
+        "answer": "Oui, avec des frais de déplacement indiqués sur le devis. Précisez ici les villes couvertes et les conditions."
+      },
+      {
+        "question": "Fournissez-vous le matériel ?",
+        "answer": "Nous pouvons fournir le matériel (câbles, switches, caméras, onduleurs) ou installer celui que vous achetez. Le devis sépare toujours matériel et main-d'œuvre."
+      },
+      {
+        "question": "Quelle garantie sur une installation ?",
+        "answer": "Indiquez ici la durée de garantie sur la main-d'œuvre et celle du matériel fourni, ainsi que ce qu'elle couvre."
+      },
+      {
+        "question": "Comment se passe le paiement ?",
+        "answer": "Acompte à la signature du devis, solde à la remise du rapport. Paiement par virement, Mobile Money ou chèque d'entreprise."
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Devis",
+    "title": "Décrivez votre besoin",
+    "text": "Le formulaire ouvre WhatsApp avec votre demande déjà rédigée. Pour une urgence, appelez directement.",
+    "form": {
+      "name": "Votre nom",
+      "company": "Entreprise ou structure",
+      "phone": "Votre numéro WhatsApp",
+      "need": "Type de besoin",
+      "posts": "Nombre de postes concernés",
+      "message": "Décrivez la situation",
+      "submit": "Envoyer la demande sur WhatsApp",
+      "whatsappIntro": "Bonjour, je souhaite un devis."
+    },
+    "urgentTitle": "Urgence",
+    "urgentText": "Réseau coupé, serveur inaccessible, caméras hors ligne : appelez-nous.",
+    "hoursTitle": "Horaires",
+    "hours": [
+      "Lundi - Vendredi : 8h - 18h",
+      "Samedi : 9h - 14h",
+      "Astreinte : selon contrat"
+    ]
+  },
+  "footer": {
+    "text": "Installation réseau, sécurité, vidéosurveillance et maintenance informatique pour les entreprises.",
+    "social": {
+      "facebook": "#",
+      "linkedin": "#",
+      "whatsapp": "#"
+    },
+    "navTitle": "Services",
+    "contactTitle": "Contact",
+    "year": "2026",
+    "rights": "Tous droits réservés."
+  }
+}

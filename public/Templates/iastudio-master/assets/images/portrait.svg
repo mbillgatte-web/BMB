@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 400" width="320" height="400" role="img" aria-label="Portrait à remplacer">
+  <rect width="320" height="400" fill="#eef1ee"/>
+  <circle cx="160" cy="150" r="64" fill="#d3dbd6"/>
+  <path d="M40 400c8-92 60-140 120-140s112 48 120 140z" fill="#d3dbd6"/>
+  <path d="M112 142c14-30 82-30 96 0" fill="none" stroke="#1d4b3f" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { creerEntreprise } from "@/data/entreprise";
 
 export async function POST(request: NextRequest) {
   // Ce que le navigateur envoie (voir EntrepriseForm.tsx -> body du fetch).
@@ -28,37 +29,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // On crée un client Supabase propre à CETTE requête (et pas le client
-  // partagé de src/lib/supabaseClient.ts, qui lui n'a pas connaissance
-  // de l'utilisateur). En lui passant le token dans ses headers, chaque
-  // appel qu'il fait est exécuté "en tant que" cet utilisateur : c'est ce
-  // qui fait que auth.uid() côté Postgres correspond bien à compteId.
-  const supabaseForRequest = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { global: { headers: { Authorization: authHeader } } }
-  );
-
-  // insert simple : un compte peut posséder plusieurs entreprises, donc
-  // chaque soumission de ce formulaire doit créer une NOUVELLE ligne (pas
-  // de upsert/unique sur compte_id ici, contrairement à une version
-  // précédente de ce fichier).
-  const { data, error } = await supabaseForRequest
-    .from("entreprise")
-    .insert({
+  try {
+    const entreprise = await creerEntreprise(createServerSupabase(authHeader), {
       nom: fullName,
-      slogan: slogan,
+      slogan,
       contact: phone,
       adresse: address,
-      secteur_activite: secteur,
-      compte_id: compteId,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+      secteurActivite: secteur,
+      compteId,
+    });
+    return NextResponse.json({ entreprise });
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
-
-  return NextResponse.json({ entreprise: data });
 }

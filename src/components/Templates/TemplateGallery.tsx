@@ -1,19 +1,55 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { motion, useReducedMotion } from "framer-motion";
+import { Eye } from "lucide-react";
+import { cn } from "@/lib/cn";
+import { supabase } from "@/lib/supabase/browser";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
+import { uploaderImageSite } from "@/data/site";
 import { CATEGORIES, TEMPLATES, type SiteTemplate } from "./templates-data";
+import ChatComposer, { type Raccourci } from "./ChatComposer";
+import PublicationSite from "./PublicationSite";
+
+// Exemples qui défilent dans la zone vide, et raccourcis proposés une fois
+// la zone dépliée (voir ChatComposer). Adaptés à l'édition d'un modèle.
+const EXEMPLES_EDITION = [
+  "Remplace les plats par ceux de mon restaurant…",
+  "Mets mes horaires du mardi au dimanche…",
+  "Change le titre principal…",
+  "Ajoute une section sur la livraison…",
+];
+const RACCOURCIS_EDITION: Raccourci[] = [
+  { libelle: "Réécrire les textes", texte: "Réécris les textes pour qu'ils parlent de " },
+  { libelle: "Changer les horaires", texte: "Mets les horaires suivants : " },
+  { libelle: "Modifier le menu", texte: "Remplace les plats du menu par : " },
+  { libelle: "Changer le slogan", texte: "Change le slogan du hero en : " },
+];
 
 /**
- * Construit l'URL d'une vignette placeholder (placehold.co) pour un
- * template donné, en attendant de vraies captures d'écran de templates
- * réels. Format: largeur x hauteur / couleur de fond / couleur de texte.
+ * Vignette d'un template. Pour un template opérationnel (templateId), c'est
+ * une vraie capture d'écran de son rendu, générée par
+ * `npm run templates:capture` (scripts/capture-templates.mjs) dans
+ * public/Templates/<id>/preview.png. Pour une simple entrée de catalogue
+ * (pas encore de fichiers), on garde un placeholder coloré (placehold.co).
  */
 function thumbnailUrl(template: SiteTemplate, size = "640x400") {
+  if (template.templateId) return `/Templates/${template.templateId}/preview.png`;
   const label = encodeURIComponent(template.name);
   return `https://placehold.co/${size}/${template.accentColor}/FFFFFF?text=${label}`;
+}
+
+/**
+ * Ordre d'affichage : les templates opérationnels (avec de vrais fichiers,
+ * donc choisissables) d'abord, les entrées « Bientôt disponible » ensuite.
+ * Le tri est stable : à disponibilité égale, l'ordre de templates-data.ts
+ * est conservé.
+ */
+function sortAvailableFirst(templates: SiteTemplate[]) {
+  return [...templates].sort(
+    (a, b) => Number(Boolean(b.templateId)) - Number(Boolean(a.templateId))
+  );
 }
 
 /**
@@ -36,7 +72,24 @@ function previewUrl(
   return `/api/site-preview/${templateId}${query ? `?${query}` : ""}`;
 }
 
+// Boutons de la galerie et de la modale : 40 px de haut, coins `lg` comme
+// les autres contrôles de l'app, texte semi-gras. Le plein violet est
+// réservé au geste principal (« Choisir »).
+const BTN =
+  "inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-semibold leading-none " +
+  "transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2";
+const BTN_CONTOUR = `${BTN} border border-outline-variant bg-surface-container-lowest text-on-surface hover:border-primary hover:bg-primary/5 hover:text-primary`;
+const BTN_PLEIN = `${BTN} bg-primary text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-on-surface-variant`;
+
+// Pastille de catégorie posée sur une vignette ou un en-tête.
+const PASTILLE =
+  "inline-flex items-center rounded-md px-2.5 py-1 text-[12px] font-semibold leading-4";
+
 export default function TemplateGallery() {
+  // Apparition en cascade des cartes : désactivée si l'utilisateur préfère
+  // moins d'animations (prefers-reduced-motion).
+  const reduceMotion = useReducedMotion();
+
   // Pour que l'aperçu réel (iframe /api/site-preview) montre les couleurs
   // et polices déjà configurées par l'entreprise, pas seulement le style
   // par défaut du template.
@@ -75,10 +128,11 @@ export default function TemplateGallery() {
 
   const selectedTemplate = TEMPLATES.find((t) => t.id === selectedTemplateId);
 
-  const visibleTemplates =
+  const visibleTemplates = sortAvailableFirst(
     activeCategory === "Tous"
       ? TEMPLATES
-      : TEMPLATES.filter((t) => t.category === activeCategory);
+      : TEMPLATES.filter((t) => t.category === activeCategory)
+  );
 
   const handleChoose = async (template: SiteTemplate) => {
     if (!template.templateId) return;
@@ -143,25 +197,15 @@ export default function TemplateGallery() {
     setUploadingImage(true);
     setEditError("");
 
-    const extension = file.name.split(".").pop() ?? "jpg";
-    // Un nom unique par fichier (pas juste l'entrepriseId comme pour le
-    // logo) : une entreprise peut épingler plusieurs photos différentes au
-    // fil de ses éditions, pas une seule image fixe à écraser.
-    const path = `${entreprise.id}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("site-images")
-      .upload(path, file);
-
-    setUploadingImage(false);
-
-    if (uploadError) {
-      setEditError(`Échec de l'envoi de l'image : ${uploadError.message}`);
+    let publicUrl: string;
+    try {
+      publicUrl = await uploaderImageSite(supabase, entreprise.id, file);
+    } catch (err) {
+      setUploadingImage(false);
+      setEditError(`Échec de l'envoi de l'image : ${(err as Error).message}`);
       return;
     }
-
-    const publicUrl = supabase.storage.from("site-images").getPublicUrl(path)
-      .data.publicUrl;
+    setUploadingImage(false);
 
     setAttachedImageUrl(publicUrl);
     setAttachedImageName(file.name);
@@ -294,7 +338,7 @@ export default function TemplateGallery() {
         <button
           type="button"
           onClick={() => setSelectedTemplateId(null)}
-          className="flex w-fit items-center gap-1 font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary"
+          className="flex w-fit items-center gap-1 text-[14px] font-semibold text-on-surface transition-colors hover:text-primary"
         >
           <span className="material-symbols-outlined text-[18px]">
             arrow_back
@@ -307,11 +351,11 @@ export default function TemplateGallery() {
             <h2 className="text-headline-lg font-headline-lg text-on-surface">
               {selectedTemplate.name}
             </h2>
-            <span className="rounded-full bg-primary/10 px-3 py-1 font-label-sm text-label-sm text-primary">
+            <span className={cn(PASTILLE, "bg-primary/10 text-primary")}>
               {selectedTemplate.category}
             </span>
           </div>
-          <p className="text-body-md font-body-md text-secondary">
+          <p className="max-w-[60ch] text-[15px] leading-6 text-on-surface">
             Voici votre site avec votre identité visuelle appliquée. Décrivez
             les modifications souhaitées à l&apos;IA pour l&apos;adapter à
             votre activité.
@@ -320,16 +364,16 @@ export default function TemplateGallery() {
 
         <div className="grid grid-cols-1 gap-xl lg:grid-cols-[1fr_360px]">
           {/* Aperçu en direct du site */}
-          <div className="flex flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+          <div className="flex flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
             <div className="flex items-center justify-between border-b border-outline-variant px-lg py-3">
-              <span className="font-label-md text-label-md text-on-surface">
+              <span className="text-[14px] font-semibold text-on-surface">
                 Aperçu en direct
               </span>
               <a
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:text-primary"
+                className="flex items-center gap-1 text-[13px] font-semibold text-on-surface transition-colors hover:text-primary"
               >
                 <span className="material-symbols-outlined text-[16px]">
                   open_in_new
@@ -351,7 +395,7 @@ export default function TemplateGallery() {
           {/* Panneau identité + prompt d'édition */}
           <div className="flex flex-col gap-lg">
             <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
-              <h3 className="mb-3 font-label-md text-label-md text-on-surface">
+              <h3 className="mb-3 text-[15px] font-bold text-on-surface">
                 Identité de {entreprise?.nom ?? "votre entreprise"}
               </h3>
 
@@ -371,11 +415,11 @@ export default function TemplateGallery() {
                       }}
                       title={identiteVisuelle.couleur_primaire ?? undefined}
                     />
-                    <span className="font-body-sm text-body-sm text-secondary">
+                    <span className="text-[14px] leading-5 text-on-surface">
                       Couleur principale appliquée
                     </span>
                   </div>
-                  <p className="font-body-sm text-body-sm text-secondary">
+                  <p className="text-[14px] leading-5 text-on-surface">
                     Police : {identiteVisuelle.police_titre ?? "—"} /{" "}
                     {identiteVisuelle.police_texte ?? "—"}
                   </p>
@@ -387,14 +431,14 @@ export default function TemplateGallery() {
                         alt="Logo de l'entreprise"
                         className="h-8 w-8 rounded-full border border-outline-variant object-cover"
                       />
-                      <span className="font-body-sm text-body-sm text-secondary">
+                      <span className="text-[14px] leading-5 text-on-surface">
                         Logo détecté
                       </span>
                     </div>
                   )}
                 </div>
               ) : (
-                <p className="font-body-sm text-body-sm text-secondary">
+                <p className="text-[14px] leading-[21px] text-on-surface-variant">
                   Aucune identité visuelle configurée — l&apos;aperçu utilise
                   les couleurs et polices d&apos;origine du template.
                   Configurez la palette, la typographie et le logo depuis
@@ -403,79 +447,48 @@ export default function TemplateGallery() {
               )}
             </div>
 
-            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
-              <label
-                htmlFor="site-prompt"
-                className="mb-2 block font-label-md text-label-md text-on-surface"
-              >
+            {/* Mise en ligne du site à /s/<slug> (voir PublicationSite.tsx).
+                refreshToken change après chaque édition IA / réinitialisation
+                pour que le bloc sache qu'il y a du nouveau à republier. */}
+            <PublicationSite
+              entrepriseId={entreprise?.id}
+              templateId={selectedTemplate.templateId!}
+              refreshToken={refreshToken}
+            />
+
+            {/* Même composeur que le générateur de site par IA
+                (ChatComposer) : zone qui se déplie, exemples animés, image
+                jointe, dictée et raccourcis. Envoi = handleEdit. */}
+            <div>
+              <p className="mb-2 text-[15px] font-bold text-on-surface">
                 Que voulez-vous modifier ?
-              </label>
-              <textarea
-                id="site-prompt"
-                rows={6}
+              </p>
+              <ChatComposer
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Ex: Remplace le contenu par celui de mon restaurant avec des plats comme le eru et l'okok, et des horaires du mardi au dimanche..."
-                className="w-full resize-none rounded-lg border border-outline-variant bg-white p-3 text-body-sm font-body-sm placeholder:text-secondary focus:border-primary focus:ring-1 focus:ring-primary"
+                onChange={setPrompt}
+                onSubmit={handleEdit}
+                disabled={editing}
+                exemples={EXEMPLES_EDITION}
+                raccourcis={RACCOURCIS_EDITION}
+                onJoindre={handleAttachImage}
+                envoiPieceJointe={uploadingImage}
+                pieceJointe={
+                  attachedImageUrl && attachedImageName
+                    ? { url: attachedImageUrl, nom: attachedImageName }
+                    : null
+                }
+                onRetirerPieceJointe={() => {
+                  setAttachedImageUrl(null);
+                  setAttachedImageName(null);
+                }}
               />
-
-              {/* Vignette de confirmation de l'image épinglée (voir
-                  handleAttachImage) -- affichée seulement une fois l'upload
-                  terminé, avec un bouton pour la retirer avant d'envoyer. */}
-              {attachedImageName && (
-                <div className="mt-2 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
-                  <span className="material-symbols-outlined text-[16px] text-primary">
-                    image
-                  </span>
-                  <span className="flex-1 truncate font-body-sm text-body-sm text-on-surface">
-                    {attachedImageName}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAttachedImageUrl(null);
-                      setAttachedImageName(null);
-                    }}
-                    aria-label="Retirer l'image épinglée"
-                    className="text-on-surface-variant transition-colors hover:text-red-700"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">
-                      close
-                    </span>
-                  </button>
-                </div>
-              )}
-
-              <div className="mt-2 flex items-center justify-between">
-                <label
-                  htmlFor="site-image-upload"
-                  className={`flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant transition-colors ${
-                    uploadingImage
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer hover:text-primary"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    attach_file
-                  </span>
-                  {uploadingImage ? "Envoi de l'image..." : "Épingler une image"}
-                </label>
-                <input
-                  id="site-image-upload"
-                  type="file"
-                  accept="image/*"
-                  disabled={uploadingImage}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleAttachImage(file);
-                    // Permet de réépingler le même fichier une 2e fois (sinon
-                    // le navigateur ignore un <input type="file"> dont la
-                    // valeur n'a pas changé).
-                    e.target.value = "";
-                  }}
-                  className="hidden"
-                />
-              </div>
+              <p className="mt-2 px-2 text-center text-[11px] text-outline">
+                {editing
+                  ? "Modification en cours…"
+                  : uploadingImage
+                    ? "Envoi de l'image…"
+                    : "Entrée pour envoyer · Maj + Entrée pour aller à la ligne"}
+              </p>
             </div>
 
             {editError && (
@@ -486,21 +499,9 @@ export default function TemplateGallery() {
 
             <button
               type="button"
-              onClick={handleEdit}
-              disabled={editing}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 font-label-md text-label-md text-white shadow-sm transition-all disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                auto_awesome
-              </span>
-              {editing ? "Modification en cours..." : "Modifier avec l'IA"}
-            </button>
-
-            <button
-              type="button"
               onClick={handleReset}
               disabled={editing}
-              className="text-center font-body-sm text-body-sm text-secondary underline-offset-2 transition-colors hover:text-red-700 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-center text-[14px] font-medium text-on-surface-variant underline-offset-2 transition-colors hover:text-red-700 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
             >
               Réinitialiser au template d&apos;origine
             </button>
@@ -514,26 +515,27 @@ export default function TemplateGallery() {
   return (
     <div className="flex flex-col gap-lg">
       {/* En-tête de section */}
-      <div className="mb-md">
+      <div>
         <h2 className="mb-xs text-headline-lg font-headline-lg text-on-surface">
           Choisissez un template
         </h2>
-        <p className="text-body-md font-body-md text-secondary">
-          Parcourez notre galerie et sélectionnez la base de votre site web.
-          Vous pourrez ensuite l&apos;adapter à votre identité visuelle avec
+        <p className="max-w-[60ch] text-[15px] leading-6 text-on-surface">
+          Parcourez la galerie et sélectionnez la base de votre site web. Vous
+          pourrez ensuite l&apos;adapter à votre identité visuelle avec
           l&apos;IA.
         </p>
       </div>
 
       {chooseError && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3">
           <span className="material-symbols-outlined text-red-600">error</span>
-          <p className="font-body-sm text-body-sm text-red-800">{chooseError}</p>
+          <p className="text-[14px] font-medium text-red-800">{chooseError}</p>
         </div>
       )}
 
-      {/* Filtre par catégorie */}
-      <div className="flex flex-wrap gap-2">
+      {/* Filtre par catégorie : pilules de 36 px, filtre actif en violet
+          plein, les autres en contour sombre. */}
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrer par catégorie">
         {CATEGORIES.map((category) => {
           const isActive = category === activeCategory;
           return (
@@ -541,11 +543,14 @@ export default function TemplateGallery() {
               key={category}
               type="button"
               onClick={() => setActiveCategory(category)}
-              className={`rounded-full px-4 py-2 font-label-sm text-label-sm transition-colors ${
+              aria-pressed={isActive}
+              className={cn(
+                "inline-flex h-9 items-center rounded-full border px-4 text-[13px] font-semibold leading-none transition-colors duration-200",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2",
                 isActive
-                  ? "bg-primary text-white"
-                  : "bg-surface-container-lowest text-on-surface-variant border border-outline-variant hover:border-primary/50 hover:text-primary"
-              }`}
+                  ? "border-primary bg-primary text-white"
+                  : "border-outline-variant bg-surface-container-lowest text-on-surface hover:border-primary hover:text-primary"
+              )}
             >
               {category}
             </button>
@@ -553,55 +558,89 @@ export default function TemplateGallery() {
         })}
       </div>
 
-      {/* Grille de templates */}
-      <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 xl:grid-cols-3">
-        {visibleTemplates.map((template) => {
+      {/* Grille de templates : chaque carte arrive en cascade (motion). La
+          clé de la grille change avec le filtre pour rejouer l'animation. */}
+      <div
+        key={activeCategory}
+        className="grid grid-cols-1 gap-lg sm:grid-cols-2 xl:grid-cols-3"
+      >
+        {visibleTemplates.map((template, index) => {
           const isAvailable = Boolean(template.templateId);
 
           return (
-            <div
+            <motion.article
               key={template.id}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-all hover:shadow-md"
+              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.4,
+                delay: Math.min(index, 8) * 0.06,
+                ease: [0.2, 0.7, 0.2, 1],
+              }}
+              className={cn(
+                "group flex flex-col overflow-hidden rounded-xl border bg-surface-container-lowest",
+                "transition-[transform,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.2,0.7,0.2,1)]",
+                isAvailable
+                  ? "border-outline-variant hover:-translate-y-1 hover:border-outline hover:shadow-[0_16px_32px_-16px_rgba(27,27,35,0.28)]"
+                  : "border-dashed border-outline-variant bg-surface-container-low"
+              )}
             >
               <button
                 type="button"
                 onClick={() => setPreviewTemplate(template)}
-                className="relative block aspect-[16/10] w-full overflow-hidden"
+                aria-label={`Aperçu rapide de ${template.name}`}
+                className="relative block aspect-[16/10] w-full overflow-hidden border-b border-outline-variant bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={thumbnailUrl(template)}
                   alt={`Aperçu du template ${template.name}`}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                  className={cn(
+                    "h-full w-full object-cover object-top transition-transform duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:scale-[1.04]",
+                    !isAvailable && "opacity-90"
+                  )}
                 />
-                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 font-label-sm text-label-sm text-on-surface shadow-sm">
+                <span
+                  className={cn(
+                    PASTILLE,
+                    "absolute left-3 top-3 border border-black/5 bg-white/95 text-on-surface shadow-sm"
+                  )}
+                >
                   {template.category}
                 </span>
                 {!isAvailable && (
-                  <span className="absolute bottom-3 left-3 rounded-full bg-black/70 px-3 py-1 font-label-sm text-label-sm text-white">
+                  <span
+                    className={cn(
+                      PASTILLE,
+                      "absolute bottom-3 left-3 bg-on-surface text-white"
+                    )}
+                  >
                     Bientôt disponible
                   </span>
                 )}
-                <span className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-200 group-hover:bg-black/30 group-hover:opacity-100">
-                  <span className="rounded-full bg-white px-4 py-2 font-label-md text-label-md text-on-surface shadow-sm">
+                {/* Voile + invite au survol : un seul appel, lisible. */}
+                <span className="absolute inset-0 flex items-center justify-center bg-on-surface/0 opacity-0 transition-all duration-300 group-hover:bg-on-surface/45 group-hover:opacity-100">
+                  <span className="flex translate-y-1 items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-[14px] font-semibold text-on-surface shadow-md transition-transform duration-300 group-hover:translate-y-0">
+                    <Eye className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
                     Aperçu rapide
                   </span>
                 </span>
               </button>
 
-              <div className="flex flex-1 flex-col gap-2 p-lg">
-                <h3 className="font-headline-sm text-headline-sm text-on-surface">
+              <div className="flex flex-1 flex-col gap-2 p-md pt-4">
+                <h3 className="text-[17px] font-bold leading-6 text-on-surface">
                   {template.name}
                 </h3>
-                <p className="flex-1 text-body-sm font-body-sm text-secondary">
+                <p className="flex-1 text-[14px] leading-[21px] text-on-surface">
                   {template.description}
                 </p>
 
-                <div className="mt-2 flex items-center gap-2">
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setPreviewTemplate(template)}
-                    className="flex-1 rounded-lg border border-outline-variant px-4 py-2 font-label-md text-label-md text-on-surface transition-colors hover:border-primary hover:text-primary"
+                    className={BTN_CONTOUR}
                   >
                     Prévisualiser
                   </button>
@@ -610,19 +649,19 @@ export default function TemplateGallery() {
                     onClick={() => handleChoose(template)}
                     disabled={!isAvailable || choosing}
                     title={isAvailable ? undefined : "Bientôt disponible"}
-                    className="flex-1 rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className={BTN_PLEIN}
                   >
-                    {choosing ? "..." : "Choisir"}
+                    {choosing ? "Un instant…" : "Choisir"}
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.article>
           );
         })}
       </div>
 
       {visibleTemplates.length === 0 && (
-        <p className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg text-center font-body-md text-body-md text-secondary">
+        <p className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg text-center text-[15px] text-on-surface">
           Aucun template dans cette catégorie pour le moment.
         </p>
       )}
@@ -637,31 +676,34 @@ export default function TemplateGallery() {
         >
           {previewTemplate.templateId ? (
             <div
-              className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-surface-container-lowest shadow-xl"
+              className="flex h-[85vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between border-b border-outline-variant px-lg py-3">
-                <div className="flex items-center gap-3">
-                  <h3 className="font-headline-sm text-headline-sm text-on-surface">
+              {/* flex-wrap : sur un téléphone, les actions passent sous le
+                  titre au lieu de l'écraser à zéro largeur. */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant px-4 py-3 sm:px-lg">
+                <div className="flex min-w-0 items-center gap-3">
+                  <h3 className="truncate text-[18px] font-bold text-on-surface">
                     {previewTemplate.name}
                   </h3>
-                  <span className="rounded-full bg-primary/10 px-3 py-1 font-label-sm text-label-sm text-primary">
+                  <span className={cn(PASTILLE, "shrink-0 bg-primary/10 text-primary")}>
                     {previewTemplate.category}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2">
                   <button
                     type="button"
                     onClick={() => handleChoose(previewTemplate)}
-                    className="rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-white transition-colors hover:bg-primary/90"
+                    disabled={choosing}
+                    className={BTN_PLEIN}
                   >
-                    Choisir ce template
+                    {choosing ? "Un instant…" : "Choisir ce template"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setPreviewTemplate(null)}
                     aria-label="Fermer l'aperçu"
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg text-on-surface transition-colors hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                   >
                     <span className="material-symbols-outlined text-[20px]">
                       close
@@ -680,21 +722,21 @@ export default function TemplateGallery() {
             </div>
           ) : (
             <div
-              className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-surface-container-lowest shadow-xl"
+              className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden">
+              <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden border-b border-outline-variant">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={thumbnailUrl(previewTemplate, "1200x675")}
                   alt={`Aperçu du template ${previewTemplate.name}`}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover object-top"
                 />
                 <button
                   type="button"
                   onClick={() => setPreviewTemplate(null)}
                   aria-label="Fermer l'aperçu"
-                  className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-on-surface shadow-sm transition-colors hover:bg-white"
+                  className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-lg bg-white/95 text-on-surface shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                 >
                   <span className="material-symbols-outlined text-[20px]">
                     close
@@ -702,17 +744,17 @@ export default function TemplateGallery() {
                 </button>
               </div>
 
-              <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-xl">
-                <span className="w-fit rounded-full bg-primary/10 px-3 py-1 font-label-sm text-label-sm text-primary">
+              <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-lg">
+                <span className={cn(PASTILLE, "w-fit bg-primary/10 text-primary")}>
                   {previewTemplate.category}
                 </span>
-                <h3 className="font-headline-md text-headline-md text-on-surface">
+                <h3 className="text-[22px] font-bold leading-7 text-on-surface">
                   {previewTemplate.name}
                 </h3>
-                <p className="font-body-md text-body-md text-secondary">
+                <p className="text-[15px] leading-6 text-on-surface">
                   {previewTemplate.description}
                 </p>
-                <p className="font-body-sm text-body-sm text-outline">
+                <p className="text-[14px] font-medium text-on-surface-variant">
                   Aperçu réel bientôt disponible pour ce template.
                 </p>
 
@@ -720,7 +762,7 @@ export default function TemplateGallery() {
                   <button
                     type="button"
                     onClick={() => setPreviewTemplate(null)}
-                    className="rounded-lg border border-outline-variant px-5 py-2.5 font-label-md text-label-md text-on-surface transition-colors hover:bg-surface-container-high"
+                    className={BTN_CONTOUR}
                   >
                     Fermer
                   </button>

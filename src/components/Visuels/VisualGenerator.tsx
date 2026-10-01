@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, Download, RefreshCw } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/browser";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 import {
@@ -11,8 +11,24 @@ import {
   type VisualImage,
 } from "./visuels-data";
 import { PortfolioGallery } from "./PortfolioGallery";
+import ChatComposer, { type Raccourci } from "@/components/Templates/ChatComposer";
 
 const ALL = "Tous";
+
+// Exemples et raccourcis du composeur (voir ChatComposer), adaptés aux
+// visuels marketing : promotion, événement, nouveauté, recrutement.
+const EXEMPLES_VISUEL = [
+  "Promotion -20 % sur nos plats du jour…",
+  "Ouverture le samedi 12 octobre…",
+  "Nouvelle formation Excel, places limitées…",
+  "Nous recrutons un vendeur…",
+];
+const RACCOURCIS_VISUEL: Raccourci[] = [
+  { libelle: "Promotion", texte: "Promotion : " },
+  { libelle: "Événement", texte: "Événement : " },
+  { libelle: "Nouveauté", texte: "Nouveau : " },
+  { libelle: "Contact", texte: "Afficher notre numéro et notre adresse : " },
+];
 
 interface VisualGeneratorProps {
   /** { [formatId]: chemins d'images }, calculé côté serveur (voir Visuels/page.tsx). */
@@ -219,38 +235,30 @@ export default function VisualGenerator({
               )}
             </div>
 
-            <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
-              <label
-                htmlFor="visual-prompt"
-                className="mb-2 block font-label-md text-label-md text-on-surface"
-              >
+            {/* Même composeur que le générateur de site (ChatComposer).
+                La description est optionnelle : l'identité de l'entreprise
+                suffit à l'IA, d'où autoriserVide. Envoi = handleGenerate. */}
+            <div>
+              <p className="mb-2 font-label-md text-label-md text-on-surface">
                 Précisez le contenu (optionnel)
-              </label>
-              <textarea
-                id="visual-prompt"
-                rows={4}
+              </p>
+              <ChatComposer
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Ex: Promotion -20% sur nos plats du jour, valable jusqu'au 15 septembre..."
-                className="w-full resize-none rounded-lg border border-outline-variant bg-white p-3 text-body-sm font-body-sm placeholder:text-secondary focus:border-primary focus:ring-1 focus:ring-primary"
+                onChange={setPrompt}
+                onSubmit={handleGenerate}
+                disabled={generating}
+                autoriserVide
+                placeholder="Texte à afficher, offre, date…"
+                exemples={EXEMPLES_VISUEL}
+                raccourcis={RACCOURCIS_VISUEL}
               />
+              <p className="mt-2 flex items-center justify-center gap-2 px-2 text-center text-[11px] text-outline">
+                {generating && <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />}
+                {generating
+                  ? "Génération en cours…"
+                  : "Entrée pour générer · vous pouvez laisser vide"}
+              </p>
             </div>
-
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={generating}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 font-label-md text-label-md text-white shadow-sm transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {generating ? (
-                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-              ) : (
-                <span className="material-symbols-outlined text-[20px]">
-                  auto_awesome
-                </span>
-              )}
-              {generating ? "Génération en cours..." : "Générer le visuel"}
-            </button>
             {generationError && (
               <p className="text-center font-body-sm text-body-sm text-error">
                 {generationError}

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{meta.title}}</title>
+  <meta name="description" content="{{meta.description}}">
+
+  <!-- favicon : logo de l'entreprise (identité visuelle) ou favicon du template -->
+  <link rel="icon" href="{{brand.logo}}">
+
+  <!-- polices titres/texte : style.json ou identité visuelle (voir renderSiteTemplate.ts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="{{style.googleFontsHref}}" rel="stylesheet">
+
+  <link rel="stylesheet" href="./assets/css/style.css">
+
+  <!-- surcharges couleur/police injectées APRÈS le CSS du template -->
+  {{style.cssOverrides}}
+</head>
+
+<body id="top">
+
+  <a class="skip-link" href="#formations">Aller au contenu</a>
+
+  <!-- EN-TÊTE -->
+  <header class="header" data-header>
+    <div class="container header-inner">
+      <a href="#top" class="brand">
+        <img src="{{brand.logo}}" alt="" width="36" height="36" class="brand-logo">
+        <span class="brand-text">
+          <span class="brand-name">{{brand.name}}</span>
+          <span class="brand-tagline">{{brand.tagline}}</span>
+        </span>
+      </a>
+
+      <nav class="nav" id="nav" data-nav aria-label="Navigation principale">
+        <ul class="nav-list">
+          <li><a href="#formations" data-nav-link>{{nav.formations}}</a></li>
+          <li><a href="#deroulement" data-nav-link>{{nav.method}}</a></li>
+          <li><a href="#sessions" data-nav-link>{{nav.sessions}}</a></li>
+          <li><a href="#tarifs" data-nav-link>{{nav.pricing}}</a></li>
+          <li><a href="#formateurs" data-nav-link>{{nav.team}}</a></li>
+          <li><a href="#faq" data-nav-link>{{nav.faq}}</a></li>
+        </ul>
+        <a href="#inscription" class="btn btn-primary nav-cta" data-nav-link>{{nav.cta}}</a>
+      </nav>
+
+      <a href="#inscription" class="btn btn-primary header-cta">{{nav.cta}}</a>
+
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="Ouvrir le menu" data-nav-toggle>
+        <span class="nav-toggle-line"></span>
+        <span class="nav-toggle-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow" data-reveal>{{hero.eyebrow}}</p>
+          <h1 class="hero-title" id="hero-title" data-reveal>
+            {{hero.title}} <em>{{hero.titleAccent}}</em>
+          </h1>
+          <p class="hero-text" data-reveal>{{hero.text}}</p>
+          <div class="hero-actions" data-reveal>
+            <a href="#inscription" class="btn btn-primary btn-lg">{{hero.cta}}</a>
+            <a href="#formations" class="link-arrow">
+              {{hero.secondary}}
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+          <dl class="hero-notes" data-reveal>
+            <div><dt>{{hero.note1Label}}</dt><dd>{{hero.note1Value}}</dd></div>
+            <div><dt>{{hero.note2Label}}</dt><dd>{{hero.note2Value}}</dd></div>
+            <div><dt>{{hero.note3Label}}</dt><dd>{{hero.note3Value}}</dd></div>
+          </dl>
+        </div>
+        <figure class="hero-figure" data-reveal data-tilt>
+          <img src="{{hero.image}}" alt="{{hero.imageAlt}}" width="560" height="480" loading="eager">
+        </figure>
+      </div>
+
+      <!-- bandeau prochaines rentrées -->
+      <div class="strip" data-reveal>
+        <div class="container strip-inner">
+          <p class="strip-label">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M3 10h18M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+            {{strip.label}}
+          </p>
+          <ul class="strip-list">
+            <li><span class="strip-date">{{strip.items.0.date}}</span><span class="strip-title">{{strip.items.0.title}}</span></li>
+            <li><span class="strip-date">{{strip.items.1.date}}</span><span class="strip-title">{{strip.items.1.title}}</span></li>
+            <li><span class="strip-date">{{strip.items.2.date}}</span><span class="strip-title">{{strip.items.2.title}}</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMATIONS -->
+    <section class="section" id="formations" aria-labelledby="formations-title">
+      <div class="container">
+        <header class="section-head section-head--split" data-reveal>
+          <div>
+            <p class="eyebrow">{{programme.eyebrow}}</p>
+            <h2 class="section-title" id="formations-title">{{programme.title}}</h2>
+          </div>
+          <p class="section-text">{{programme.text}}</p>
+        </header>
+
+        <ol class="catalogue" data-reveal-group>
+          <li class="course" data-reveal>
+            <span class="course-number">{{programme.items.0.number}}</span>
+            <div class="course-body">
+              <h3 class="course-title">{{programme.items.0.title}}</h3>
+              <p class="course-text">{{programme.items.0.text}}</p>
+              <dl class="course-meta">
+                <div><dt>{{programme.durationLabel}}</dt><dd>{{programme.items.0.duration}}</dd></div>
+                <div><dt>{{programme.levelLabel}}</dt><dd>{{programme.items.0.level}}</dd></div>
+                <div><dt>{{programme.priceLabel}}</dt><dd class="course-price">{{programme.items.0.price}}</dd></div>
+              </dl>
+            </div>
+            <a class="course-cta" href="https://wa.me/{{topbar.phoneHref}}?text={{programme.whatsappText}} : {{programme.items.0.title}}" target="_blank" rel="noopener">
+              {{programme.cta}}
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </li>
+          <li class="course" data-reveal>
+            <span class="course-number">{{programme.items.1.number}}</span>
+            <div class="course-body">
+              <h3 class="course-title">{{programme.items.1.title}}</h3>
+              <p class="course-text">{{programme.items.1.text}}</p>
+              <dl class="course-meta">
+                <div><dt>{{programme.durationLabel}}</dt><dd>{{programme.items.1.duration}}</dd></div>
+                <div><dt>{{programme.levelLabel}}</dt><dd>{{programme.items.1.level}}</dd></div>
+                <div><dt>{{programme.priceLabel}}</dt><dd class="course-price">{{programme.items.1.price}}</dd></div>
+              </dl>
+            </div>
+            <a class="course-cta" href="https://wa.me/{{topbar.phoneHref}}?text={{programme.whatsappText}} : {{programme.items.1.title}}" target="_blank" rel="noopener">
+              {{programme.cta}}
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </li>
+          <li class="course" data-reveal>
+            <span class="course-number">{{programme.items.2.number}}</span>
+            <div class="course-body">
+              <h3 class="course-title">{{programme.items.2.title}}</h3>
+              <p class="course-text">{{programme.items.2.text}}</p>
+              <dl class="course-meta">
+                <div><dt>{{programme.durationLabel}}</dt><dd>{{programme.items.2.duration}}</dd></div>
+                <div><dt>{{programme.levelLabel}}</dt><dd>{{programme.items.2.level}}</dd></div>
+                <div><dt>{{programme.priceLabel}}</dt><dd class="course-price">{{programme.items.2.price}}</dd></div>
+              </dl>
+            </div>
+            <a class="course-cta" href="https://wa.me/{{topbar.phoneHref}}?text={{programme.whatsappText}} : {{programme.items.2.title}}" target="_blank" rel="noopener">
+              {{programme.cta}}
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </li>
+          <li class="course" data-reveal>
+            <span class="course-number">{{programme.items.3.number}}</span>
+            <div class="course-body">
+              <h3 class="course-title">{{programme.items.3.title}}</h3>
+              <p class="course-text">{{programme.items.3.text}}</p>
+              <dl class="course-meta">
+                <div><dt>{{programme.durationLabel}}</dt><dd>{{programme.items.3.duration}}</dd></div>
+                <div><dt>{{programme.levelLabel}}</dt><dd>{{programme.items.3.level}}</dd></div>
+                <div><dt>{{programme.priceLabel}}</dt><dd class="course-price">{{programme.items.3.price}}</dd></div>
+              </dl>
+            </div>
+            <a class="course-cta" href="https://wa.me/{{topbar.phoneHref}}?text={{programme.whatsappText}} : {{programme.items.3.title}}" target="_blank" rel="noopener">
+              {{programme.cta}}
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </li>
+          <li class="course" data-reveal>
+            <span class="course-number">{{programme.items.4.number}}</span>
+            <div class="course-body">
+              <h3 class="course-title">{{programme.items.4.title}}</h3>
+              <p class="course-text">{{programme.items.4.text}}</p>
+              <dl class="course-meta">
+                <div><dt>{{programme.durationLabel}}</dt><dd>{{programme.items.4.duration}}</dd></div>
+                <div><dt>{{programme.levelLabel}}</dt><dd>{{programme.items.4.level}}</dd></div>
+                <div><dt>{{programme.priceLabel}}</dt><dd class="course-price">{{programme.items.4.price}}</dd></div>
+              </dl>
+            </div>
+            <a class="course-cta" href="https://wa.me/{{topbar.phoneHref}}?text={{programme.whatsappText}} : {{programme.items.4.title}}" target="_blank" rel="noopener">
+              {{programme.cta}}
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </li>
+          <li class="course" data-reveal>
+            <span class="course-number">{{programme.items.5.number}}</span>
+            <div class="course-body">
+              <h3 class="course-title">{{programme.items.5.title}}</h3>
+              <p class="course-text">{{programme.items.5.text}}</p>
+              <dl class="course-meta">
+                <div><dt>{{programme.durationLabel}}</dt><dd>{{programme.items.5.duration}}</dd></div>
+                <div><dt>{{programme.levelLabel}}</dt><dd>{{programme.items.5.level}}</dd></div>
+                <div><dt>{{programme.priceLabel}}</dt><dd class="course-price">{{programme.items.5.price}}</dd></div>
+              </dl>
+            </div>
+            <a class="course-cta" href="https://wa.me/{{topbar.phoneHref}}?text={{programme.whatsappText}} : {{programme.items.5.title}}" target="_blank" rel="noopener">
+              {{programme.cta}}
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- DÉROULEMENT -->
+    <section class="section section--tinted" id="deroulement" aria-labelledby="method-title">
+      <div class="container method-grid">
+        <header class="section-head method-head" data-reveal>
+          <p class="eyebrow">{{method.eyebrow}}</p>
+          <h2 class="section-title" id="method-title">{{method.title}}</h2>
+        </header>
+        <ol class="steps" data-reveal-group>
+          <li class="step" data-reveal>
+            <span class="step-marker" aria-hidden="true"></span>
+            <h3 class="step-title">{{method.steps.0.title}}</h3>
+            <p>{{method.steps.0.text}}</p>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-marker" aria-hidden="true"></span>
+            <h3 class="step-title">{{method.steps.1.title}}</h3>
+            <p>{{method.steps.1.text}}</p>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-marker" aria-hidden="true"></span>
+            <h3 class="step-title">{{method.steps.2.title}}</h3>
+            <p>{{method.steps.2.text}}</p>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-marker" aria-hidden="true"></span>
+            <h3 class="step-title">{{method.steps.3.title}}</h3>
+            <p>{{method.steps.3.text}}</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SESSIONS -->
+    <section class="section" id="sessions" aria-labelledby="sessions-title">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">{{sessions.eyebrow}}</p>
+          <h2 class="section-title" id="sessions-title">{{sessions.title}}</h2>
+          <p class="section-text">{{sessions.text}}</p>
+        </header>
+        <div class="table-wrap" data-reveal>
+          <table class="sessions-table">
+            <thead>
+              <tr>
+                <th scope="col">{{sessions.colFormation}}</th>
+                <th scope="col">{{sessions.colStart}}</th>
+                <th scope="col">{{sessions.colSchedule}}</th>
+                <th scope="col">{{sessions.colPlaces}}</th>
+                <th scope="col"><span class="visually-hidden">Action</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">{{sessions.rows.0.formation}}</th>
+                <td>{{sessions.rows.0.start}}</td>
+                <td>{{sessions.rows.0.schedule}}</td>
+                <td><span class="pill">{{sessions.rows.0.places}}</span></td>
+                <td><a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{sessions.whatsappText}} : {{sessions.rows.0.formation}}" target="_blank" rel="noopener">{{sessions.cta}}</a></td>
+              </tr>
+              <tr>
+                <th scope="row">{{sessions.rows.1.formation}}</th>
+                <td>{{sessions.rows.1.start}}</td>
+                <td>{{sessions.rows.1.schedule}}</td>
+                <td><span class="pill">{{sessions.rows.1.places}}</span></td>
+                <td><a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{sessions.whatsappText}} : {{sessions.rows.1.formation}}" target="_blank" rel="noopener">{{sessions.cta}}</a></td>
+              </tr>
+              <tr>
+                <th scope="row">{{sessions.rows.2.formation}}</th>
+                <td>{{sessions.rows.2.start}}</td>
+                <td>{{sessions.rows.2.schedule}}</td>
+                <td><span class="pill">{{sessions.rows.2.places}}</span></td>
+                <td><a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{sessions.whatsappText}} : {{sessions.rows.2.formation}}" target="_blank" rel="noopener">{{sessions.cta}}</a></td>
+              </tr>
+              <tr>
+                <th scope="row">{{sessions.rows.3.formation}}</th>
+                <td>{{sessions.rows.3.start}}</td>
+                <td>{{sessions.rows.3.schedule}}</td>
+                <td><span class="pill">{{sessions.rows.3.places}}</span></td>
+                <td><a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{sessions.whatsappText}} : {{sessions.rows.3.formation}}" target="_blank" rel="noopener">{{sessions.cta}}</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TARIFS -->
+    <section class="section section--tinted" id="tarifs" aria-labelledby="pricing-title">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">{{pricing.eyebrow}}</p>
+          <h2 class="section-title" id="pricing-title">{{pricing.title}}</h2>
+          <p class="section-text">{{pricing.text}}</p>
+        </header>
+
+        <div class="pricing" data-reveal-group>
+          <article class="plan plan--featured" data-reveal>
+            <h3 class="plan-name">{{pricing.featured.name}}</h3>
+            <p class="plan-price">{{pricing.featured.price}} <span class="plan-period">{{pricing.featured.period}}</span></p>
+            <p class="plan-text">{{pricing.featured.text}}</p>
+            <ul class="plan-list">
+              <li>{{pricing.featured.items.0}}</li>
+              <li>{{pricing.featured.items.1}}</li>
+              <li>{{pricing.featured.items.2}}</li>
+              <li>{{pricing.featured.items.3}}</li>
+            </ul>
+            <a class="btn btn-primary" href="https://wa.me/{{topbar.phoneHref}}?text={{pricing.whatsappText}} : {{pricing.featured.name}}" target="_blank" rel="noopener">{{pricing.featured.cta}}</a>
+          </article>
+
+          <div class="plan-stack">
+            <article class="plan" data-reveal>
+              <h3 class="plan-name">{{pricing.others.0.name}}</h3>
+              <p class="plan-price">{{pricing.others.0.price}} <span class="plan-period">{{pricing.others.0.period}}</span></p>
+              <p class="plan-text">{{pricing.others.0.text}}</p>
+              <a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{pricing.whatsappText}} : {{pricing.others.0.name}}" target="_blank" rel="noopener">
+                {{pricing.others.0.cta}}
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </article>
+            <article class="plan" data-reveal>
+              <h3 class="plan-name">{{pricing.others.1.name}}</h3>
+              <p class="plan-price">{{pricing.others.1.price}} <span class="plan-period">{{pricing.others.1.period}}</span></p>
+              <p class="plan-text">{{pricing.others.1.text}}</p>
+              <a class="link-arrow" href="https://wa.me/{{topbar.phoneHref}}?text={{pricing.whatsappText}} : {{pricing.others.1.name}}" target="_blank" rel="noopener">
+                {{pricing.others.1.cta}}
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMATEURS -->
+    <section class="section" id="formateurs" aria-labelledby="team-title">
+      <div class="container">
+        <header class="section-head section-head--split" data-reveal>
+          <div>
+            <p class="eyebrow">{{team.eyebrow}}</p>
+            <h2 class="section-title" id="team-title">{{team.title}}</h2>
+          </div>
+          <p class="section-text">{{team.text}}</p>
+        </header>
+        <ul class="team" data-reveal-group>
+          <li class="member" data-reveal>
+            <img class="member-photo" src="{{team.members.0.photo}}" alt="" width="160" height="160" loading="lazy">
+            <div class="member-body">
+              <h3 class="member-name">{{team.members.0.name}}</h3>
+              <p class="member-role">{{team.members.0.role}}</p>
+              <p class="member-bio">{{team.members.0.bio}}</p>
+            </div>
+          </li>
+          <li class="member" data-reveal>
+            <img class="member-photo" src="{{team.members.1.photo}}" alt="" width="160" height="160" loading="lazy">
+            <div class="member-body">
+              <h3 class="member-name">{{team.members.1.name}}</h3>
+              <p class="member-role">{{team.members.1.role}}</p>
+              <p class="member-bio">{{team.members.1.bio}}</p>
+            </div>
+          </li>
+          <li class="member" data-reveal>
+            <img class="member-photo" src="{{team.members.2.photo}}" alt="" width="160" height="160" loading="lazy">
+            <div class="member-body">
+              <h3 class="member-name">{{team.members.2.name}}</h3>
+              <p class="member-role">{{team.members.2.role}}</p>
+              <p class="member-bio">{{team.members.2.bio}}</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CERTIFICAT -->
+    <section class="section section--dark" id="certificat" aria-labelledby="cert-title">
+      <div class="container cert-grid">
+        <figure class="cert-figure" data-reveal>
+          <img src="{{certificate.image}}" alt="{{certificate.imageAlt}}" width="420" height="320" loading="lazy">
+        </figure>
+        <div class="cert-copy" data-reveal>
+          <p class="eyebrow">{{certificate.eyebrow}}</p>
+          <h2 class="section-title" id="cert-title">{{certificate.title}}</h2>
+          <p class="section-text">{{certificate.text}}</p>
+          <ul class="check-list">
+            <li>
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {{certificate.items.0}}
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {{certificate.items.1}}
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {{certificate.items.2}}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- TÉMOIGNAGES -->
+    <section class="section" id="temoignages" aria-labelledby="testimonials-title">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">{{testimonials.eyebrow}}</p>
+          <h2 class="section-title" id="testimonials-title">{{testimonials.title}}</h2>
+          <p class="section-text">{{testimonials.text}}</p>
+        </header>
+        <div class="quotes" data-reveal-group>
+          <figure class="quote" data-reveal>
+            <blockquote><p>{{testimonials.items.0.quote}}</p></blockquote>
+            <figcaption><strong>{{testimonials.items.0.name}}</strong><span>{{testimonials.items.0.role}}</span></figcaption>
+          </figure>
+          <figure class="quote" data-reveal>
+            <blockquote><p>{{testimonials.items.1.quote}}</p></blockquote>
+            <figcaption><strong>{{testimonials.items.1.name}}</strong><span>{{testimonials.items.1.role}}</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section section--tinted" id="faq" aria-labelledby="faq-title">
+      <div class="container faq-grid">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">{{faq.eyebrow}}</p>
+          <h2 class="section-title" id="faq-title">{{faq.title}}</h2>
+        </header>
+        <div class="faq" data-reveal-group>
+          <details class="faq-item" data-reveal>
+            <summary>
+              <span>{{faq.items.0.question}}</span>
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+            </summary>
+            <div class="faq-answer"><p>{{faq.items.0.answer}}</p></div>
+          </details>
+          <details class="faq-item" data-reveal>
+            <summary>
+              <span>{{faq.items.1.question}}</span>
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+            </summary>
+            <div class="faq-answer"><p>{{faq.items.1.answer}}</p></div>
+          </details>
+          <details class="faq-item" data-reveal>
+            <summary>
+              <span>{{faq.items.2.question}}</span>
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+            </summary>
+            <div class="faq-answer"><p>{{faq.items.2.answer}}</p></div>
+          </details>
+          <details class="faq-item" data-reveal>
+            <summary>
+              <span>{{faq.items.3.question}}</span>
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+            </summary>
+            <div class="faq-answer"><p>{{faq.items.3.answer}}</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSCRIPTION -->
+    <section class="section" id="inscription" aria-labelledby="contact-title">
+      <div class="container contact-grid">
+        <div class="contact-copy" data-reveal>
+          <p class="eyebrow">{{contact.eyebrow}}</p>
+          <h2 class="section-title" id="contact-title">{{contact.title}}</h2>
+          <p class="section-text">{{contact.text}}</p>
+
+          <dl class="contact-details">
+            <div>
+              <dt>{{contact.hoursTitle}}</dt>
+              <dd>{{contact.hours.0}}<br>{{contact.hours.1}}<br>{{contact.hours.2}}</dd>
+            </div>
+            <div>
+              <dt>{{contact.addressTitle}}</dt>
+              <dd>{{topbar.address}}<br><span class="muted">{{contact.directions}}</span></dd>
+            </div>
+            <div>
+              <dt>{{footer.contactTitle}}</dt>
+              <dd><a href="tel:+{{topbar.phoneHref}}">{{topbar.phone}}</a><br><a href="mailto:{{topbar.email}}">{{topbar.email}}</a></dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Formulaire -> WhatsApp (pas de serveur) : voir assets/js/script.js -->
+        <form class="form" data-whatsapp-form data-phone="{{topbar.phoneHref}}" data-intro="{{contact.form.whatsappIntro}}" data-reveal>
+          <div class="field">
+            <label for="f-name">{{contact.form.name}}</label>
+            <input id="f-name" name="nom" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="f-phone">{{contact.form.phone}}</label>
+            <input id="f-phone" name="telephone" type="tel" autocomplete="tel" required>
+          </div>
+          <div class="field">
+            <label for="f-formation">{{contact.form.formation}}</label>
+            <select id="f-formation" name="formation" required>
+              <option value="{{programme.items.0.title}}">{{programme.items.0.title}}</option>
+              <option value="{{programme.items.1.title}}">{{programme.items.1.title}}</option>
+              <option value="{{programme.items.2.title}}">{{programme.items.2.title}}</option>
+              <option value="{{programme.items.3.title}}">{{programme.items.3.title}}</option>
+              <option value="{{programme.items.4.title}}">{{programme.items.4.title}}</option>
+              <option value="{{programme.items.5.title}}">{{programme.items.5.title}}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-schedule">{{contact.form.schedule}}</label>
+            <select id="f-schedule" name="rythme">
+              <option value="{{contact.form.scheduleOptions.0}}">{{contact.form.scheduleOptions.0}}</option>
+              <option value="{{contact.form.scheduleOptions.1}}">{{contact.form.scheduleOptions.1}}</option>
+              <option value="{{contact.form.scheduleOptions.2}}">{{contact.form.scheduleOptions.2}}</option>
+              <option value="{{contact.form.scheduleOptions.3}}">{{contact.form.scheduleOptions.3}}</option>
+            </select>
+          </div>
+          <div class="field field--full">
+            <label for="f-message">{{contact.form.message}}</label>
+            <textarea id="f-message" name="message" rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg field--full">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1 1 8.6 18.8z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M9.5 9.5c0 3 2 5 5 5l1-1.5-1.8-.9-.8.8c-1-.4-1.6-1-2-2l.8-.8-.9-1.8z" fill="currentColor"/></svg>
+            {{contact.form.submit}}
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PIED DE PAGE -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="#top" class="brand">
+          <img src="{{brand.logo}}" alt="" width="36" height="36" class="brand-logo">
+          <span class="brand-name">{{brand.name}}</span>
+        </a>
+        <p>{{footer.text}}</p>
+        <ul class="social" aria-label="Réseaux sociaux">
+          <li><a href="{{footer.social.facebook}}" aria-label="Facebook"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></a></li>
+          <li><a href="{{footer.social.instagram}}" aria-label="Instagram"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.75"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.75"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a></li>
+          <li><a href="{{footer.social.linkedin}}" aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M8 10v7M8 7v.5M12 17v-4a2 2 0 0 1 4 0v4M12 10v7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h2 class="footer-title">{{footer.navTitle}}</h2>
+        <ul class="footer-links">
+          <li><a href="#formations">{{nav.formations}}</a></li>
+          <li><a href="#sessions">{{nav.sessions}}</a></li>
+          <li><a href="#tarifs">{{nav.pricing}}</a></li>
+          <li><a href="#faq">{{nav.faq}}</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h2 class="footer-title">{{footer.contactTitle}}</h2>
+        <address class="footer-address">
+          <a href="tel:+{{topbar.phoneHref}}">{{topbar.phone}}</a>
+          <a href="mailto:{{topbar.email}}">{{topbar.email}}</a>
+          <span>{{topbar.address}}</span>
+        </address>
+      </div>
+      <div class="footer-col">
+        <h2 class="footer-title">{{contact.hoursTitle}}</h2>
+        <ul class="footer-links">
+          <li>{{contact.hours.0}}</li>
+          <li>{{contact.hours.1}}</li>
+          <li>{{contact.hours.2}}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; {{footer.year}} {{brand.name}}. {{footer.rights}}</p>
+      <a href="#top" class="back-top" data-back-top>
+        Haut de page
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script src="./assets/js/script.js"></script>
+</body>
+
+</html>

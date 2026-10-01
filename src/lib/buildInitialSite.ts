@@ -2,6 +2,30 @@ import fs from "fs";
 import path from "path";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { renderSiteTemplate, type TemplateIdentity } from "./renderSiteTemplate";
+import { getEntreprise, libelleSecteur, type Entreprise } from "@/data/entreprise";
+import { getIdentiteVisuelle } from "@/data/identiteVisuelle";
+
+/**
+ * Titre et description de la page (balises <title> et <meta description>)
+ * pour une entreprise : « Nom — slogan », ou « Nom — secteur » sans slogan.
+ * C'est ce qu'affichent l'onglet du navigateur, Google et les aperçus
+ * WhatsApp ; sans ça, le site publié garderait le titre du modèle
+ * (« Foodie - Burgers… »).
+ */
+export function metaPourEntreprise(entreprise: Entreprise): { title: string; description: string } {
+  const secteur = libelleSecteur(entreprise.secteur_activite);
+  const complement = entreprise.slogan?.trim() || secteur || "";
+  const title = complement ? `${entreprise.nom} — ${complement}` : entreprise.nom;
+
+  const lieu = entreprise.adresse?.trim();
+  const description =
+    entreprise.slogan?.trim() ||
+    [entreprise.nom, secteur ? `${secteur.toLowerCase()}` : null, lieu ? `à ${lieu}` : null]
+      .filter(Boolean)
+      .join(", ") + ".";
+
+  return { title, description };
+}
 
 /**
  * Construit le contenu ET le HTML de départ d'un site, pour une entreprise
@@ -26,18 +50,17 @@ export async function buildInitialSite(
   const contentPath = path.join(templateDir, "content.json");
   const defaultContent = JSON.parse(fs.readFileSync(contentPath, "utf-8"));
 
-  const [{ data: entreprise }, { data: identiteRow }] = await Promise.all([
-    supabase.from("entreprise").select("nom, contact").eq("id", entrepriseId).maybeSingle(),
-    supabase
-      .from("identite_visuelle")
-      .select("couleur_primaire, police_titre, police_texte, logo_url")
-      .eq("entreprise_id", entrepriseId)
-      .maybeSingle(),
+  // En cas d'erreur de lecture, on garde le contenu/style par défaut du
+  // template plutôt que de faire échouer toute la création du site.
+  const [entreprise, identiteRow] = await Promise.all([
+    getEntreprise(supabase, entrepriseId).catch(() => null),
+    getIdentiteVisuelle(supabase, entrepriseId).catch(() => null),
   ]);
 
   if (entreprise?.nom) {
     defaultContent.brand ??= {};
     defaultContent.brand.name = entreprise.nom;
+    defaultContent.meta = { ...(defaultContent.meta ?? {}), ...metaPourEntreprise(entreprise) };
   }
   if (entreprise?.contact) {
     defaultContent.topbar ??= {};
