@@ -20,13 +20,24 @@ export default function DashboardView() {
         <main className="relative flex h-full flex-1 flex-col overflow-hidden bg-surface-container-lowest">
           <TopNav />
 
-          <div className="relative z-0 flex-1 overflow-y-auto px-gutter pb-gutter pt-0">
-            <div className="max-w-container-max mx-auto space-y-xl pb-2xl">
-              <section className="relative flex min-h-[420px] flex-col items-center justify-start gap-md overflow-hidden rounded-3xl p-lg pt-3 pb-lg sm:px-xl">
-                <HeroFluidBackground />
+          <div className="relative z-0 flex-1 overflow-y-auto px-md pb-gutter pt-0 md:px-gutter">
+            {/* Sous `md`, les deux sections deviennent `display: contents` :
+                leurs enfants remontent dans cette colonne flex et sont
+                réordonnés avec `order` (le geste à faire d'abord, puis la
+                bande d'avancement, puis la feuille de route) sans dupliquer
+                les composants -- chaque hook ferait sinon ses requêtes deux
+                fois. À partir de `md`, rien ne change : même DOM, mêmes
+                classes qu'avant. */}
+            <div className="max-w-container-max mx-auto flex flex-col gap-md pb-2xl md:block md:space-y-xl">
+              <section className="relative flex min-h-[420px] flex-col items-center justify-start gap-md overflow-hidden rounded-3xl p-lg pt-3 pb-lg max-md:contents sm:px-xl">
+                {/* Le fond animé n'a pas de conteneur mesurable quand la
+                    section est en `contents` ; on le coupe sous `md`, ce qui
+                    épargne aussi une boucle de dessin plein écran au téléphone. */}
+                <div className="absolute inset-0 hidden md:block">
+                  <HeroFluidBackground />
+                </div>
                 <IdentityKpis />
                 <HeroWelcomeText />
-              
               </section>
               <DashboardNextSteps />
               <AIRecommendation />

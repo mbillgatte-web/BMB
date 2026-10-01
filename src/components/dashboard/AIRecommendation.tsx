@@ -1,7 +1,7 @@
 export default function AIRecommendation() {
   return (
     <section className="bg-[#F5F3FF] rounded-[24px] border border-primary/20 p-lg shadow-sm">
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col items-start gap-4 md:flex-row">
         <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-sm">
           <span className="material-symbols-outlined text-[24px]">psychology</span>
         </div>
@@ -16,11 +16,11 @@ export default function AIRecommendation() {
             &laquo;&nbsp;Services Annexes&nbsp;&raquo; (impression, café) dans
             votre Business Plan pour maximiser la rentabilité.
           </p>
-          <div className="flex gap-3">
-            <button className="px-4 py-2 bg-primary text-white font-label-md text-label-md rounded-lg hover:bg-primary/90 transition-colors">
+          <div className="flex w-full flex-wrap gap-3">
+            <button className="max-md:min-h-11 max-md:basis-full px-4 py-2 bg-primary text-white md:flex-none font-label-md text-label-md rounded-lg hover:bg-primary/90 transition-colors">
               Appliquer au Business Plan
             </button>
-            <button className="px-4 py-2 bg-white text-on-surface-variant border border-outline-variant font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors">
+            <button className="max-md:min-h-11 max-md:basis-full px-4 py-2 bg-white text-on-surface-variant md:flex-none border border-outline-variant font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors">
               Ignorer
             </button>
           </div>

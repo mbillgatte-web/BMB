@@ -23,14 +23,26 @@ export default function IdentityKpis() {
 
   if (loading) {
     return (
-      <div className="relative z-10 grid w-full grid-cols-1 gap-sm sm:grid-cols-2 lg:grid-cols-4">
-        {["logo", "type", "palette", "projets"].map((item) => (
-          <div
-            key={item}
-            className="h-[132px] animate-pulse rounded-2xl border border-outline-variant/60 bg-surface/80"
-          />
-        ))}
-      </div>
+      <>
+        {/* Squelette mobile : même gabarit que la bande d'avancement
+            ci-dessous (une ligne de pastilles), pas quatre grands blocs. */}
+        <div className="flex gap-2 overflow-hidden max-md:-order-2 md:hidden" aria-hidden="true">
+          {["logo", "type", "palette", "projets"].map((item) => (
+            <div
+              key={item}
+              className="h-11 w-36 shrink-0 animate-pulse rounded-lg border border-outline-variant/60 bg-surface/80"
+            />
+          ))}
+        </div>
+        <div className="relative z-10 hidden w-full grid-cols-1 gap-sm md:grid md:grid-cols-2 lg:grid-cols-4">
+          {["logo", "type", "palette", "projets"].map((item) => (
+            <div
+              key={item}
+              className="h-[132px] animate-pulse rounded-2xl border border-outline-variant/60 bg-surface/80"
+            />
+          ))}
+        </div>
+      </>
     );
   }
 
@@ -119,8 +131,45 @@ export default function IdentityKpis() {
     },
   ] as const;
 
+  // Libellés courts de la bande mobile (« Logo · à définir ») : on ne
+  // réutilise pas `detail` tel quel, trop long pour une pastille.
+  const stripItems = [
+    { label: "Logo", state: logoReady ? "prêt" : "à définir", href: cards[0].href, ready: logoReady },
+    { label: "Police", state: typeReady ? "choisie" : "à choisir", href: cards[1].href, ready: typeReady },
+    { label: "Palette", state: paletteReady ? `${palette.length} couleurs` : "à définir", href: cards[2].href, ready: paletteReady },
+    { label: "Projets", state: String(projetsActifs), href: cards[3].href, ready: projetsActifs > 0 },
+  ];
+
   return (
-    <div className="relative z-10 grid w-full grid-cols-1 gap-sm sm:grid-cols-2 lg:grid-cols-4">
+    <>
+      {/* Sous `md` : bande d'avancement sur une ligne, défilable, qui
+          remplace les quatre tuiles. Mêmes liens, 44 px de haut, texte 14 px,
+          pas de gros chiffres. Le dernier élément dépasse volontairement du
+          bord : c'est ce qui indique qu'on peut faire défiler. */}
+      <nav
+        aria-label="Avancement de votre identité"
+        className="stagger-in -mx-md flex gap-2 overflow-x-auto px-md pb-1 [scrollbar-width:none] max-md:-order-2 md:hidden"
+      >
+        {stripItems.map(({ label, state, href, ready }) => (
+          <Link
+            key={label}
+            href={href}
+            className="flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-outline-variant bg-surface px-3 text-sm text-on-surface transition-colors active:bg-surface-container-low"
+          >
+            <span
+              className={`h-2 w-2 shrink-0 rounded-full ${ready ? "bg-primary" : "border border-outline bg-transparent"}`}
+              aria-hidden="true"
+            />
+            <span className="font-semibold">{label}</span>
+            <span className="text-on-surface-variant" aria-hidden="true">·</span>
+            <span className={ready ? "font-medium text-primary" : "text-on-surface-variant"}>
+              {state}
+            </span>
+          </Link>
+        ))}
+      </nav>
+
+      <div className="relative z-10 hidden w-full grid-cols-1 gap-sm md:grid md:grid-cols-2 lg:grid-cols-4">
       {cards.map(({ label, detail, href, icon: Icon, ready, content, iconClass }) => (
         <Link
           key={label}
@@ -146,6 +195,7 @@ export default function IdentityKpis() {
           </div>
         </Link>
       ))}
-    </div>
+      </div>
+    </>
   );
 }

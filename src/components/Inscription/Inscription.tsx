@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, Lock, Mail, Phone, User } from "lucide-react";
 import Button from "@/components/ui/Button";
-import SoonBadge from "@/components/ui/SoonBadge";
+import { Separateur } from "@/components/auth/LoginForm";
 import GoogleIcon from "@/components/ui/GoogleIcon";
 import { FormError, PasswordField, TextField } from "@/components/ui/Field";
 import { supabase } from "@/lib/supabase/browser";
@@ -57,6 +57,8 @@ export default function RegisterForm() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // Google n'est pas encore branché : un clic affiche un court message.
+  const [annonceGoogle, setAnnonceGoogle] = useState(false);
   const router = useRouter();
   const reduceMotion = useReducedMotion();
 
@@ -120,13 +122,16 @@ export default function RegisterForm() {
   const decalage = reduceMotion ? 0 : 24;
 
   return (
-    <div className="stagger-in">
-      <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.02em] text-on-surface">
-        Créer un compte
+    <div className="cascade-floue">
+      <h1 className="text-[32px] font-normal leading-[1.1] tracking-[-0.03em] text-on-surface">
+        Créer votre <em className="font-semibold text-primary">compte</em>
       </h1>
+      <p className="mt-2 text-[15px] leading-relaxed text-on-surface">
+        Votre entreprise, son logo et son site web, réunis au même endroit.
+      </p>
 
       {/* Progression : deux segments qui se remplissent */}
-      <div className="mt-6">
+      <div className="mt-7">
         <div className="flex gap-2" aria-hidden="true">
           {ETAPES.map((e, i) => (
             <span key={e.titre} className="h-1 flex-1 overflow-hidden rounded-full bg-surface-container-high">
@@ -286,21 +291,41 @@ export default function RegisterForm() {
         </AnimatePresence>
       </form>
 
-      {etape === 0 && (
-        <div>
-          <div className="my-6 flex items-center gap-3 text-xs text-outline">
-            <span className="h-px flex-1 bg-outline-variant" />
-            ou
-            <span className="h-px flex-1 bg-outline-variant" />
-          </div>
-
-          <Button variant="secondary" size="lg" className="w-full" disabled>
-            <GoogleIcon />
-            Continuer avec Google
-            <SoonBadge />
-          </Button>
-        </div>
-      )}
+      {/* Email d'abord, Google ensuite en alternative. Le bloc n'a de sens
+          qu'à l'étape 1 : il se replie quand on passe à l'étape 2. */}
+      <AnimatePresence initial={false}>
+        {etape === 0 && (
+          <motion.div
+            key="google"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.2, 0.7, 0.2, 1] }}
+            className="overflow-hidden"
+          >
+            <Separateur>Ou</Separateur>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full"
+              aria-describedby={annonceGoogle ? "annonce-google-inscription" : undefined}
+              onClick={() => setAnnonceGoogle(true)}
+            >
+              <GoogleIcon />
+              Continuer avec Google
+            </Button>
+            {annonceGoogle && (
+              <p
+                id="annonce-google-inscription"
+                role="status"
+                className="animate-rise-in mt-2 text-center text-[13px] text-on-surface-variant"
+              >
+                L&apos;inscription avec Google arrive bientôt.
+              </p>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

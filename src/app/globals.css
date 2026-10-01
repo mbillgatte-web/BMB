@@ -68,6 +68,43 @@ body {
   animation: rise-in 280ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
+/* Variante des écrans connexion/inscription : même cascade, avec un flou
+   qui se dissipe. --cascade-depart décale un bloc imbriqué (ex. les champs
+   d'un formulaire) pour qu'il prenne la suite du bloc parent. */
+.cascade-floue > * {
+  animation: rise-in-flou 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--cascade-depart, 0ms) + 60ms);
+}
+.cascade-floue > :nth-child(2) { animation-delay: calc(var(--cascade-depart, 0ms) + 120ms); }
+.cascade-floue > :nth-child(3) { animation-delay: calc(var(--cascade-depart, 0ms) + 180ms); }
+.cascade-floue > :nth-child(4) { animation-delay: calc(var(--cascade-depart, 0ms) + 240ms); }
+.cascade-floue > :nth-child(5) { animation-delay: calc(var(--cascade-depart, 0ms) + 300ms); }
+.cascade-floue > :nth-child(6) { animation-delay: calc(var(--cascade-depart, 0ms) + 360ms); }
+.cascade-floue > :nth-child(7) { animation-delay: calc(var(--cascade-depart, 0ms) + 420ms); }
+
+@keyframes rise-in-flou {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Dérive très lente du motif losange du panneau violet : le décalage vaut
+   exactement une tuile, la boucle est donc invisible. */
+@keyframes motif-derive {
+  from { background-position: 0 0; }
+  to { background-position: 64px 64px; }
+}
+.animate-motif-derive {
+  animation: motif-derive 18s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -75,6 +112,9 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .animate-motif-derive {
+    animation: none;
   }
 }
 
