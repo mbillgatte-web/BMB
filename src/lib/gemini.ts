@@ -5,9 +5,13 @@
 const GEMINI_MODEL = process.env.GEMINI_TEXT_MODEL || "gemini-3.6-flash";
 
 // Modèles essayés si le principal reste surchargé, dans l'ordre. Réglable
-// dans .env.local (noms séparés par des virgules) ; par défaut l'alias
-// "gemini-flash-latest" de Google, qui pointe vers le Flash le plus récent.
-const MODELES_SECOURS = (process.env.GEMINI_TEXT_FALLBACK_MODELS || "gemini-flash-latest")
+// dans .env.local (noms séparés par des virgules). Par défaut : un Flash
+// stable de la génération précédente d'abord (moins demandé, donc rarement
+// saturé en même temps que le plus récent), puis l'alias "gemini-flash-latest"
+// (qui pointe souvent vers le même modèle que le principal).
+const MODELES_SECOURS = (
+  process.env.GEMINI_TEXT_FALLBACK_MODELS || "gemini-2.5-flash,gemini-flash-latest"
+)
   .split(",")
   .map((m) => m.trim())
   .filter((m) => m && m !== GEMINI_MODEL);
@@ -80,12 +84,16 @@ export async function genererTexte(
 
   let dernier: { res: Response; data: any } | null = null; // eslint-disable-line @typescript-eslint/no-explicit-any
   let principalSurcharge = false;
+  // 429 = quota de la clé (requêtes par minute ou par jour) : ce n'est pas
+  // une surcharge de Google, et réessayer tout de suite ne sert à rien.
+  let quotaAtteint = false;
 
   for (const { modele, attente } of essais) {
     if (attente) await attendre(attente);
     dernier = await appeler(modele, apiKey, instructions, options);
 
     if (dernier.res.ok) break;
+    if (dernier.res.status === 429) quotaAtteint = true;
     if (modele === GEMINI_MODEL && STATUTS_PASSAGERS.has(dernier.res.status)) principalSurcharge = true;
 
     console.error(
@@ -99,6 +107,12 @@ export async function genererTexte(
   const { res, data } = dernier!;
 
   if (!res.ok) {
+    if (quotaAtteint) {
+      throw new GeminiError(
+        "Le quota de l'API Gemini est atteint pour le moment (limite de requêtes par minute ou par jour de la clé). Réessayez dans quelques minutes ; si cela persiste, vérifiez le quota de la clé dans Google AI Studio.",
+        429
+      );
+    }
     // Le modèle principal était surchargé : c'est le vrai problème, même si
     // un modèle de secours a ensuite échoué pour une autre raison.
     if (principalSurcharge || STATUTS_PASSAGERS.has(res.status)) {

@@ -3,7 +3,7 @@
 
 :root {
   --font-family-inter: var(--font-inter), sans-serif;
-  --font-family-playfair: var(--font-playfair), serif;
+  --font-family-playfair: "Playfair Display", serif;
   --font-family-montserrat: var(--font-montserrat), sans-serif;
   --font-family-open-sans: var(--font-open-sans), sans-serif;
   --font-family-merriweather: var(--font-merriweather), serif;
