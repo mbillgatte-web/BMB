@@ -2,8 +2,9 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import FormInput from "./FormInput";
-import FormSelect from "./FormSelect";
+import { LayoutGrid, MapPin, Megaphone, Phone, Store } from "lucide-react";
+import Button from "@/components/ui/Button";
+import { FormError, SelectField, TextField } from "@/components/ui/Field";
 import { supabase } from "@/lib/supabase/browser";
 import { SECTEURS } from "@/data/entreprise";
 
@@ -46,15 +47,15 @@ export default function EntrepriseForm() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-       
+
         Authorization: `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({
-        fullName,                 // state "Nom de l'entreprise"
-        slogan,                   // state "Slogan"
-        secteur,                  // state "Secteur d'activité" (valeur du <select>)
-        phone,                    // state "Téléphone"
-        address,                  // state "Adresse de l'entreprise"
+        fullName, // state "Nom de l'entreprise"
+        slogan, // state "Slogan"
+        secteur, // state "Secteur d'activité" (valeur du <select>)
+        phone, // state "Téléphone"
+        address, // state "Adresse de l'entreprise"
         compteId: session.user.id, // id du compte connecté (table auth.users de Supabase)
       }),
     });
@@ -76,108 +77,130 @@ export default function EntrepriseForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="form-shell space-y-0">
-      <section className="form-section">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-primary-container/30 flex items-center justify-center text-primary">
-            <span className="material-symbols-outlined text-[24px]">storefront</span>
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-headline-md text-[22px] font-bold text-on-surface">
-              Informations sur l'entreprise
-            </h3>
-            <p className="font-body-sm text-outline">
-              Les informations générales de votre entreprise
-            </p>
-          </div>
-        </div>
+    // Deux groupes (identité, coordonnées) qui arrivent en cascade à la
+    // suite de l'en-tête de page (--cascade-depart).
+    <form
+      onSubmit={handleSubmit}
+      className="cascade-floue [--cascade-depart:200ms]"
+    >
+      <fieldset className="space-y-5">
+        <GroupeTitre
+          titre="Identité"
+          detail="Ces trois informations apparaîtront sur votre logo, votre site et vos visuels."
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-          <div className="md:col-span-2">
-            <FormInput
-              id="fullName"
-              name="fullName"
-              label="Nom de l'entreprise"
-              placeholder="Ex: BMB"
-              icon="storefront"
-              hint="Le nom officiel ou commercial de votre entreprise"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-            />
-          </div>
+        <TextField
+          label="Nom de l'entreprise"
+          icon={Store}
+          name="fullName"
+          placeholder="Ex. : Boulangerie Mbeng"
+          autoComplete="organization"
+          hint="Le nom officiel ou commercial, tel que vos clients le connaissent."
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+        />
 
-          <div className="md:col-span-2">
-            <FormInput
-              id="slogan"
-              name="slogan"
-              label="Slogan"
-              type="text"
-              placeholder="Ex: Bâtir mieux, ensemble"
-              icon="campaign"
-              hint="Une phrase courte qui résume votre activité"
-              value={slogan}
-              onChange={(e) => setSlogan(e.target.value)}
-              required
-            />
-          </div>
+        <TextField
+          label="Slogan"
+          icon={Megaphone}
+          type="text"
+          name="slogan"
+          placeholder="Ex. : Du pain chaud dès 6 h"
+          hint="Une phrase courte qui dit ce que vous faites."
+          value={slogan}
+          onChange={(e) => setSlogan(e.target.value)}
+          required
+        />
 
-          <FormSelect
-            id="secteur"
-            name="secteur"
-            label="Secteur d'activité"
-            placeholder="Sélectionnez un secteur"
-            icon="category"
-            hint="Le domaine principal de votre activité"
-            options={SECTEURS}
-            value={secteur}
-            onChange={(e) => setSecteur(e.target.value)}
+        <SelectField
+          label="Secteur d'activité"
+          icon={LayoutGrid}
+          name="secteur"
+          placeholder="Choisissez un secteur"
+          hint="Le domaine principal : il oriente les couleurs et les polices proposées ensuite."
+          options={SECTEURS}
+          value={secteur}
+          onChange={(e) => setSecteur(e.target.value)}
+        />
+      </fieldset>
+
+      {/* Le filet et le retrait sont sur un div : posés sur le fieldset, le
+          padding s'intercalerait entre la légende et les champs. */}
+      <div className="mt-9 border-t border-outline-variant/60 pt-7">
+        <fieldset className="space-y-5">
+          <GroupeTitre
+            titre="Coordonnées"
+            detail="Elles seront reprises sur votre site et vos visuels. Vous pourrez les compléter plus tard."
           />
 
-          <FormInput
-            id="phone"
-            name="phone"
-            label="Téléphone"
-            type="tel"
-            placeholder="+237 6XX XXX XXX"
-            icon="call"
-            hint="Format international recommandé"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <TextField
+              label="Téléphone"
+              icon={Phone}
+              type="tel"
+              name="phone"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="+237 6XX XXX XXX"
+              labelAside={<Facultatif />}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
 
-          <div className="md:col-span-2">
-            <FormInput
-              id="address"
+            <TextField
+              label="Adresse"
+              icon={MapPin}
               name="address"
-              label="Adresse de l'entreprise"
-              placeholder="Quartier, Ville"
-              icon="location_on"
-              hint="Quartier, ville, et pays si nécessaire"
+              autoComplete="street-address"
+              placeholder="Quartier, ville"
+              labelAside={<Facultatif />}
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
           </div>
+        </fieldset>
+      </div>
+
+      {error && (
+        <div className="mt-6">
+          <FormError>{error}</FormError>
         </div>
+      )}
 
-        {error && (
-          <p className="mt-6 font-body-sm text-body-sm text-red-600">{error}</p>
-        )}
-      </section>
-
-      {/* Actions */}
-      <div className="form-actions flex items-center justify-end pt-8 mt-8 border-t border-outline-variant/30">
-        <button
+      <div className="mt-8 flex flex-col gap-3 border-t border-outline-variant/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[13px] leading-snug text-on-surface-variant">
+          Étape suivante : le choix de vos couleurs.
+        </p>
+        <Button
           type="submit"
-          disabled={loading}
-          className="group bg-primary text-white font-label-md text-label-md rounded-xl px-8 py-3.5 shadow-[0_8px_20px_rgb(70,72,212,0.22)] hover:bg-primary/90 hover:shadow-[0_12px_24px_rgb(70,72,212,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center gap-2 disabled:opacity-60 disabled:pointer-events-none"
+          size="lg"
+          loading={loading}
+          className="w-full sm:w-auto"
         >
-          {loading ? "Création en cours..." : "Créer mon entreprise"}
-          <span className="material-symbols-outlined text-[18px] transition-transform duration-200 group-hover:translate-x-1">
-            arrow_forward
-          </span>
-        </button>
+          {loading ? "Création en cours…" : "Créer mon entreprise"}
+        </Button>
       </div>
     </form>
+  );
+}
+
+/** Sous-titre d'un groupe de champs : titre noir semi-gras, précision en dessous. */
+function GroupeTitre({ titre, detail }: { titre: string; detail: string }) {
+  return (
+    <legend className="block">
+      <span className="block text-[17px] font-semibold leading-tight tracking-[-0.01em] text-on-surface">
+        {titre}
+      </span>
+      <span className="mt-1 block text-sm leading-relaxed text-on-surface-variant">
+        {detail}
+      </span>
+    </legend>
+  );
+}
+
+function Facultatif() {
+  return (
+    <span className="text-[13px] text-on-surface-variant">Facultatif</span>
   );
 }

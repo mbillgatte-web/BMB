@@ -2,7 +2,7 @@
 
 import { useId, useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { CircleAlert, Eye, EyeOff, type LucideIcon } from "lucide-react";
+import { ChevronDown, CircleAlert, Eye, EyeOff, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 type FieldProps = Omit<ComponentPropsWithoutRef<"input">, "id"> & {
@@ -116,6 +116,65 @@ export function TextField({ label, icon, hint, error, labelAside, className, ...
         aria-describedby={error || hint ? `${id}-message` : undefined}
         className={cn(inputClasses(error, Boolean(icon)), "pr-3.5", className)}
         {...inputProps}
+      />
+    </FieldShell>
+  );
+}
+
+type SelectFieldProps = Omit<ComponentPropsWithoutRef<"select">, "id"> & {
+  label: string;
+  icon?: LucideIcon;
+  hint?: string;
+  error?: string;
+  labelAside?: ReactNode;
+  /** Première option, non sélectionnable, affichée tant qu'aucun choix n'est fait. */
+  placeholder?: string;
+  options: ReadonlyArray<{ value: string; label: string }>;
+};
+
+/** Liste déroulante native habillée comme TextField (même repos, même focus, chevron lucide). */
+export function SelectField({
+  label,
+  icon,
+  hint,
+  error,
+  labelAside,
+  placeholder,
+  options,
+  className,
+  ...selectProps
+}: SelectFieldProps) {
+  const id = useId();
+  const vide = selectProps.value === "" || selectProps.value === undefined;
+
+  return (
+    <FieldShell id={id} label={label} labelAside={labelAside} hint={hint} error={error} icon={icon}>
+      <select
+        id={id}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error || hint ? `${id}-message` : undefined}
+        className={cn(
+          inputClasses(error, Boolean(icon)),
+          "cursor-pointer appearance-none pr-11",
+          vide && "text-outline/60",
+          className
+        )}
+        {...selectProps}
+      >
+        {placeholder && (
+          <option value="" disabled>
+            {placeholder}
+          </option>
+        )}
+        {options.map((option) => (
+          <option key={option.value} value={option.value} className="text-on-surface">
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown
+        aria-hidden="true"
+        className="pointer-events-none absolute right-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-outline transition-transform duration-200 group-focus-within/field:rotate-180 group-focus-within/field:text-primary"
       />
     </FieldShell>
   );
