@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutGroup, motion } from "framer-motion";
-import { CaretDown, GearSix, SignOut, Sparkle } from "@phosphor-icons/react";
+import { CaretDown, Crown, GearSix, SignOut } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/cn";
 import { useEntreprise } from "@/hooks/useEntreprise";
@@ -40,7 +40,7 @@ function SurvolPill({ visible }: { visible: boolean }) {
 }
 
 // Icône Phosphor : « duotone » au repos (deux tons de la couleur courante),
-// « fill » sur la page en cours. Hors page active, elle prend le violet au
+// « fill » sur la page en cours. Hors page active, elle prend le vert au
 // survol avec le libellé.
 function ItemIcon({
   icon: Icon,
@@ -194,7 +194,7 @@ export default function SidebarContent({ collapsed, layoutGroupId, onNavigate }:
                           collapsed ? "justify-center px-0" : "justify-between",
                           isParentActive
                             ? collapsed
-                              ? "bg-primary text-on-primary shadow-[0_10px_20px_-10px_rgba(70,72,212,0.55)]"
+                              ? "bg-primary text-on-primary shadow-[0_10px_20px_-10px_rgba(15,122,56,0.55)]"
                               : "bg-primary/10 font-semibold text-primary"
                             : ITEM_INACTIF
                         )}
@@ -234,7 +234,7 @@ export default function SidebarContent({ collapsed, layoutGroupId, onNavigate }:
 
                                 return (
                                   <li key={child.label} className="relative">
-                                    {/* Repère sur le fil, violet pour la page actuelle. */}
+                                    {/* Repère sur le fil, vert pour la page actuelle. */}
                                     <span
                                       aria-hidden="true"
                                       className={cn(
@@ -251,7 +251,7 @@ export default function SidebarContent({ collapsed, layoutGroupId, onNavigate }:
                                       className={cn(
                                         "relative flex min-h-9 items-center rounded-lg px-3 py-2 text-[14px] font-medium leading-5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
                                         isChildActive
-                                          ? "bg-primary text-on-primary shadow-[0_8px_16px_-10px_rgba(70,72,212,0.6)]"
+                                          ? "bg-primary text-on-primary shadow-[0_8px_16px_-10px_rgba(15,122,56,0.6)]"
                                           : ITEM_INACTIF
                                       )}
                                     >
@@ -294,7 +294,7 @@ export default function SidebarContent({ collapsed, layoutGroupId, onNavigate }:
                       ITEM,
                       collapsed && "justify-center px-0",
                       isActive
-                        ? "bg-primary text-on-primary shadow-[0_10px_20px_-10px_rgba(70,72,212,0.55)]"
+                        ? "bg-primary text-on-primary shadow-[0_10px_20px_-10px_rgba(15,122,56,0.55)]"
                         : ITEM_INACTIF
                     )}
                   >
@@ -312,34 +312,22 @@ export default function SidebarContent({ collapsed, layoutGroupId, onNavigate }:
           {/* Tout ce qui suit reste DANS le flux défilant (paramètres,
               encart Pro, déconnexion) : rien n'est figé en bas pendant
               que le reste bouge. Seul l'en-tête reste fixe. */}
-          <div className="flex flex-col gap-1 border-t border-outline-variant pt-4">
-            {/* Paramètres n'a pas encore de page : même traitement que
-                les autres fonctions « bientôt ». */}
-            <ItemBientot icon={GearSix} label="Paramètres" collapsed={collapsed} />
-          </div>
+        
+        {/* CEST ICI QUE JAI RETIRE LE COMPOSANT PARAMETRES */}
 
           {/* Encart Pro et déconnexion : mêmes pastilles à remplissage
               que le composant <Button> partagé (voir ui/Button.tsx),
-              reproduites ici pour leurs couleurs propres. */}
+              reproduites ici pour leurs couleurs propres. L'encart est un
+              aplat `primary` (pas de dégradé ni de reflet). */}
           <div className="flex flex-col gap-2">
             <div
               className={cn(
-                "relative flex flex-col gap-3 overflow-hidden rounded-2xl bg-[linear-gradient(160deg,#3739B7_0%,#4648D4_55%,#6063EE_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_16px_32px_-20px_rgba(70,72,212,0.8)]",
+                "flex flex-col gap-3 rounded-xl bg-primary",
                 collapsed ? "p-2.5" : "p-4"
               )}
             >
-              {/* Reflet décoratif dans le coin. */}
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full border border-white/15"
-              />
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-2 -top-4 h-14 w-14 rounded-full border border-white/10"
-              />
-
               {!collapsed && (
-                <div className="relative flex flex-col gap-1">
+                <div className="flex flex-col gap-1">
                   <span className="text-[14px] font-bold text-white">Passez à l&apos;offre Pro</span>
                   <span className="text-[12px] leading-snug text-white/85">
                     IA illimitée, exports, projets illimités
@@ -359,7 +347,7 @@ export default function SidebarContent({ collapsed, layoutGroupId, onNavigate }:
                   className="pointer-events-none absolute left-1/2 top-1/2 z-0 aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full bg-white opacity-0 transition-all duration-[800ms] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-100 group-hover:opacity-100"
                 />
                 <span className="relative z-10 flex items-center gap-2 transition-colors duration-300 group-hover:text-primary">
-                  <Sparkle size={16} weight="fill" className="shrink-0" aria-hidden="true" />
+                  <Crown size={16} weight="duotone" className="shrink-0" aria-hidden="true" />
                   {!collapsed && "Passer à Pro"}
                 </span>
               </button>

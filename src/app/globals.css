@@ -19,7 +19,7 @@ body {
 }
 
 ::selection {
-  background-color: rgb(70 72 212 / 0.18);
+  background-color: rgb(15 122 56 / 0.18);
 }
 
 /* Contour de focus visible pour la navigation au clavier, partout où un
@@ -28,7 +28,7 @@ body {
    le remplacer : une règle hors couche l'emporterait toujours sur elles. */
 @layer base {
   :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-    outline: 2px solid #4648d4;
+    outline: 2px solid #0F7A38;
     outline-offset: 2px;
   }
 }
@@ -95,7 +95,7 @@ body {
   }
 }
 
-/* Dérive très lente du motif losange du panneau violet : le décalage vaut
+/* Dérive très lente du motif losange du panneau vert : le décalage vaut
    exactement une tuile, la boucle est donc invisible. */
 @keyframes motif-derive {
   from { background-position: 0 0; }

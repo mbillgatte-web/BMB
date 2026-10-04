@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 
 type FieldProps = Omit<ComponentPropsWithoutRef<"input">, "id"> & {
   label: string;
-  /** Icône affichée à gauche dans le champ ; elle passe au violet quand le champ est actif. */
+  /** Icône affichée à gauche dans le champ ; elle passe au vert quand le champ est actif. */
   icon?: LucideIcon;
   /** Texte d'aide affiché sous le champ (remplacé par l'erreur s'il y en a une). */
   hint?: string;
@@ -15,9 +15,11 @@ type FieldProps = Omit<ComponentPropsWithoutRef<"input">, "id"> & {
   error?: string;
   /** Élément placé à droite du libellé (ex. lien « Mot de passe oublié »). */
   labelAside?: ReactNode;
+  /** Unité affichée à droite dans le champ (ex. « FCFA ») ; le texte saisi ne passe pas dessous. */
+  suffix?: string;
 };
 
-// Au repos : fond légèrement teinté. Au focus : fond blanc, bordure violette
+// Au repos : fond légèrement teinté. Au focus : fond blanc, bordure verte
 // et anneau qui s'élargit (transition 200 ms).
 const INPUT =
   "block h-12 w-full rounded-[10px] border bg-surface-container-low text-[15px] text-on-surface " +
@@ -106,7 +108,16 @@ function FieldShell({
 }
 
 /** Champ de formulaire standard : libellé visible, icône, aide, erreur sous le champ. */
-export function TextField({ label, icon, hint, error, labelAside, className, ...inputProps }: FieldProps) {
+export function TextField({
+  label,
+  icon,
+  hint,
+  error,
+  labelAside,
+  suffix,
+  className,
+  ...inputProps
+}: FieldProps) {
   const id = useId();
   return (
     <FieldShell id={id} label={label} labelAside={labelAside} hint={hint} error={error} icon={icon}>
@@ -114,8 +125,42 @@ export function TextField({ label, icon, hint, error, labelAside, className, ...
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={error || hint ? `${id}-message` : undefined}
-        className={cn(inputClasses(error, Boolean(icon)), "pr-3.5", className)}
+        className={cn(inputClasses(error, Boolean(icon)), suffix ? "pr-16" : "pr-3.5", className)}
         {...inputProps}
+      />
+      {suffix && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[13px] font-medium text-outline transition-colors duration-200 group-focus-within/field:text-primary"
+        >
+          {suffix}
+        </span>
+      )}
+    </FieldShell>
+  );
+}
+
+type TextAreaFieldProps = Omit<ComponentPropsWithoutRef<"textarea">, "id"> & {
+  label: string;
+  hint?: string;
+  error?: string;
+  labelAside?: ReactNode;
+};
+
+/** Zone de texte multiligne habillée comme TextField (même repos, même focus). Pas d'icône : elle serait perdue en haut d'un bloc. */
+export function TextAreaField({ label, hint, error, labelAside, className, rows = 3, ...textareaProps }: TextAreaFieldProps) {
+  const id = useId();
+  return (
+    <FieldShell id={id} label={label} labelAside={labelAside} hint={hint} error={error}>
+      <textarea
+        id={id}
+        rows={rows}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error || hint ? `${id}-message` : undefined}
+        // h-12 est prévu pour une ligne : on le remplace par une hauteur
+        // libre et un redimensionnement vertical uniquement.
+        className={cn(inputClasses(error, false), "h-auto min-h-[96px] resize-y py-3 pr-3.5 leading-6", className)}
+        {...textareaProps}
       />
     </FieldShell>
   );
@@ -181,7 +226,15 @@ export function SelectField({
 }
 
 /** Champ mot de passe avec bouton afficher/masquer. */
-export function PasswordField({ label, icon, hint, error, labelAside, className, ...inputProps }: FieldProps) {
+export function PasswordField({
+  label,
+  icon,
+  hint,
+  error,
+  labelAside,
+  className,
+  ...inputProps
+}: Omit<FieldProps, "suffix">) {
   const id = useId();
   const [visible, setVisible] = useState(false);
 

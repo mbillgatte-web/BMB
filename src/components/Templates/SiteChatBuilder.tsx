@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Maximize2, Monitor, RotateCcw, Smartphone, Sparkles, X } from "lucide-react";
+import { Maximize2, MessageSquareText, Monitor, RotateCcw, Home, Smartphone, X } from "lucide-react";
 import { supabase } from "@/lib/supabase/browser";
 import { cn } from "@/lib/cn";
 import { useEntreprise } from "@/hooks/useEntreprise";
@@ -215,10 +215,10 @@ export default function SiteChatBuilder() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(360px,440px)_minmax(0,1fr)]">
       {/* --- Conversation --- */}
-      <section className="flex h-[calc(100dvh-260px)] min-h-[580px] flex-col overflow-hidden rounded-[28px] border border-outline-variant/70 bg-surface-container-low shadow-[0_12px_40px_-24px_rgba(35,37,120,0.35)]">
+      <section className="flex h-[calc(100dvh-260px)] min-h-[580px] flex-col overflow-hidden rounded-[28px] border border-outline-variant/70 bg-surface-container-low shadow-[0_12px_40px_-24px_rgba(20,50,30,0.35)]">
         <header className="flex items-center gap-3 bg-surface-container-lowest/80 px-5 py-4">
-          <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-[0_8px_18px_-8px_rgba(70,72,212,0.8)]">
-            <Sparkles className="h-5 w-5" aria-hidden="true" />
+          <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-on-primary shadow-[0_8px_18px_-8px_rgba(15,122,56,0.8)]">
+            <Home className="h-5 w-5" aria-hidden="true" />
             {/* Pastille « en ligne » */}
             <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-surface-container-lowest bg-[#22C55E]" aria-hidden="true" />
           </span>
@@ -265,7 +265,7 @@ export default function SiteChatBuilder() {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0, transition: { delay: 0.15 + i * 0.06 } }}
                       onClick={() => setSaisie(s)}
-                      className="rounded-2xl border border-outline-variant bg-surface-container-lowest px-3.5 py-2.5 text-left text-[13px] text-on-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_20px_-12px_rgba(70,72,212,0.5)]"
+                      className="rounded-2xl border border-outline-variant bg-surface-container-lowest px-3.5 py-2.5 text-left text-[13px] text-on-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_20px_-12px_rgba(15,122,56,0.5)]"
                     >
                       {s}
                     </motion.button>
@@ -438,7 +438,7 @@ export default function SiteChatBuilder() {
                 <span className="relative flex h-12 w-12 items-center justify-center">
                   <span className="absolute inset-0 animate-ping rounded-full bg-primary/20" />
                   <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-primary text-on-primary">
-                    <Sparkles className="h-5 w-5" aria-hidden="true" />
+                    <MessageSquareText className="h-5 w-5" aria-hidden="true" />
                   </span>
                 </span>
                 <p className="font-label-md text-label-md text-on-surface">
@@ -489,14 +489,14 @@ function Bulle({
     >
       {!utilisateur && (
         <span className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Sparkles className="h-4 w-4" aria-hidden="true" />
+          <Home className="h-4 w-4" aria-hidden="true" />
         </span>
       )}
       <div
         className={cn(
           "max-w-[85%] whitespace-pre-line rounded-3xl px-4 py-3 text-[14px] leading-relaxed",
           utilisateur
-            ? "rounded-br-lg bg-primary text-on-primary shadow-[0_10px_24px_-14px_rgba(70,72,212,0.9)]"
+            ? "rounded-br-lg bg-primary text-on-primary shadow-[0_10px_24px_-14px_rgba(15,122,56,0.9)]"
             : "rounded-bl-lg border border-outline-variant/60 bg-surface-container-lowest text-on-surface shadow-[0_6px_18px_-14px_rgba(27,27,35,0.35)]"
         )}
       >

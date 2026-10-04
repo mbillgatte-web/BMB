@@ -176,7 +176,7 @@ export default function ChatComposer({
       }}
       animate={{
         boxShadow: deplie
-          ? "0 12px 36px -12px rgba(70,72,212,0.35), 0 0 0 1.5px rgba(70,72,212,0.35)"
+          ? "0 12px 36px -12px rgba(15,122,56,0.35), 0 0 0 1.5px rgba(15,122,56,0.35)"
           : "0 2px 10px -2px rgba(27,27,35,0.10), 0 0 0 1px rgba(199,196,215,0.8)",
       }}
       transition={{ type: "spring", stiffness: 160, damping: 20 }}
@@ -326,7 +326,7 @@ export default function ChatComposer({
           whileHover={envoyable ? { scale: 1.06 } : undefined}
           whileTap={envoyable ? { scale: 0.92 } : undefined}
           title="Envoyer"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-[0_8px_18px_-8px_rgba(70,72,212,0.8)] transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-outline disabled:shadow-none"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-[0_8px_18px_-8px_rgba(15,122,56,0.8)] transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-outline disabled:shadow-none"
         >
           <ArrowUp className="h-5 w-5" aria-hidden="true" />
           <span className="sr-only">Envoyer</span>

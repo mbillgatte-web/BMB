@@ -2,14 +2,13 @@ import { Suspense } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopNav from "@/components/dashboard/TopNav";
 import VueEnsemble from "@/components/Identite_visuel/VueEnsemble";
-import BrandProgressStepper from "@/components/Identite_visuel/BrandProgessStepper";
 
 export default function IdentiteVisuellePage() {
   return (
     <div className="flex h-screen overflow-hidden bg-background text-on-background antialiased">
       <Sidebar />
 
-      <div className="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-[#F9FAFB]">
+      <div className="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-surface">
         <TopNav />
 
         <main className="flex-1 overflow-y-auto p-6 lg:p-12">
@@ -24,8 +23,6 @@ export default function IdentiteVisuellePage() {
                 le logo déjà configurés pour votre entreprise.
               </p>
             </div>
-
-            <BrandProgressStepper currentStep={1} />
 
             <Suspense fallback={null}>
               <VueEnsemble />

@@ -1,7 +1,9 @@
 "use client";
 
-import { Palette, Type, ImageIcon, ArrowRight } from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowRight } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { FormError } from "@/components/ui/Field";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 import { FONT_FAMILY_VARS } from "./police";
@@ -11,7 +13,9 @@ import { FONT_FAMILY_VARS } from "./police";
  * enregistrée pour l'entreprise courante (palette, typographie, logo), pour
  * ne pas avoir à naviguer entre /PaletteColor, /Typographie et /Logo juste
  * pour voir où on en est. Chaque section renvoie vers sa page dédiée pour
- * l'édition -- cette page ne modifie rien elle-même.
+ * l'édition -- cette page ne modifie rien elle-même. Une section encore
+ * vide est mise en avant (bordure pointillée, bouton « Ajouter »), les
+ * sections remplies restent en retrait.
  */
 export default function VueEnsemble() {
   const {
@@ -32,7 +36,7 @@ export default function VueEnsemble() {
 
   if (loadingEntreprise || loadingIdentite) {
     return (
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr_2fr]">
         {[0, 1, 2].map((i) => (
           <div
             key={i}
@@ -45,9 +49,12 @@ export default function VueEnsemble() {
 
   if (entrepriseError || identiteError) {
     return (
-      <div className="rounded-xl border border-error/30 bg-error/5 p-6 text-body-md text-error">
-        {entrepriseError || identiteError}
-      </div>
+      <FormError>
+        {/* L'erreur d'entreprise est déjà une phrase pour l'utilisateur ;
+            celle de la base est technique, on la remplace. */}
+        {entrepriseError ||
+          "Impossible de charger l’identité visuelle. Réessayez."}
+      </FormError>
     );
   }
 
@@ -75,76 +82,74 @@ export default function VueEnsemble() {
     logo_url,
   } = identiteVisuelle;
 
+  const paletteRemplie = Boolean(couleur_primaire && couleur_fond);
+  const typoRemplie = Boolean(police_titre && police_texte);
+  const logoRempli = Boolean(logo_url);
+
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div className="stagger-in grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr_2fr]">
       {/* Palette */}
-      <section className="flex flex-col rounded-xl border border-outline-variant bg-surface-container-lowest p-md shadow-sm">
-        <header className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-container/20 text-primary">
-              <Palette className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-            </span>
-            <h2 className="font-label-md text-label-md text-on-surface">
-              Palette de couleurs
-            </h2>
-          </div>
-          {palette_mode && (
+      <Section
+        titre="Palette de couleurs"
+        remplie={paletteRemplie}
+        href={withEntreprise("/PaletteColor")}
+        aside={
+          palette_mode && (
             <span className="rounded-full bg-surface-container-high px-2.5 py-0.5 text-[11px] font-medium text-on-surface-variant">
               {palette_mode === "3" ? "3 couleurs" : "2 couleurs"}
             </span>
-          )}
-        </header>
-
-        <div className="flex flex-1 flex-col gap-3">
-          {[
-            { label: "Fond", value: couleur_fond },
-            { label: "Primaire", value: couleur_primaire },
-            { label: "Accent", value: couleur_accent },
-          ]
-            .filter((swatch) => swatch.value)
-            .map((swatch) => (
-              <div key={swatch.label} className="flex items-center gap-3">
-                <span
-                  className="h-8 w-8 shrink-0 rounded-full border border-outline-variant/60 shadow-sm"
-                  style={{ backgroundColor: swatch.value! }}
-                  aria-hidden="true"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-on-surface">{swatch.label}</p>
+          )
+        }
+      >
+        {paletteRemplie ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex h-16 overflow-hidden rounded-lg border border-outline-variant/60">
+              {[couleur_primaire, couleur_fond, couleur_accent]
+                .filter(Boolean)
+                .map((c, i) => (
+                  <span
+                    key={i}
+                    className="flex-1"
+                    style={{ backgroundColor: c! }}
+                    aria-hidden="true"
+                  />
+                ))}
+            </div>
+            {[
+              { label: "Principale", value: couleur_primaire },
+              { label: "Fond", value: couleur_fond },
+              { label: "Accent", value: couleur_accent },
+            ]
+              .filter((swatch) => swatch.value)
+              .map((swatch) => (
+                <div
+                  key={swatch.label}
+                  className="flex items-center justify-between gap-3 text-sm"
+                >
+                  <span className="text-on-surface">{swatch.label}</span>
+                  <span className="font-mono text-[11px] uppercase text-on-surface-variant">
+                    {swatch.value}
+                  </span>
                 </div>
-                <span className="font-mono text-[11px] uppercase text-on-surface-variant">
-                  {swatch.value}
-                </span>
-              </div>
-            ))}
-        </div>
-
-        <Button
-          href={withEntreprise("/PaletteColor")}
-          variant="ghost"
-          size="sm"
-          className="mt-4 self-start"
-        >
-          Modifier
-          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-        </Button>
-      </section>
+              ))}
+          </div>
+        ) : (
+          <p className="text-sm text-on-surface-variant">
+            Aucune palette choisie pour l’instant.
+          </p>
+        )}
+      </Section>
 
       {/* Typographie */}
-      <section className="flex flex-col rounded-xl border border-outline-variant bg-surface-container-lowest p-md shadow-sm">
-        <header className="mb-4 flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary-container/30 text-secondary">
-            <Type className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-          </span>
-          <h2 className="font-label-md text-label-md text-on-surface">
-            Typographie
-          </h2>
-        </header>
-
-        <div className="flex flex-1 flex-col gap-4">
+      <Section
+        titre="Typographie"
+        remplie={typoRemplie}
+        href={withEntreprise("/Typographie")}
+      >
+        <div className="flex flex-col gap-4">
           <div>
             <p className="mb-1 text-[11px] uppercase tracking-wider text-on-surface-variant">
-              Titres — {police_titre ?? "non défini"}
+              Titres : {police_titre ?? "à choisir"}
             </p>
             <p
               className="truncate text-2xl font-semibold text-on-surface"
@@ -160,7 +165,7 @@ export default function VueEnsemble() {
 
           <div>
             <p className="mb-1 text-[11px] uppercase tracking-wider text-on-surface-variant">
-              Texte — {police_texte ?? "non défini"}
+              Texte : {police_texte ?? "à choisir"}
             </p>
             <p
               className="text-sm text-on-surface-variant"
@@ -174,28 +179,15 @@ export default function VueEnsemble() {
             </p>
           </div>
         </div>
-
-        <Button
-          href={withEntreprise("/Typographie")}
-          variant="ghost"
-          size="sm"
-          className="mt-4 self-start"
-        >
-          Modifier
-          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-        </Button>
-      </section>
+      </Section>
 
       {/* Logo */}
-      <section className="flex flex-col rounded-xl border border-outline-variant bg-surface-container-lowest p-md shadow-sm">
-        <header className="mb-4 flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-tertiary-container/30 text-tertiary">
-            <ImageIcon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-          </span>
-          <h2 className="font-label-md text-label-md text-on-surface">Logo</h2>
-        </header>
-
-        <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-outline-variant/60 bg-surface p-6">
+      <Section
+        titre="Logo"
+        remplie={logoRempli}
+        href={withEntreprise("/Logo")}
+      >
+        <div className="flex h-full min-h-[120px] items-center justify-center rounded-lg bg-surface-container-low p-6">
           {logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -209,17 +201,54 @@ export default function VueEnsemble() {
             </p>
           )}
         </div>
+      </Section>
+    </div>
+  );
+}
 
-        <Button
-          href={withEntreprise("/Logo")}
-          variant="ghost"
-          size="sm"
-          className="mt-4 self-start"
-        >
+/**
+ * Carte d'une section du récapitulatif. Remplie : bordure pleine et lien
+ * discret « Modifier ». Vide : bordure pointillée et bouton « Ajouter »
+ * mis en avant, pour que l'œil aille vers ce qu'il reste à faire.
+ */
+function Section({
+  titre,
+  remplie,
+  href,
+  aside,
+  children,
+}: {
+  titre: string;
+  remplie: boolean;
+  href: string;
+  aside?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      className={`flex flex-col rounded-xl p-md ${
+        remplie
+          ? "border border-outline-variant bg-surface-container-lowest"
+          : "border-2 border-dashed border-primary/50 bg-surface-container-lowest"
+      }`}
+    >
+      <header className="mb-4 flex items-center justify-between gap-2">
+        <h2 className="font-label-md text-label-md text-on-surface">{titre}</h2>
+        {aside}
+      </header>
+
+      <div className="flex-1">{children}</div>
+
+      {remplie ? (
+        <Button href={href} variant="ghost" size="sm" className="mt-4 self-start">
           Modifier
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Button>
-      </section>
-    </div>
+      ) : (
+        <Button href={href} size="sm" className="mt-4 self-start">
+          Ajouter
+        </Button>
+      )}
+    </section>
   );
 }

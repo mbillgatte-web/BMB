@@ -1,21 +1,57 @@
-
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useRouter } from "next/navigation";
+import { MessageSquareText, Upload } from "lucide-react";
 import { supabase } from "@/lib/supabase/browser";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
+import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 import { uploaderLogo } from "@/data/identiteVisuelle";
+import { libelleSecteur } from "@/data/entreprise";
 import ChatComposer from "@/components/Templates/ChatComposer";
 import SoonBadge from "@/components/ui/SoonBadge";
+import Button from "@/components/ui/Button";
+import { FormError } from "@/components/ui/Field";
 
 interface LogoBuilderProps {
-  /** Appelé quand un fichier logo valide est importé (drag & drop ou input) */
+  /** Appelé quand un fichier logo valide est importé (glisser-déposer ou sélecteur) */
   onLogoUploaded?: (file: File) => void;
-  /** Appelé quand l'utilisateur clique sur "Générer" */
+  /** Appelé quand l'utilisateur clique sur « Générer » */
   onGenerateWithAI?: (prompt: string, selectedStyles: string[]) => void;
 }
+
+// Contrôle côté client uniquement : formats d'image sûrs et taille
+// raisonnable pour un logo. Le contrôle côté serveur reste à part.
+const TYPES_ACCEPTES = ["image/png", "image/jpeg", "image/webp"];
+const TAILLE_MAX = 5 * 1024 * 1024;
+
+/** Couleur principale du thème, utilisée quand aucune palette n'est connue. */
+const PRIMAIRE_THEME = "#0F7A38";
+
+/** Luminance relative (WCAG) d'une couleur #rrggbb, entre 0 et 1. */
+function luminance(hex: string): number {
+  const n = parseInt(hex.replace("#", ""), 16);
+  if (Number.isNaN(n)) return 0;
+  const canal = (c: number) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  return (
+    0.2126 * canal((n >> 16) & 255) +
+    0.7152 * canal((n >> 8) & 255) +
+    0.0722 * canal(n & 255)
+  );
+}
+
+const sansAbonnement = () => () => {};
 
 export default function LogoBuilder({
   onLogoUploaded,
@@ -34,10 +70,35 @@ export default function LogoBuilder({
     error: entrepriseIdError,
   } = useEntrepriseId();
 
+  // Nom de l'entreprise pour l'aperçu (repli texte quand il n'y a pas de logo).
+  const { entreprise: entrepriseSelectionnee, entreprises } = useEntreprise();
+  const entreprise =
+    entreprises.find((e) => e.id === entrepriseId) ?? entrepriseSelectionnee;
+
   const { identiteVisuelle } = useIdentiteVisuelle(entrepriseId);
 
+  // Palette choisie à l'étape précédente (brouillon localStorage), lue sans
+  // effet ni setState : useSyncExternalStore renvoie null côté serveur.
+  const cle = entrepriseId ? `identite:${entrepriseId}:palette` : null;
+  const paletteBrouillonRaw = useSyncExternalStore(
+    sansAbonnement,
+    () => (cle ? localStorage.getItem(cle) : null),
+    () => null
+  );
+  const couleurPrimaire = useMemo(() => {
+    if (paletteBrouillonRaw) {
+      try {
+        const p = JSON.parse(paletteBrouillonRaw) as { primary?: string };
+        if (p.primary) return p.primary;
+      } catch {
+        // brouillon illisible : on retombe sur ce qui est en base
+      }
+    }
+    return identiteVisuelle?.couleur_primaire ?? PRIMAIRE_THEME;
+  }, [paletteBrouillonRaw, identiteVisuelle]);
+
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  const [fichierErreur, setFichierErreur] = useState("");
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [selectedStyles, setSelectedStyles] = useState<string[]>([
@@ -48,19 +109,17 @@ export default function LogoBuilder({
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Effet inchangé par rapport à l'original : ne gère QUE la création/le
-  // nettoyage de l'URL blob du fichier local (vraie ressource externe,
-  // c'est un cas légitime d'effet). Le repli vers le logo déjà enregistré
-  // en base est géré séparément ci-dessous, en pure dérivation.
+  // URL blob du fichier local : dérivée du fichier (pas de setState dans
+  // un effet), l'effet ne sert qu'à libérer la ressource.
+  const logoPreviewUrl = useMemo(
+    () => (logoFile ? URL.createObjectURL(logoFile) : null),
+    [logoFile]
+  );
   useEffect(() => {
-    if (!logoFile) {
-      setLogoPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(logoFile);
-    setLogoPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [logoFile]);
+    return () => {
+      if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
+    };
+  }, [logoPreviewUrl]);
 
   // Priorité au fichier tout juste choisi localement ; sinon, le logo déjà
   // enregistré pour cette entreprise (voir useIdentiteVisuelle.ts).
@@ -69,16 +128,26 @@ export default function LogoBuilder({
   const handleFile = useCallback(
     (file: File | undefined | null) => {
       if (!file) return;
-      if (!file.type.startsWith("image/") && file.type !== "image/svg+xml") {
+      if (!TYPES_ACCEPTES.includes(file.type)) {
+        setFichierErreur(
+          "Format non pris en charge. Choisissez un fichier PNG, JPG ou WebP."
+        );
         return;
       }
+      if (file.size > TAILLE_MAX) {
+        setFichierErreur(
+          `Fichier trop lourd (${(file.size / 1024 / 1024).toFixed(1)} Mo). La limite est de 5 Mo.`
+        );
+        return;
+      }
+      setFichierErreur("");
       setLogoFile(file);
       onLogoUploaded?.(file);
     },
     [onLogoUploaded]
   );
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsDraggingOver(false);
     handleFile(e.dataTransfer.files?.[0]);
@@ -100,7 +169,7 @@ export default function LogoBuilder({
 
   const handleFinish = async () => {
     if (!entrepriseId) {
-      setError("Entreprise introuvable, recommence depuis la création d'entreprise.");
+      setError("Entreprise introuvable. Recommencez depuis la création d'entreprise.");
       return;
     }
 
@@ -188,246 +257,218 @@ export default function LogoBuilder({
     router.push("/dashboard");
   };
 
+  const nomEntreprise = entreprise?.nom || "Nom de votre entreprise";
+  const secteur = libelleSecteur(entreprise?.secteur_activite ?? null);
+  const texteSurPrimaire =
+    luminance(couleurPrimaire) > 0.4 ? "#191c1d" : "#ffffff";
+
   return (
-    <div className="flex flex-col gap-lg">
-      {/* En-tête de section */}
-      <div className="mb-md">
-        <h2 className="mb-xs text-headline-lg font-headline-lg text-on-surface">
-          Création de Logo
+    <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
+      {/* Colonne gauche : aperçu */}
+      <div className="flex min-w-0 flex-col gap-md xl:sticky xl:top-6">
+        <h2 className="text-headline-sm font-headline-sm text-on-surface">
+          Aperçu
         </h2>
-        <p className="text-body-md font-body-md text-secondary">
-          Définissez l&apos;identité visuelle centrale de votre marque.
-          Importez un logo existant ou générez-en un avec l&apos;IA.
-        </p>
-      </div>
 
-      {/* Grille principale : alignement en haut, pas d’étirement forcé */}
-      <div className="grid grid-cols-1 items-start gap-xl xl:grid-cols-2">
-        {/* ——— Colonne gauche : aperçu ——— */}
-        <div className="flex min-w-0 flex-col gap-md">
-          <h3 className="text-headline-sm font-headline-sm text-on-surface">
-            Aperçu en direct
-          </h3>
-
-          <div className="relative flex h-[280px] flex-col overflow-hidden rounded-2xl border border-surface-variant bg-surface-container-lowest shadow-sm">
-            <div className="flex h-9 shrink-0 items-center gap-2 border-b border-surface-variant bg-surface px-4">
-              <span className="h-2.5 w-2.5 rounded-full bg-surface-variant" />
-              <span className="h-2.5 w-2.5 rounded-full bg-surface-variant" />
-              <span className="h-2.5 w-2.5 rounded-full bg-surface-variant" />
-              <span className="ml-4 h-4 w-36 rounded-sm bg-surface-container" />
-            </div>
-
-            <div
-              className="relative flex flex-1 items-center justify-center overflow-hidden px-5 py-5"
-              style={{
-                backgroundImage:
-                  "radial-gradient(var(--outline, #777587) 1px, transparent 1px)",
-                backgroundSize: "20px 20px",
-              }}
-            >
-              <div className="absolute inset-0 bg-surface-container-lowest/80" />
-
-              <div className="relative z-10 aspect-[1.75] w-full max-w-[240px] -rotate-2 transform overflow-hidden rounded-xl border border-outline-variant/60 bg-surface p-4 shadow-[0_12px_28px_rgba(27,27,35,0.14)] transition-transform duration-300 hover:rotate-0">
-                <div className="absolute right-0 top-0 h-16 w-16 rounded-bl-full bg-primary-container/10 blur-2xl" />
-                <div className="relative flex h-full flex-col justify-between">
-                  <div className="flex items-center gap-3">
-                    <LogoMark
-                      previewUrl={displayedLogoUrl}
-                      sizeClassName="h-11 w-11"
-                      iconSize={22}
-                    />
-                    <div>
-                      <div className="mb-1.5 h-3 w-20 rounded bg-surface-variant" />
-                      <div className="h-2 w-14 rounded bg-surface-variant" />
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-end justify-between gap-2">
-                    <div>
-                      <div className="mb-1.5 h-2 w-16 rounded bg-surface-variant" />
-                      <div className="h-1.5 w-24 rounded bg-surface-variant" />
-                    </div>
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-secondary">
-                      Carte de visite
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
+          <ApercuLogo
+            libelle="Sur votre couleur principale"
+            fond={couleurPrimaire}
+            couleurTexte={texteSurPrimaire}
+            logoUrl={displayedLogoUrl}
+            nom={nomEntreprise}
+          />
+          <ApercuLogo
+            libelle="Sur fond blanc"
+            fond="#ffffff"
+            couleurTexte={couleurPrimaire}
+            logoUrl={displayedLogoUrl}
+            nom={nomEntreprise}
+            bordure
+          />
         </div>
 
-        {/* ——— Colonne droite : actions ——— */}
-        <div className="flex min-w-0 flex-col gap-md">
-          {/* Carte 1 : import */}
-          <div className="flex flex-col gap-md rounded-xl border border-outline-variant bg-surface p-lg shadow-sm">
-            <div className="mb-xs flex items-center gap-sm">
-              <span className="material-symbols-outlined text-primary">
-                upload_file
-              </span>
-              <h3 className="text-headline-sm font-headline-sm text-on-surface">
-                Importer votre logo
-              </h3>
-            </div>
-            <p className="text-body-sm font-body-sm text-secondary">
-              Format recommandé : SVG pour la meilleure qualité, ou PNG
-              transparent (min. 512x512px).
-            </p>
+        {(entreprise?.slogan || secteur) && (
+          <p className="text-body-sm font-body-sm text-on-surface-variant">
+            {[nomEntreprise, entreprise?.slogan, secteur]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        )}
+      </div>
 
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDraggingOver(true);
-              }}
-              onDragLeave={() => setIsDraggingOver(false)}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              role="button"
-              tabIndex={0}
-              className={`group flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-lg text-center transition-all ${
-                isDraggingOver
-                  ? "border-primary bg-surface-container-low"
-                  : "border-outline-variant bg-surface-bright hover:border-primary hover:bg-surface-container-low"
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,.svg"
-                className="hidden"
-                onChange={(e) => handleFile(e.target.files?.[0])}
-              />
-              <div className="mb-md flex h-14 w-14 items-center justify-center rounded-full bg-surface-container transition-colors group-hover:bg-primary-container group-hover:text-on-primary-container">
-                <span className="material-symbols-outlined text-secondary text-[28px] group-hover:text-on-primary-container">
-                  cloud_upload
-                </span>
-              </div>
-              {logoFile ? (
-                <p className="mb-1 truncate text-label-md font-label-md text-on-surface">
-                  {logoFile.name}
-                </p>
-              ) : (
-                <p className="mb-1 text-label-md font-label-md text-on-surface">
-                  Glissez et déposez votre fichier ici
-                </p>
-              )}
-              <p className="mb-md text-body-sm font-body-sm text-secondary">
-                ou cliquez pour parcourir
-              </p>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fileInputRef.current?.click();
-                }}
-                className="rounded-lg border border-outline-variant bg-white px-md py-sm text-label-md font-label-md text-on-surface transition-colors group-hover:border-primary"
-              >
-                Sélectionner un fichier
-              </button>
-            </div>
+      {/* Colonne droite : actions */}
+      <div className="flex min-w-0 flex-col gap-md">
+        {/* Carte 1 : import */}
+        <div className="flex flex-col gap-md rounded-xl border border-outline-variant bg-surface-container-lowest p-lg">
+          <div className="flex items-center gap-sm">
+            <Upload
+              className="h-5 w-5 text-primary"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+            <h3 className="text-headline-sm font-headline-sm text-on-surface">
+              Importer
+            </h3>
           </div>
+          <p className="text-body-sm font-body-sm text-on-surface-variant">
+            PNG, JPG ou WebP, 5 Mo maximum. De préférence avec un fond
+            transparent et au moins 512 × 512 px.
+          </p>
 
-          {/* Séparateur */}
-          <div className="flex items-center gap-md opacity-60">
-            <div className="h-px flex-grow bg-outline-variant" />
-            <span className="text-label-sm font-label-sm uppercase tracking-wider text-secondary">
-              ou
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="hidden"
+            onChange={(e) => {
+              handleFile(e.target.files?.[0]);
+              // Permet de resélectionner le même fichier après une erreur.
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDraggingOver(true);
+            }}
+            onDragLeave={() => setIsDraggingOver(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            aria-describedby={fichierErreur ? "logo-fichier-erreur" : undefined}
+            className={`flex min-h-[160px] w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-lg text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+              isDraggingOver
+                ? "border-primary bg-surface-container-low"
+                : "border-outline-variant bg-surface hover:border-primary hover:bg-surface-container-low"
+            }`}
+          >
+            <Upload
+              className="h-7 w-7 text-on-surface-variant"
+              strokeWidth={1.5}
+              aria-hidden="true"
+            />
+            {logoFile ? (
+              <span className="max-w-full truncate text-label-md font-label-md text-on-surface">
+                {logoFile.name}
+              </span>
+            ) : (
+              <span className="text-label-md font-label-md text-on-surface">
+                Glissez votre logo ici ou cliquez pour choisir un fichier
+              </span>
+            )}
+            <span className="text-body-sm font-body-sm text-on-surface-variant">
+              {logoFile ? "Cliquez pour en choisir un autre" : "PNG, JPG ou WebP"}
             </span>
-            <div className="h-px flex-grow bg-outline-variant" />
-          </div>
+          </button>
 
-          {/* Carte 2 : génération IA */}
-          <div className="relative flex flex-col gap-md overflow-hidden rounded-xl border border-outline-variant bg-surface p-lg shadow-sm">
-            <div className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-primary-container/10 blur-2xl" />
-            <div className="relative z-10 mb-xs flex items-center gap-sm">
-              <span
-                className="material-symbols-outlined text-primary-container"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                auto_awesome
-              </span>
-              <h3 className="text-headline-sm font-headline-sm text-on-surface">
-                Générer avec l&apos;IA
-              </h3>
-              {!onGenerateWithAI && <SoonBadge />}
-            </div>
-            <p className="relative z-10 text-body-sm font-body-sm text-secondary">
-              Décrivez le concept de votre marque, les éléments clés, et le
-              style souhaité (ex: minimaliste, vintage, typographique).
+          {fichierErreur && (
+            <p
+              id="logo-fichier-erreur"
+              role="alert"
+              className="text-body-sm font-body-sm text-error"
+            >
+              {fichierErreur}
             </p>
-            {/* Même composeur que le générateur de site (ChatComposer).
-                Tant que onGenerateWithAI n'est pas branché, la zone reste
-                visible mais désactivée (badge « Bientôt » dans le titre). */}
-            <div className="relative z-10">
-              <ChatComposer
-                value={aiPrompt}
-                onChange={setAiPrompt}
-                onSubmit={handleAIGenerate}
-                disabled={!onGenerateWithAI}
-                placeholder="Décrivez votre logo…"
-                exemples={[
-                  "Un logo minimaliste pour un café, couleurs chaudes…",
-                  "Un monogramme élégant pour un cabinet d'avocats…",
-                  "Un logo typographique pour une école de code…",
-                ]}
-              />
-            </div>
-          </div>
+          )}
         </div>
-      </div>
 
-      {(error || entrepriseIdError) && (
-        <p className="font-body-sm text-body-sm text-red-600">
-          {error || entrepriseIdError}
-        </p>
-      )}
+        {/* Carte 2 : génération IA */}
+        <div className="flex flex-col gap-md rounded-xl border border-outline-variant bg-surface-container-lowest p-lg">
+          <div className="flex items-center gap-sm">
+            <MessageSquareText
+              className="h-5 w-5 text-primary"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+            <h3 className="text-headline-sm font-headline-sm text-on-surface">
+              Générer avec l&apos;IA
+            </h3>
+            {!onGenerateWithAI && <SoonBadge />}
+          </div>
+          <p className="text-body-sm font-body-sm text-on-surface-variant">
+            Décrivez votre activité, les éléments clés et le style souhaité
+            (minimaliste, vintage, typographique…).
+          </p>
+          {/* Même composeur que le générateur de site (ChatComposer).
+              Tant que onGenerateWithAI n'est pas branché, la zone reste
+              visible mais désactivée (badge « Bientôt » dans le titre). */}
+          <ChatComposer
+            value={aiPrompt}
+            onChange={setAiPrompt}
+            onSubmit={handleAIGenerate}
+            disabled={!onGenerateWithAI}
+            placeholder="Décrivez votre logo…"
+            exemples={[
+              "Un logo minimaliste pour un café, couleurs chaudes…",
+              "Un monogramme élégant pour un cabinet d'avocats…",
+              "Un logo typographique pour une école de code…",
+            ]}
+          />
+        </div>
 
-      {/* Barre d'action finale : envoie palette + typographie + logo en base.
-          Sous sm elle reste dans le flux (voir PaletteBuilder.tsx). */}
-      <div className="z-40 flex justify-end pt-2 sm:sticky sm:bottom-4">
-        <button
-          type="button"
-          onClick={handleFinish}
-          disabled={saving || loadingEntreprise || !entrepriseId}
-          className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {saving ? "Enregistrement..." : "Terminer l'identité visuelle"}
-          <span className="material-symbols-outlined text-[20px]">
-            check_circle
-          </span>
-        </button>
+        {(error || entrepriseIdError) && (
+          <FormError>{error || entrepriseIdError}</FormError>
+        )}
+
+        {/* Action finale : envoie palette + typographie + logo en base. */}
+        <div className="flex justify-end">
+          <Button
+            onClick={handleFinish}
+            loading={saving || loadingEntreprise}
+            disabled={!entrepriseId}
+          >
+            {saving ? "Enregistrement…" : "Enregistrer l'identité visuelle"}
+          </Button>
+        </div>
       </div>
     </div>
   );
 }
 
-function LogoMark({
-  previewUrl,
-  sizeClassName,
-  iconSize,
+/** Tuile d'aperçu : le logo (ou le nom en texte) sur un fond donné. */
+function ApercuLogo({
+  libelle,
+  fond,
+  couleurTexte,
+  logoUrl,
+  nom,
+  bordure = false,
 }: {
-  previewUrl: string | null;
-  sizeClassName: string;
-  iconSize: number;
+  libelle: string;
+  fond: string;
+  couleurTexte: string;
+  logoUrl: string | null;
+  nom: string;
+  bordure?: boolean;
 }) {
   return (
-    <div
-      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-container text-on-primary-container shadow-inner ${sizeClassName}`}
-    >
-      {previewUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={previewUrl}
-          alt="Logo importé"
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span
-          className="material-symbols-outlined"
-          style={{ fontSize: iconSize }}
-        >
-          rocket_launch
-        </span>
-      )}
-    </div>
+    <figure className="flex min-w-0 flex-col gap-2">
+      <div
+        className={`flex h-44 items-center justify-center overflow-hidden rounded-xl p-6 transition-colors duration-500 ${
+          bordure ? "border border-outline-variant" : ""
+        }`}
+        style={{ backgroundColor: fond }}
+      >
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={logoUrl}
+            alt=""
+            className="max-h-full max-w-full object-contain"
+          />
+        ) : (
+          <span
+            className="line-clamp-2 text-center text-xl font-bold leading-tight"
+            style={{ color: couleurTexte }}
+          >
+            {nom}
+          </span>
+        )}
+      </div>
+      <figcaption className="text-label-sm font-label-sm text-on-surface-variant">
+        {libelle}
+      </figcaption>
+    </figure>
   );
 }

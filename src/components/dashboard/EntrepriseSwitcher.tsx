@@ -13,9 +13,9 @@ function Avatar({ entreprise, size }: { entreprise: Entreprise | null; size: "md
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center bg-gradient-to-br from-primary to-primary-container font-extrabold text-on-primary",
+        "flex shrink-0 items-center justify-center bg-primary font-extrabold text-on-primary",
         size === "md"
-          ? "h-[42px] w-[42px] rounded-xl text-[15px] shadow-[0_8px_18px_-8px_rgba(70,72,212,0.55)]"
+          ? "h-[42px] w-[42px] rounded-xl text-[15px] shadow-[0_8px_18px_-8px_rgba(15,122,56,0.55)]"
           : "h-8 w-8 rounded-lg text-[13px]"
       )}
       aria-hidden="true"

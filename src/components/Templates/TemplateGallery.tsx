@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { supabase } from "@/lib/supabase/browser";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
+import { useSitesEntreprise } from "@/hooks/useSitesEntreprise";
 import { uploaderImageSite } from "@/data/site";
 import { CATEGORIES, TEMPLATES, type SiteTemplate } from "./templates-data";
 import ChatComposer, { type Raccourci } from "./ChatComposer";
@@ -73,7 +74,7 @@ function previewUrl(
 }
 
 // Boutons de la galerie et de la modale : 40 px de haut, coins `lg` comme
-// les autres contrôles de l'app, texte semi-gras. Le plein violet est
+// les autres contrôles de l'app, texte semi-gras. Le plein vert est
 // réservé au geste principal (« Choisir »).
 const BTN =
   "inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-semibold leading-none " +
@@ -98,6 +99,12 @@ export default function TemplateGallery() {
   // d'édition : l'aperçu lui-même relit l'identité côté serveur à partir de
   // entrepriseId (voir /api/site-preview), il ne la reçoit pas d'ici.
   const { identiteVisuelle } = useIdentiteVisuelle(entreprise?.id ?? null);
+  // Sites déjà créés par l'entreprise (une seule requête, sans HTML) : sert
+  // aux badges « En ligne » / « Brouillon » des cartes. Rechargé au retour
+  // à la galerie, car l'écran d'édition permet de publier (PublicationSite).
+  const { sites, recharger: rechargerSites } = useSitesEntreprise(entreprise?.id ?? null);
+  const siteDuTemplate = (templateId?: string) =>
+    templateId ? sites.find((s) => s.template_id === templateId) : undefined;
 
   const [activeCategory, setActiveCategory] =
     useState<(typeof CATEGORIES)[number]>("Tous");
@@ -337,7 +344,10 @@ export default function TemplateGallery() {
       <div className="flex flex-col gap-lg">
         <button
           type="button"
-          onClick={() => setSelectedTemplateId(null)}
+          onClick={() => {
+            setSelectedTemplateId(null);
+            rechargerSites();
+          }}
           className="flex w-fit items-center gap-1 text-[14px] font-semibold text-on-surface transition-colors hover:text-primary"
         >
           <span className="material-symbols-outlined text-[18px]">
@@ -533,7 +543,7 @@ export default function TemplateGallery() {
         </div>
       )}
 
-      {/* Filtre par catégorie : pilules de 36 px, filtre actif en violet
+      {/* Filtre par catégorie : pilules de 36 px, filtre actif en vert
           plein, les autres en contour sombre. */}
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrer par catégorie">
         {CATEGORIES.map((category) => {
@@ -566,6 +576,8 @@ export default function TemplateGallery() {
       >
         {visibleTemplates.map((template, index) => {
           const isAvailable = Boolean(template.templateId);
+          const site = siteDuTemplate(template.templateId);
+          const enLigne = Boolean(site?.est_publie && site.slug);
 
           return (
             <motion.article
@@ -601,19 +613,23 @@ export default function TemplateGallery() {
                     !isAvailable && "opacity-90"
                   )}
                 />
-                <span
-                  className={cn(
-                    PASTILLE,
-                    "absolute left-3 top-3 border border-black/5 bg-white/95 text-on-surface shadow-sm"
-                  )}
-                >
-                  {template.category}
-                </span>
-                {!isAvailable && (
+                {/* Une seule pastille sur la vignette : la catégorie, ou
+                    « Bientôt disponible » pour les modèles sans fichiers.
+                    L'état du site (En ligne / Brouillon) est sous le titre. */}
+                {isAvailable ? (
                   <span
                     className={cn(
                       PASTILLE,
-                      "absolute bottom-3 left-3 bg-on-surface text-white"
+                      "absolute left-3 top-3 border border-outline-variant bg-surface-container-lowest/95 text-on-surface shadow-sm"
+                    )}
+                  >
+                    {template.category}
+                  </span>
+                ) : (
+                  <span
+                    className={cn(
+                      PASTILLE,
+                      "absolute left-3 top-3 bg-on-surface text-white"
                     )}
                   >
                     Bientôt disponible
@@ -632,6 +648,26 @@ export default function TemplateGallery() {
                 <h3 className="text-[17px] font-bold leading-6 text-on-surface">
                   {template.name}
                 </h3>
+                {/* État du site de l'entreprise pour ce modèle : « En ligne »
+                    (point plein) si publié, « Brouillon » (point creux) s'il
+                    existe sans être publié, rien sinon. */}
+                {site && (
+                  <span
+                    className={cn(
+                      "flex w-fit items-center gap-1.5 text-[13px] font-semibold leading-4",
+                      enLigne ? "text-primary" : "text-on-surface-variant"
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "h-2 w-2 rounded-full",
+                        enLigne ? "bg-primary" : "border border-outline bg-transparent"
+                      )}
+                    />
+                    {enLigne ? "En ligne" : "Brouillon"}
+                  </span>
+                )}
                 <p className="flex-1 text-[14px] leading-[21px] text-on-surface">
                   {template.description}
                 </p>

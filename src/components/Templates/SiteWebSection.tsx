@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { LayoutTemplate, Sparkles, type LucideIcon } from "lucide-react";
+import { LayoutTemplate, MessageSquareText, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import TemplateGallery from "./TemplateGallery";
 import SiteChatBuilder from "./SiteChatBuilder";
@@ -11,7 +11,7 @@ type Mode = "modeles" | "ia";
 
 const MODES: { valeur: Mode; libelle: string; icone: LucideIcon }[] = [
   { valeur: "modeles", libelle: "Partir d'un modèle", icone: LayoutTemplate },
-  { valeur: "ia", libelle: "Créer avec l'IA", icone: Sparkles },
+  { valeur: "ia", libelle: "Créer avec l'IA", icone: MessageSquareText },
 ];
 
 /**
@@ -58,7 +58,7 @@ export default function SiteWebSection() {
                   <motion.span
                     layoutId="mode-site"
                     transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                    className="absolute inset-0 rounded-lg bg-primary shadow-[0_8px_16px_-10px_rgba(70,72,212,0.7)]"
+                    className="absolute inset-0 rounded-lg bg-primary shadow-[0_8px_16px_-10px_rgba(15,122,56,0.7)]"
                   />
                 )}
                 <Icone className="relative z-10 h-4 w-4" aria-hidden="true" />

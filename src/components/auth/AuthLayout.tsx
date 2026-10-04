@@ -84,8 +84,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 }
 
 /**
- * Fond du côté formulaire : trame de points violets avec, tous les deux
- * points, un petit losange qui rappelle le motif du panneau violet. La trame
+ * Fond du côté formulaire : trame de points verts avec, tous les deux
+ * points, un petit losange qui rappelle le motif du panneau vert. La trame
  * s'efface autour de la carte et un grain léger casse l'aplat.
  */
 function FondPapier() {
@@ -94,11 +94,11 @@ function FondPapier() {
       <svg className="absolute inset-0 h-full w-full [mask-image:radial-gradient(ellipse_70%_60%_at_50%_50%,transparent_20%,black_75%)]">
         <defs>
           <pattern id="auth-trame" width="48" height="48" patternUnits="userSpaceOnUse">
-            <circle cx="0" cy="0" r="1.3" fill="#4648D4" fillOpacity="0.28" />
-            <circle cx="48" cy="0" r="1.3" fill="#4648D4" fillOpacity="0.28" />
-            <circle cx="0" cy="48" r="1.3" fill="#4648D4" fillOpacity="0.28" />
-            <circle cx="48" cy="48" r="1.3" fill="#4648D4" fillOpacity="0.28" />
-            <path d="M24 18 L30 24 L24 30 L18 24 Z" fill="none" stroke="#4648D4" strokeOpacity="0.2" />
+            <circle cx="0" cy="0" r="1.3" fill="#0F7A38" fillOpacity="0.28" />
+            <circle cx="48" cy="0" r="1.3" fill="#0F7A38" fillOpacity="0.28" />
+            <circle cx="0" cy="48" r="1.3" fill="#0F7A38" fillOpacity="0.28" />
+            <circle cx="48" cy="48" r="1.3" fill="#0F7A38" fillOpacity="0.28" />
+            <path d="M24 18 L30 24 L24 30 L18 24 Z" fill="none" stroke="#0F7A38" strokeOpacity="0.2" />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#auth-trame)" />
@@ -128,9 +128,9 @@ function AuthPresentation() {
         // Profondeur dans les tons de la marque uniquement (pas de dégradé
         // multicolore) : lumière en haut à gauche, ombre en bas à droite.
         background:
-          "radial-gradient(90% 70% at 10% 0%, #6367EC 0%, transparent 60%), " +
-          "radial-gradient(80% 70% at 100% 100%, #2B2DA0 0%, transparent 65%), " +
-          "#4648D4",
+          "radial-gradient(90% 70% at 10% 0%, #2E9E5B 0%, transparent 60%), " +
+          "radial-gradient(80% 70% at 100% 100%, #0B5F2B 0%, transparent 65%), " +
+          "#0F7A38",
       }}
     >
       {/* Panneau volontairement épuré : profondeur de couleur et grain

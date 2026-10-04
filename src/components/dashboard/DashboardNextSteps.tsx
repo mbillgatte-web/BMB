@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Check, CircleDashed, Palette, Sparkles } from "lucide-react";
+import { ArrowRight, Check, CircleDashed, Flag, Palette } from "lucide-react";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
 
@@ -92,11 +92,11 @@ export default function DashboardNextSteps() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-between rounded-2xl bg-gradient-to-br from-primary to-primary-container p-md text-white shadow-sm max-md:-order-3 md:p-lg">
+      <div className="flex flex-col justify-between rounded-2xl bg-primary p-md text-white shadow-sm max-md:-order-3 md:p-lg">
         <div>
           <div className="flex items-center justify-between gap-4">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
-              <Sparkles className="h-5 w-5" aria-hidden="true" />
+              <Flag className="h-5 w-5" aria-hidden="true" />
             </span>
             <span className="font-label-sm text-[10px] uppercase tracking-[0.12em] text-white/80">À faire maintenant</span>
           </div>

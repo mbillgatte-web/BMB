@@ -124,7 +124,7 @@ function Parcours() {
 }
 
 /**
- * Trame de points violets, estompée au centre pour laisser la carte
+ * Trame de points verts, estompée au centre pour laisser la carte
  * respirer : même papier chaud que l'écran de connexion (AuthLayout).
  */
 function FondPapier() {
@@ -141,14 +141,14 @@ function FondPapier() {
             height="48"
             patternUnits="userSpaceOnUse"
           >
-            <circle cx="0" cy="0" r="1.3" fill="#4648D4" fillOpacity="0.16" />
-            <circle cx="48" cy="0" r="1.3" fill="#4648D4" fillOpacity="0.16" />
-            <circle cx="0" cy="48" r="1.3" fill="#4648D4" fillOpacity="0.16" />
-            <circle cx="48" cy="48" r="1.3" fill="#4648D4" fillOpacity="0.16" />
+            <circle cx="0" cy="0" r="1.3" fill="#0F7A38" fillOpacity="0.16" />
+            <circle cx="48" cy="0" r="1.3" fill="#0F7A38" fillOpacity="0.16" />
+            <circle cx="0" cy="48" r="1.3" fill="#0F7A38" fillOpacity="0.16" />
+            <circle cx="48" cy="48" r="1.3" fill="#0F7A38" fillOpacity="0.16" />
             <path
               d="M24 18 L30 24 L24 30 L18 24 Z"
               fill="none"
-              stroke="#4648D4"
+              stroke="#0F7A38"
               strokeOpacity="0.1"
             />
           </pattern>

@@ -8,13 +8,13 @@ import DashboardNextSteps from "./DashboardNextSteps";
 
 export default function DashboardView() {
   return (
-    // Coque lavande (voir `canvas` dans tailwind.config.ts) sur laquelle le
+    // Coque gris-vert (voir `canvas` dans tailwind.config.ts) sur laquelle le
     // panneau sidebar+contenu flotte avec sa propre ombre -- inspiré du
     // modèle fourni par l'utilisateur (aperçu "Indigo Clair" validé avant
-    // implémentation). Le padding est ce qui laisse voir le lavande sur les
+    // implémentation). Le padding est ce qui laisse voir le gris-vert sur les
     // bords ; sans lui le panneau reprendrait tout l'écran comme avant.
     <div className="flex h-screen items-stretch bg-canvas p-2 antialiased font-body-md text-on-background lg:p-4">
-      <div className="flex flex-1 overflow-hidden rounded-3xl bg-surface-container-lowest shadow-[0_40px_80px_-36px_rgba(35,37,120,0.35)]">
+      <div className="flex flex-1 overflow-hidden rounded-3xl bg-surface-container-lowest shadow-[0_40px_80px_-36px_rgba(20,50,30,0.35)]">
         <Sidebar />
 
         <main className="relative flex h-full flex-1 flex-col overflow-hidden bg-surface-container-lowest">
@@ -40,7 +40,7 @@ export default function DashboardView() {
                 <HeroWelcomeText />
               </section>
               <DashboardNextSteps />
-              <AIRecommendation />
+              {/* <AIRecommendation /> */}
             </div>
           </div>
         </main>

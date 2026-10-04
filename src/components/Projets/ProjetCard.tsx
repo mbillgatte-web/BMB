@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowsClockwise,
   CaretLeft,
+  CaretRight,
   Check,
+  ClipboardText,
   DotsThreeVertical,
   PencilSimple,
   Trash,
@@ -17,16 +20,20 @@ import {
   STATUTS_PROJET,
   libelleStatut,
 } from "@/data/projet";
+import type { ResumeEtude } from "@/data/etudeFaisabilite";
+import { AXES_ETUDE, etapeDeReprise } from "@/lib/questionsEtude";
 
 type Props = {
   projet: Projet;
+  /** Résumé de l'étude de faisabilité ; undefined = inconnu (pas chargé), null = pas commencée. */
+  etude?: ResumeEtude | null;
   onModifier: (projet: Projet) => void;
   onChangerStatut: (projet: Projet, statut: StatutProjet) => Promise<void>;
   onSupprimer: (projet: Projet) => Promise<void>;
 };
 
 // Pastilles de statut : sobres, une teinte par étape du cycle de vie. Le
-// violet de marque est réservé à « En cours » (le seul statut où l'on agit).
+// vert de marque est réservé à « En cours » (le seul statut où l'on agit).
 const PASTILLE: Record<StatutProjet, string> = {
   idee: "bg-surface-container text-on-surface",
   en_cours: "bg-primary/10 text-primary",
@@ -44,17 +51,28 @@ const BTN =
 const BTN_CONTOUR = `${BTN} border border-outline-variant bg-surface-container-lowest text-on-surface hover:border-primary hover:bg-primary/5 hover:text-primary`;
 const BTN_DANGER = `${BTN} bg-error text-on-error hover:bg-error/90`;
 
+/** « Brouillon · étape 3/7 », « Générée »… ou « Pas commencée ». */
+function etatEtude(etude: ResumeEtude | null): string {
+  if (!etude) return "Pas commencée";
+  if (etude.statut === "generee") return "Générée";
+  if (etude.statut === "erreur") return "Erreur de génération";
+  // etapeDeReprise va de 0 (premier axe) à AXES_ETUDE.length (récapitulatif).
+  const etape = Math.min(etapeDeReprise(etude.reponses) + 1, AXES_ETUDE.length);
+  return `Brouillon · étape ${etape}/${AXES_ETUDE.length}`;
+}
+
 function formaterDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 }
 
 /**
  * Carte d'un projet dans la liste : intitulé, statut, date de création,
- * extrait de la description, et un menu « ⋮ » (Modifier / Changer de statut /
- * Supprimer). La suppression demande confirmation dans la carte elle-même,
+ * extrait de la description, un lien vers l'étude de faisabilité (avec son
+ * avancement), et un menu « ⋮ » (Modifier / Changer de statut / Supprimer).
+ * La suppression demande confirmation dans la carte elle-même,
  * sans modale, pour rester lisible sur mobile.
  */
-export default function ProjetCard({ projet, onModifier, onChangerStatut, onSupprimer }: Props) {
+export default function ProjetCard({ projet, etude, onModifier, onChangerStatut, onSupprimer }: Props) {
   const reduceMotion = useReducedMotion();
   const [menuOuvert, setMenuOuvert] = useState(false);
   // Sous-menu « Changer de statut » : remplace la liste principale dans le
@@ -150,7 +168,7 @@ export default function ProjetCard({ projet, onModifier, onChangerStatut, onSupp
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={reduceMotion ? undefined : { opacity: 0, y: -4, scale: 0.98 }}
                 transition={{ duration: 0.16, ease: [0.2, 0.7, 0.2, 1] }}
-                className="absolute right-0 top-10 z-20 w-56 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest py-1 shadow-[0_16px_32px_-16px_rgba(35,37,120,0.45)]"
+                className="absolute right-0 top-10 z-20 w-56 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest py-1 shadow-[0_16px_32px_-16px_rgba(20,50,30,0.45)]"
               >
                 {choixStatut ? (
                   <>
@@ -241,6 +259,33 @@ export default function ProjetCard({ projet, onModifier, onChangerStatut, onSupp
         <p className="text-[14px] leading-[22px] text-on-surface-variant">Aucune description pour l&apos;instant.</p>
       )}
 
+      {/* Lien vers le questionnaire de l'étude, poussé en bas de la carte. */}
+      <Link
+        href={`/Projets/${projet.id}/etude`}
+        className="group/etude mt-auto flex items-center gap-2.5 rounded-xl border border-outline-variant px-3 py-2.5 transition-colors hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      >
+        <ClipboardText
+          size={20}
+          weight="duotone"
+          aria-hidden="true"
+          className="shrink-0 text-on-surface-variant transition-colors group-hover/etude:text-primary"
+        />
+        <span className="min-w-0 flex-1">
+          <span className="block text-[14px] font-semibold leading-5 text-on-surface transition-colors group-hover/etude:text-primary">
+            Étude de faisabilité
+          </span>
+          {etude !== undefined && (
+            <span className="block text-[12px] leading-4 text-on-surface-variant">{etatEtude(etude)}</span>
+          )}
+        </span>
+        <CaretRight
+          size={16}
+          weight="bold"
+          aria-hidden="true"
+          className="shrink-0 text-on-surface-variant transition-transform group-hover/etude:translate-x-0.5 group-hover/etude:text-primary"
+        />
+      </Link>
+
       {erreur && (
         <p role="alert" className="text-[13px] text-error">
           {erreur}
@@ -259,8 +304,8 @@ export default function ProjetCard({ projet, onModifier, onChangerStatut, onSupp
             aria-label={`Supprimer ${projet.intitule}`}
           >
             <p className="text-[15px] leading-6 text-on-surface">
-              Supprimer <strong>{projet.intitule}</strong> ? Son business plan et son étude de faisabilité
-              seront perdus. Cette action est définitive.
+              Supprimer <strong>{projet.intitule}</strong> ? Son étude de faisabilité sera perdue
+              aussi. Cette action est définitive.
             </p>
             <div className="flex flex-wrap gap-2">
               <button

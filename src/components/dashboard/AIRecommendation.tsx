@@ -1,6 +1,6 @@
 export default function AIRecommendation() {
   return (
-    <section className="bg-[#F5F3FF] rounded-[24px] border border-primary/20 p-lg shadow-sm">
+    <section className="bg-primary-container/25 rounded-[24px] border border-primary/20 p-lg shadow-sm">
       <div className="flex flex-col items-start gap-4 md:flex-row">
         <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-sm">
           <span className="material-symbols-outlined text-[24px]">psychology</span>

@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
 // composant "FluidFlowGrid" fourni par l'utilisateur : même mécanique
 // (grille de segments qui suivent un champ de vecteurs trigonométrique et
 // réagissent à la souris), mais deux différences :
-// - couleurs recalées sur la marque (fond blanc, lignes en indigo primary,
+// - couleurs recalées sur la marque (fond blanc, lignes en vert primary,
 //   voir tailwind.config.ts) au lieu du bleu neutre sur fond sombre de la
 //   démo d'origine ;
 // - se redimensionne sur le CONTENEUR parent (ResizeObserver + coordonnées
@@ -69,8 +69,8 @@ export default function HeroFluidBackground() {
 
     let time = 0;
     const bgColor = "#ffffff";
-    const lineBaseColor = "70, 72, 212"; // primary
-    const accentColor = "47, 46, 190"; // on-primary-fixed-variant (plus soutenu, pour le survol)
+    const lineBaseColor = "15, 122, 56"; // primary
+    const accentColor = "11, 95, 43"; // on-primary-fixed-variant (plus soutenu, pour le survol)
 
     const draw = () => {
       mouse.x += (mouse.targetX - mouse.x) * 0.08;

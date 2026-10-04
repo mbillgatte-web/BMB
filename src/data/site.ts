@@ -65,6 +65,37 @@ export function messagesDuSiteIA(site: Site | null): MessageSiteIA[] {
   );
 }
 
+/**
+ * Résumé d'un site, sans les colonnes HTML (plusieurs centaines de Ko par
+ * site) : suffisant pour afficher un état « en ligne / brouillon » et une
+ * adresse (tableau de bord, galerie des modèles).
+ */
+export type SiteResume = Pick<
+  Site,
+  "id" | "template_id" | "slug" | "est_publie" | "publie_le"
+>;
+
+/**
+ * Tous les sites d'une entreprise (un par template, plus l'éventuel site
+ * IA), sans leur HTML. Les sites publiés d'abord, puis du plus récemment
+ * publié au plus ancien, pour que le premier de la liste soit celui à
+ * mettre en avant.
+ */
+export async function listSitesDeLEntreprise(
+  supabase: SupabaseClient,
+  entrepriseId: string
+): Promise<SiteResume[]> {
+  const { data, error } = await supabase
+    .from("site")
+    .select("id, template_id, slug, est_publie, publie_le")
+    .eq("entreprise_id", entrepriseId)
+    .order("est_publie", { ascending: false })
+    .order("publie_le", { ascending: false, nullsFirst: false });
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
 /** Le site d'une entreprise pour un template donné, ou null s'il n'a jamais été choisi. */
 export async function getSite(
   supabase: SupabaseClient,
