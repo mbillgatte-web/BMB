@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import {
   Geist,
   Inter,
-  Playfair_Display,
   Montserrat,
   Open_Sans,
   Merriweather,
@@ -29,11 +28,11 @@ const inter = Inter({
   variable: "--font-inter",
   weight: ["400", "500", "600", "700", "900"],
 });
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["600", "700"],
-});
+// Playfair Display n'est PAS chargée par next/font : sur Vercel, le
+// téléchargement de ses fichiers pendant le build a fait échouer Turbopack
+// (« next/font/google queries have exactly one entry »). Elle passe par la
+// feuille de style Google dans <head>, comme Material Symbols, et la
+// variable --font-family-playfair la nomme directement (globals.css).
 const montserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-montserrat",
@@ -74,9 +73,14 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${geist.variable} ${inter.variable} ${playfair.variable} ${montserrat.variable} ${openSans.variable} ${merriweather.variable} ${lato.variable} ${manrope.variable}`}
+      className={`${geist.variable} ${inter.variable} ${montserrat.variable} ${openSans.variable} ${merriweather.variable} ${lato.variable} ${manrope.variable}`}
     >
       <head>
+        {/* Playfair Display : aperçu de la page Typographie (voir le commentaire plus haut) */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap"
+          rel="stylesheet"
+        />
         {/* Material Symbols n'a pas d'équivalent next/font officiel */}
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"

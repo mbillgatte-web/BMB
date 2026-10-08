@@ -3,9 +3,9 @@
 -- Une ENTREPRISE mène plusieurs PROJETS (ex. « Ouverture d'un second point
 -- de vente », « Lancement de la livraison »). Un projet n'est pas une
 -- entreprise : c'est une initiative rattachée à l'une d'elles, avec son
--- intitulé, sa description, son statut, et plus tard son business plan et
--- son étude de faisabilité (texte libre pour l'instant, affiné par l'IA
--- dans une étape ultérieure).
+-- intitulé, sa description et son statut. Son étude de faisabilité vit dans
+-- une table à part (voir *_etude_faisabilite.sql) : une ligne par projet,
+-- avec les réponses de l'entrepreneur puis le document rédigé par l'IA.
 --
 -- À appliquer à la main dans l'éditeur SQL de Supabase (ou via
 -- `supabase db push`). Idempotent : peut être rejoué sans casser.
@@ -20,8 +20,6 @@ create table if not exists public.projet (
   -- (STATUTS_PROJET) et doivent rester alignés sur cette contrainte.
   statut text not null default 'idee'
     check (statut in ('idee', 'en_cours', 'termine', 'abandonne')),
-  business_plan text,
-  etude_faisabilite text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -30,10 +28,6 @@ comment on table public.projet is
   'Projets menés par une entreprise (plusieurs par entreprise). Supprimés avec elle.';
 comment on column public.projet.statut is
   'idee | en_cours | termine | abandonne. « Actif » = idee ou en_cours (compteur du tableau de bord).';
-comment on column public.projet.business_plan is
-  'Business plan en texte libre (première version saisie par l''entrepreneur, affinée plus tard).';
-comment on column public.projet.etude_faisabilite is
-  'Étude de faisabilité en texte libre (même principe que business_plan).';
 
 -- 2. Index : toutes les lectures de l'application filtrent par entreprise.
 create index if not exists projet_entreprise_id_idx on public.projet (entreprise_id);

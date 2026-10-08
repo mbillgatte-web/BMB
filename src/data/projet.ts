@@ -4,7 +4,8 @@
 // Une ENTREPRISE mène plusieurs PROJETS (« Ouverture d'un second point de
 // vente », « Lancement de la livraison »…). Un projet n'est pas une
 // entreprise : il lui est rattaché par entreprise_id, et la RLS vérifie par
-// jointure que cette entreprise appartient au compte connecté.
+// jointure que cette entreprise appartient au compte connecté. Son étude de
+// faisabilité est dans une table dédiée (voir ./etudeFaisabilite.ts).
 //
 // Comme dans ./entreprise.ts, chaque fonction reçoit le client Supabase en
 // paramètre (client du navigateur dans les composants, client créé par
@@ -19,8 +20,6 @@ export interface Projet {
   intitule: string;
   description: string | null;
   statut: StatutProjet;
-  business_plan: string | null;
-  etude_faisabilite: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -45,7 +44,7 @@ export function libelleStatut(statut: StatutProjet): string {
 }
 
 const COLONNES =
-  "id, entreprise_id, intitule, description, statut, business_plan, etude_faisabilite, created_at, updated_at";
+  "id, entreprise_id, intitule, description, statut, created_at, updated_at";
 
 /** Tous les projets d'une entreprise, du plus récent au plus ancien. */
 export async function listProjetsDeLEntreprise(
@@ -79,8 +78,6 @@ export interface NouveauProjet {
   intitule: string;
   description?: string | null;
   statut?: StatutProjet;
-  business_plan?: string | null;
-  etude_faisabilite?: string | null;
 }
 
 /**
@@ -100,8 +97,6 @@ export async function creerProjet(supabase: SupabaseClient, input: NouveauProjet
       intitule: input.intitule,
       description: input.description ?? null,
       statut: input.statut ?? "idee",
-      business_plan: input.business_plan ?? null,
-      etude_faisabilite: input.etude_faisabilite ?? null,
     })
     .select(COLONNES)
     .single();
@@ -111,9 +106,7 @@ export async function creerProjet(supabase: SupabaseClient, input: NouveauProjet
 }
 
 /** Champs modifiables d'un projet (tout sauf l'entreprise et les dates). */
-export type ChampsProjet = Partial<
-  Pick<Projet, "intitule" | "description" | "statut" | "business_plan" | "etude_faisabilite">
->;
+export type ChampsProjet = Partial<Pick<Projet, "intitule" | "description" | "statut">>;
 
 /** Met à jour un projet (et sa date de modification). */
 export async function mettreAJourProjet(

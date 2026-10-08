@@ -9,22 +9,21 @@ export default function LogoPage() {
     <div className="flex h-screen overflow-hidden bg-background text-on-background antialiased">
       <Sidebar />
 
-      <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-[#F9FAFB]">
+      <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
         <TopNav />
 
         <main className="flex-1 overflow-y-auto p-6 lg:p-12">
           <div className="mx-auto w-full max-w-[1280px] pb-24">
             <div className="mb-8">
               <h1 className="font-headline-lg text-[36px] font-extrabold tracking-tight text-on-surface">
-                Logo de votre marque
+                Logo
               </h1>
 
               <p className="mt-2 font-body-md text-body-md text-on-surface-variant">
-                Personnalisez le logo de votre marque pour qu’il reflète l’identité visuelle de votre entreprise. Vous pouvez télécharger votre logo existant ou en créer un nouveau à l’aide de notre outil de création de logo.
+                Importez le logo de votre entreprise, puis enregistrez
+                l’ensemble de votre identité visuelle.
               </p>
             </div>
-            
-            {/* barre de progression */}
             <BrandProgressStepper currentStep={4} />
 
             <Suspense fallback={null}>
@@ -36,9 +35,3 @@ export default function LogoPage() {
     </div>
   );
 }
-
-
-// This is file of your component
-
-
-

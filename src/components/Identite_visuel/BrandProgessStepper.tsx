@@ -5,11 +5,14 @@ interface BrandProgressStepperProps {
   steps?: string[];
 }
 
-const DEFAULT_STEPS = ["Vue d'ensemble", "Palette", "Typographie", "Logo"];
+// Même parcours que la liste d'étapes de BuildEntreprisepage.tsx :
+// l'entreprise est créée avant d'arriver ici, donc l'étape 1 est toujours
+// affichée comme terminée.
+const DEFAULT_STEPS = ["Entreprise", "Palette", "Typographie", "Logo"];
 
 /**
  * Repère de progression partagé par les pages sous "Identité visuelle"
- * (voir src/app/IdentiteVisuelle, PaletteColor, Typographie, Logo). Les
+ * (voir src/app/PaletteColor, Typographie, Logo). Les
  * pourcentages sont dérivés de steps.length pour rester corrects quel que
  * soit le nombre d'étapes passé, au lieu d'un %-en-dur pensé pour 3 étapes.
  */
@@ -50,7 +53,7 @@ export default function BrandProgressStepper({
             style={{ width: `${100 / steps.length}%` }}
           >
             <span
-              className={`flex h-10 w-10 items-center justify-center rounded-full border-4 border-[#F9FAFB] text-sm font-semibold shadow-sm ${
+              className={`flex h-10 w-10 items-center justify-center rounded-full border-4 border-surface text-sm font-semibold shadow-sm ${
                 active || completed
                   ? "bg-primary text-on-primary"
                   : "bg-surface-variant text-on-surface-variant"

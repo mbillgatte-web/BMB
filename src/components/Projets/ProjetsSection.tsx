@@ -14,6 +14,7 @@ import {
   mettreAJourProjet,
   supprimerProjet,
 } from "@/data/projet";
+import { type ResumeEtude, listResumesEtudes } from "@/data/etudeFaisabilite";
 import ProjetCard from "./ProjetCard";
 import ProjetForm, { type ValeursProjet } from "./ProjetForm";
 
@@ -39,6 +40,10 @@ export default function ProjetsSection() {
   const [erreur, setErreur] = useState("");
   const [panneauOuvert, setPanneauOuvert] = useState(false);
   const [projetEnEdition, setProjetEnEdition] = useState<Projet | null>(null);
+  // Avancement de l'étude de faisabilité de chaque projet (pour la carte).
+  // undefined tant que ce n'est pas chargé : la carte affiche alors le
+  // lien seul.
+  const [etudes, setEtudes] = useState<Record<string, ResumeEtude> | undefined>(undefined);
 
   const entrepriseId = entreprise?.id ?? null;
 
@@ -63,9 +68,31 @@ export default function ProjetsSection() {
   if (entrepriseId !== prevEntrepriseId) {
     setPrevEntrepriseId(entrepriseId);
     setProjets([]);
+    setEtudes(undefined);
     setChargement(true);
     setErreur("");
   }
+
+  // Une seule requête pour toutes les cartes. Si elle échoue (ex. table
+  // etude_faisabilite pas encore créée), on garde le lien sans avancement :
+  // la page de l'étude, elle, expliquera l'erreur.
+  useEffect(() => {
+    if (projets.length === 0) return;
+    let annule = false;
+    listResumesEtudes(
+      supabase,
+      projets.map((p) => p.id)
+    )
+      .then((r) => {
+        if (!annule) setEtudes(r);
+      })
+      .catch(() => {
+        if (!annule) setEtudes(undefined);
+      });
+    return () => {
+      annule = true;
+    };
+  }, [projets]);
 
   useEffect(() => {
     if (!entrepriseId) return;
@@ -222,6 +249,7 @@ export default function ProjetsSection() {
               >
                 <ProjetCard
                   projet={projet}
+                  etude={etudes === undefined ? undefined : (etudes[projet.id] ?? null)}
                   onModifier={ouvrirEdition}
                   onChangerStatut={changerStatut}
                   onSupprimer={supprimer}

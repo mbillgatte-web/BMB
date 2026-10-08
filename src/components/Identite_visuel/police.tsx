@@ -2,10 +2,15 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Circle, CircleCheck, MessageSquareText } from "lucide-react";
 import { useEntrepriseId } from "@/hooks/useEntrepriseId";
+import { useEntreprise } from "@/hooks/useEntreprise";
 import { useIdentiteVisuelle } from "@/hooks/useIdentiteVisuelle";
+import { libelleSecteur } from "@/data/entreprise";
 import ChatComposer from "@/components/Templates/ChatComposer";
 import SoonBadge from "@/components/ui/SoonBadge";
+import Button from "@/components/ui/Button";
+import { FormError } from "@/components/ui/Field";
 
 // Exporté pour VueEnsemble.tsx (aperçu en lecture seule des polices déjà
 // enregistrées, avec la même correspondance libellé -> variable CSS).
@@ -30,10 +35,12 @@ interface FontPairing {
   bodyLabel: string;
 }
 
+// Les identifiants et les libellés de polices (headingLabel / bodyLabel)
+// ne changent pas : c'est par eux qu'on retrouve la paire déjà enregistrée.
 const FONT_PAIRINGS: FontPairing[] = [
   {
     id: "elegant-editorial",
-    name: "Elegant Editorial",
+    name: "Éditorial",
     headingFontFamily: FONT_FAMILY_VARS["Playfair Display"],
     bodyFontFamily: FONT_FAMILY_VARS["Inter"],
     headingLabel: "Playfair Display",
@@ -41,7 +48,7 @@ const FONT_PAIRINGS: FontPairing[] = [
   },
   {
     id: "modern-corporate",
-    name: "Modern Corporate",
+    name: "Entreprise",
     headingFontFamily: FONT_FAMILY_VARS["Montserrat"],
     headingWeight: 600,
     bodyFontFamily: FONT_FAMILY_VARS["Open Sans"],
@@ -50,7 +57,7 @@ const FONT_PAIRINGS: FontPairing[] = [
   },
   {
     id: "bold-minimal",
-    name: "Bold Minimal",
+    name: "Minimal",
     headingFontFamily: FONT_FAMILY_VARS["Inter"],
     headingWeight: 700,
     headingLetterSpacing: "-0.02em",
@@ -60,29 +67,28 @@ const FONT_PAIRINGS: FontPairing[] = [
   },
   {
     id: "classic-serif",
-    name: "Classic Serif",
+    name: "Classique",
     headingFontFamily: FONT_FAMILY_VARS["Merriweather"],
     bodyFontFamily: FONT_FAMILY_VARS["Lato"],
     headingLabel: "Merriweather",
     bodyLabel: "Lato",
   },
-
   {
-  id: "brand-heading",
-  name: "Brand Heading",
-  headingFontFamily: FONT_FAMILY_VARS["Manrope"],
-  headingWeight: 800,
-  bodyFontFamily: FONT_FAMILY_VARS["Inter"],
-  headingLabel: "Manrope",
-  bodyLabel: "Inter",
+    id: "brand-heading",
+    name: "Affirmé",
+    headingFontFamily: FONT_FAMILY_VARS["Manrope"],
+    headingWeight: 800,
+    bodyFontFamily: FONT_FAMILY_VARS["Inter"],
+    headingLabel: "Manrope",
+    bodyLabel: "Inter",
   },
 ];
 
-// Liste utilisée pour les <select> d'override manuel
+// Liste utilisée pour les <select> d'édition manuelle
 const FONT_OPTIONS = Object.keys(FONT_FAMILY_VARS);
 
 interface TypographyBuilderProps {
-  /** Appelé quand l'utilisateur clique sur "Continue to Style" */
+  /** Appelé quand l'utilisateur clique sur « Continuer » */
   onContinue?: (selected: {
     pairing: FontPairing;
     headingOverride: string;
@@ -102,6 +108,11 @@ export default function TypographyBuilder({
     loading: loadingEntreprise,
     error: entrepriseError,
   } = useEntrepriseId();
+
+  // Nom, slogan et secteur pour que l'aperçu montre la vraie entreprise.
+  const { entreprise: entrepriseSelectionnee, entreprises } = useEntreprise();
+  const entreprise =
+    entreprises.find((e) => e.id === entrepriseId) ?? entrepriseSelectionnee;
 
   const { identiteVisuelle } = useIdentiteVisuelle(entrepriseId);
 
@@ -141,7 +152,7 @@ export default function TypographyBuilder({
     [selectedId]
   );
 
-  // Les overrides manuels priment sur la paire sélectionnée pour l'aperçu
+  // Les choix manuels priment sur la paire sélectionnée pour l'aperçu
   const previewHeadingFont =
     FONT_FAMILY_VARS[headingOverride] ?? FONT_FAMILY_VARS["Inter"];
   const previewBodyFont =
@@ -181,63 +192,64 @@ export default function TypographyBuilder({
     router.push(`/Logo?entrepriseId=${entrepriseId}`);
   };
 
-  return (
-    <div className="relative isolate grid grid-cols-1 items-start gap-6 pb-8 xl:grid-cols-[minmax(0,1fr)_320px]">
-      {/* Colonne gauche : aperçu live */}
-      <div className="min-w-0 lg:sticky lg:top-6">
-        <div className="relative flex min-h-[560px] flex-col overflow-hidden rounded-2xl border border-surface-variant bg-surface-container-lowest shadow-sm">
-          <div className="flex h-10 shrink-0 items-center gap-2 border-b border-surface-variant bg-surface px-4">
-            <span className="h-3 w-3 rounded-full bg-surface-variant" />
-            <span className="h-3 w-3 rounded-full bg-surface-variant" />
-            <span className="h-3 w-3 rounded-full bg-surface-variant" />
-            <span className="ml-4 h-5 w-48 rounded-sm bg-surface-container" />
-          </div>
+  const nomEntreprise = entreprise?.nom || "Nom de votre entreprise";
+  const slogan =
+    entreprise?.slogan || "Votre slogan apparaîtra ici, sous le nom.";
+  const secteur = libelleSecteur(entreprise?.secteur_activite ?? null);
+  const paragraphe = secteur
+    ? `${nomEntreprise} est une entreprise du secteur ${secteur}. Ce paragraphe montre la police de texte sur plusieurs lignes, telle qu'elle apparaîtra sur votre site et vos supports.`
+    : "Ce paragraphe montre la police de texte sur plusieurs lignes, telle qu'elle apparaîtra sur votre site et vos supports.";
 
-          <div className="relative flex flex-1 flex-col justify-center overflow-hidden bg-surface-container-lowest px-6 py-10 lg:px-8">
-            <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
-            <div className="relative z-10 flex w-full flex-col gap-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary-container">
-                Typography system
+  return (
+    <div className="grid grid-cols-1 items-start gap-6 pb-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+      {/* Colonne gauche : aperçu */}
+      <div className="flex min-w-0 flex-col gap-md xl:sticky xl:top-6">
+        <h2 className="text-headline-sm font-headline-sm text-on-surface">
+          Aperçu
+        </h2>
+
+        <div className="flex min-h-[480px] flex-col justify-center overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest px-6 py-10 lg:px-10">
+          <div className="flex w-full flex-col gap-5">
+            {secteur && (
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+                {secteur}
               </p>
-              <h1
-                className="w-full text-3xl leading-tight text-on-surface sm:text-4xl"
-                style={{
-                  fontFamily: previewHeadingFont,
-                  fontWeight: selectedPairing.headingWeight ?? 700,
-                  letterSpacing: selectedPairing.headingLetterSpacing,
-                }}
-              >
-                Design is intelligence made visible.
-              </h1>
-              <h2
-                className="w-full text-xl text-on-surface-variant sm:text-2xl"
-                style={{ fontFamily: previewHeadingFont }}
-              >
-                Elevate your brand with precision and clarity.
-              </h2>
-              <p
-                className="w-full text-base leading-7 text-secondary sm:text-lg"
+            )}
+            <h1
+              className="w-full text-3xl leading-tight text-on-surface sm:text-4xl"
+              style={{
+                fontFamily: previewHeadingFont,
+                fontWeight: selectedPairing.headingWeight ?? 700,
+                letterSpacing: selectedPairing.headingLetterSpacing,
+              }}
+            >
+              {nomEntreprise}
+            </h1>
+            <h2
+              className="w-full text-xl text-on-surface-variant sm:text-2xl"
+              style={{ fontFamily: previewHeadingFont }}
+            >
+              {slogan}
+            </h2>
+            <p
+              className="w-full text-base leading-7 text-on-surface-variant sm:text-lg"
+              style={{ fontFamily: previewBodyFont }}
+            >
+              {paragraphe}
+            </p>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <span
+                className="rounded-lg bg-primary px-6 py-3 text-label-md font-label-md font-semibold text-on-primary"
                 style={{ fontFamily: previewBodyFont }}
               >
-                The right typography establishes hierarchy, sets the tone, and
-                ensures readability across all platforms. In our workspace,
-                every element is designed to recede, allowing your creative
-                decisions to command attention.
-              </p>
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <button
-                  className="rounded-lg bg-primary-container px-6 py-3 text-label-md font-label-md font-semibold text-on-primary shadow-sm"
-                  style={{ fontFamily: previewBodyFont }}
-                >
-                  Primary Action
-                </button>
-                <button
-                  className="rounded-lg border border-surface-variant bg-surface-container-lowest px-6 py-3 text-label-md font-label-md font-semibold text-on-surface"
-                  style={{ fontFamily: previewBodyFont }}
-                >
-                  Secondary
-                </button>
-              </div>
+                Nous contacter
+              </span>
+              <span
+                className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-3 text-label-md font-label-md font-semibold text-on-surface"
+                style={{ fontFamily: previewBodyFont }}
+              >
+                En savoir plus
+              </span>
             </div>
           </div>
         </div>
@@ -247,75 +259,48 @@ export default function TypographyBuilder({
       <div className="flex min-w-0 w-full flex-col gap-lg">
         <div>
           <h3 className="text-headline-sm font-headline-sm text-on-surface">
-            Choissez votre Police 
+            Choisissez vos polices
           </h3>
-          <p className="mt-1 text-body-sm font-body-sm text-secondary">
-            Sélectionnez une paire de polices pour votre marque.
+          <p className="mt-1 text-body-sm font-body-sm text-on-surface-variant">
+            Une police pour les titres, une pour le texte.
           </p>
         </div>
 
-        {/* Génération IA */}
-        <div className="relative overflow-hidden rounded-xl border border-primary-fixed-dim/30 bg-gradient-to-br from-surface-container-lowest to-inverse-primary/10 p-lg shadow-sm">
-          <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
-          <div className="relative z-10 flex items-center gap-2 mb-sm">
-            <span className="material-symbols-outlined text-primary-container text-[20px]">
-              auto_awesome
-            </span>
-            <h4 className="text-label-md font-label-md font-bold text-on-surface">
-              Laissez l&apos;IA vous aider
-            </h4>
-            {!onGenerateWithAI && <SoonBadge />}
-          </div>
-          {/* Même composeur que le générateur de site (ChatComposer).
-              Tant que onGenerateWithAI n'est pas branché, la zone reste
-              visible mais désactivée (badge « Bientôt » dans le titre). */}
-          <div className="relative z-10">
-            <ChatComposer
-              value={aiPrompt}
-              onChange={setAiPrompt}
-              onSubmit={handleAIGenerate}
-              disabled={!onGenerateWithAI}
-              placeholder="Décrivez le style recherché…"
-              exemples={[
-                "Start-up tech, moderne et minimaliste…",
-                "Boutique de mode haut de gamme…",
-                "École, sérieuse mais accueillante…",
-              ]}
-            />
-          </div>
-        </div>
-
         {/* Grille des paires de polices */}
-        <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
+        <div className="stagger-in grid grid-cols-1 gap-md sm:grid-cols-2">
           {FONT_PAIRINGS.map((pairing) => {
             const isActive = pairing.id === selectedPairing.id;
             return (
               <button
                 key={pairing.id}
+                type="button"
                 onClick={() => handleSelectPairing(pairing)}
-                className={`group relative rounded-xl border-2 p-md text-left shadow-sm transition-colors ${
+                aria-pressed={isActive}
+                className={`group relative rounded-xl border-2 bg-surface-container-lowest p-md text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
                   isActive
-                    ? "border-primary-container bg-surface-container-lowest"
-                    : "border-surface-variant bg-surface-container-lowest hover:border-outline-variant"
+                    ? "border-primary"
+                    : "border-surface-variant hover:border-outline-variant"
                 }`}
               >
                 <span className="absolute right-md top-md">
-                  <span
-                    className={`material-symbols-outlined text-[20px] transition-opacity ${
-                      isActive
-                        ? "text-primary-container opacity-100"
-                        : "text-outline-variant opacity-0 group-hover:opacity-100"
-                    }`}
-                    style={
-                      isActive
-                        ? ({ fontVariationSettings: "'FILL' 1" } as React.CSSProperties)
-                        : undefined
-                    }
-                  >
-                    {isActive ? "radio_button_checked" : "radio_button_unchecked"}
-                  </span>
+                  {isActive ? (
+                    <CircleCheck
+                      className="h-5 w-5 text-primary"
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Circle
+                      className="h-5 w-5 text-outline-variant opacity-0 transition-opacity group-hover:opacity-100"
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
+                  )}
                 </span>
 
+                <p className="mb-1 pr-8 text-label-sm font-label-sm text-on-surface-variant">
+                  {pairing.name}
+                </p>
                 <h3
                   className="mb-2 text-2xl text-on-surface"
                   style={{
@@ -327,34 +312,38 @@ export default function TypographyBuilder({
                   Aa
                 </h3>
                 <p
-                  className="mb-4 truncate text-body-sm font-body-sm text-secondary"
+                  className="mb-4 text-body-sm font-body-sm text-on-surface-variant"
                   style={{ fontFamily: pairing.bodyFontFamily }}
                 >
-                  Your Brand Voice
+                  Le texte de votre marque
                 </p>
                 <div className="flex flex-col gap-1 text-label-sm font-label-sm text-on-surface-variant">
-                  <span className="truncate">H: {pairing.headingLabel}</span>
-                  <span className="truncate">B: {pairing.bodyLabel}</span>
+                  <span>Titres : {pairing.headingLabel}</span>
+                  <span>Texte : {pairing.bodyLabel}</span>
                 </div>
               </button>
             );
           })}
         </div>
 
-        {/* Overrides manuels */}
-        <div className="mt-sm rounded-xl border border-surface-variant bg-surface-container-lowest p-md shadow-sm">
+        {/* Édition manuelle */}
+        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg">
           <h4 className="mb-md text-label-md font-label-md text-on-surface">
-            Editer manuellement les polices
+            Éditer manuellement les polices
           </h4>
           <div className="flex flex-col gap-sm">
             <div className="flex items-center gap-md">
-              <label className="w-24 shrink-0 text-label-sm font-label-sm uppercase text-secondary">
-                Principal
+              <label
+                htmlFor="police-titres"
+                className="w-24 shrink-0 text-label-sm font-label-sm text-on-surface-variant"
+              >
+                Titres
               </label>
               <select
+                id="police-titres"
                 value={headingOverride}
                 onChange={(e) => setHeadingOverride(e.target.value)}
-                className="min-w-0 flex-1 cursor-pointer appearance-none rounded-lg border border-surface-variant bg-surface px-md py-sm text-body-sm font-body-sm text-on-surface outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                className="h-11 min-w-0 flex-1 cursor-pointer rounded-lg border border-border-strong bg-surface-container-low px-md text-body-sm font-body-sm text-on-surface outline-none focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
               >
                 {FONT_OPTIONS.map((font) => (
                   <option key={font} value={font}>
@@ -364,13 +353,17 @@ export default function TypographyBuilder({
               </select>
             </div>
             <div className="flex items-center gap-md">
-              <label className="w-24 shrink-0 text-label-sm font-label-sm uppercase text-secondary">
-                Secondaire
+              <label
+                htmlFor="police-texte"
+                className="w-24 shrink-0 text-label-sm font-label-sm text-on-surface-variant"
+              >
+                Texte
               </label>
               <select
+                id="police-texte"
                 value={bodyOverride}
                 onChange={(e) => setBodyOverride(e.target.value)}
-                className="min-w-0 flex-1 cursor-pointer appearance-none rounded-lg border border-surface-variant bg-surface px-md py-sm text-body-sm font-body-sm text-on-surface outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20"
+                className="h-11 min-w-0 flex-1 cursor-pointer rounded-lg border border-border-strong bg-surface-container-low px-md text-body-sm font-body-sm text-on-surface outline-none focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
               >
                 {FONT_OPTIONS.map((font) => (
                   <option key={font} value={font}>
@@ -381,28 +374,48 @@ export default function TypographyBuilder({
             </div>
           </div>
         </div>
-      </div>
 
-      {entrepriseError && (
-        <p className="col-span-full font-body-sm text-body-sm text-red-600">
-          {entrepriseError}
-        </p>
-      )}
+        {/* Génération IA */}
+        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-lg">
+          <div className="mb-sm flex items-center gap-2">
+            <MessageSquareText
+              className="h-5 w-5 text-primary"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+            <h4 className="text-label-md font-label-md font-bold text-on-surface">
+              Laissez l&apos;IA vous aider
+            </h4>
+            {!onGenerateWithAI && <SoonBadge />}
+          </div>
+          {/* Même composeur que le générateur de site (ChatComposer).
+              Tant que onGenerateWithAI n'est pas branché, la zone reste
+              visible mais désactivée (badge « Bientôt » dans le titre). */}
+          <ChatComposer
+            value={aiPrompt}
+            onChange={setAiPrompt}
+            onSubmit={handleAIGenerate}
+            disabled={!onGenerateWithAI}
+            placeholder="Décrivez le style recherché…"
+            exemples={[
+              "Start-up tech, moderne et minimaliste…",
+              "Boutique de mode haut de gamme…",
+              "École, sérieuse mais accueillante…",
+            ]}
+          />
+        </div>
 
-      {/* Barre d'action "Continue" : sticky au composant, pas au viewport
-          global. Sous sm elle reste dans le flux (voir PaletteBuilder.tsx). */}
-      <div className="col-span-full z-40 flex justify-end pt-2 sm:sticky sm:bottom-4">
-        <button
-          type="button"
-          onClick={handleContinue}
-          disabled={loadingEntreprise || !entrepriseId}
-          className="flex items-center gap-sm rounded-full bg-primary-container px-xl py-md text-label-md font-label-md font-bold text-on-primary shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)] transition-all hover:-translate-y-1 hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Importez votre logo
-          <span className="material-symbols-outlined text-[20px]">
-            arrow_forward
-          </span>
-        </button>
+        {entrepriseError && <FormError>{entrepriseError}</FormError>}
+
+        <div className="flex justify-end">
+          <Button
+            onClick={handleContinue}
+            loading={loadingEntreprise}
+            disabled={!entrepriseId}
+          >
+            Continuer
+          </Button>
+        </div>
       </div>
     </div>
   );

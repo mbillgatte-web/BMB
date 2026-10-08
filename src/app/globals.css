@@ -3,7 +3,7 @@
 
 :root {
   --font-family-inter: var(--font-inter), sans-serif;
-  --font-family-playfair: var(--font-playfair), serif;
+  --font-family-playfair: "Playfair Display", serif;
   --font-family-montserrat: var(--font-montserrat), sans-serif;
   --font-family-open-sans: var(--font-open-sans), sans-serif;
   --font-family-merriweather: var(--font-merriweather), serif;
@@ -19,7 +19,7 @@ body {
 }
 
 ::selection {
-  background-color: rgb(70 72 212 / 0.18);
+  background-color: rgb(15 122 56 / 0.18);
 }
 
 /* Contour de focus visible pour la navigation au clavier, partout où un
@@ -28,7 +28,7 @@ body {
    le remplacer : une règle hors couche l'emporterait toujours sur elles. */
 @layer base {
   :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-    outline: 2px solid #4648d4;
+    outline: 2px solid #0F7A38;
     outline-offset: 2px;
   }
 }
@@ -95,7 +95,7 @@ body {
   }
 }
 
-/* Dérive très lente du motif losange du panneau violet : le décalage vaut
+/* Dérive très lente du motif losange du panneau vert : le décalage vaut
    exactement une tuile, la boucle est donc invisible. */
 @keyframes motif-derive {
   from { background-position: 0 0; }
@@ -118,66 +118,6 @@ body {
   }
 }
 
-
-@layer components {
-  .form-shell {
-    animation: form-rise 500ms ease-out both;
-  }
-
-  .form-section > div:last-child > * {
-    animation: field-rise 450ms ease-out both;
-  }
-
-  .form-section > div:last-child > :nth-child(1) {
-    animation-delay: 80ms;
-  }
-
-  .form-section > div:last-child > :nth-child(2) {
-    animation-delay: 140ms;
-  }
-
-  .form-section > div:last-child > :nth-child(3) {
-    animation-delay: 200ms;
-  }
-
-  .form-section > div:last-child > :nth-child(4) {
-    animation-delay: 260ms;
-  }
-
-  .form-section > div:last-child > :nth-child(5) {
-    animation-delay: 320ms;
-  }
-}
-
-@keyframes form-rise {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes field-rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .form-shell,
-  .form-section > div:last-child > * {
-    animation: none;
-    transition: none;
-  }
-}
 
 .material-symbols-outlined {
   font-family: "Material Symbols Outlined";

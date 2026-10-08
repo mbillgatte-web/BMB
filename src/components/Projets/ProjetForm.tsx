@@ -14,7 +14,7 @@ import {
 
 /** Ce que le formulaire renvoie à ProjetsSection, qui parle à la base. */
 export type ValeursProjet = Required<Pick<ChampsProjet, "intitule" | "statut">> &
-  Pick<ChampsProjet, "description" | "business_plan" | "etude_faisabilite">;
+  Pick<ChampsProjet, "description">;
 
 type Props = {
   ouvert: boolean;
@@ -29,7 +29,6 @@ const CHAMP =
   "placeholder:text-outline/60 transition-all duration-200 ease-out hover:border-outline/50 " +
   "focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-surface-container";
 const LIBELLE = "text-sm font-medium text-on-surface";
-const AIDE = "text-[13px] text-on-surface-variant";
 
 const BTN =
   "inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-[14px] font-semibold leading-none " +
@@ -43,17 +42,15 @@ function valeursInitiales(projet?: Projet | null) {
     intitule: projet?.intitule ?? "",
     description: projet?.description ?? "",
     statut: (projet?.statut ?? "idee") as StatutProjet,
-    business_plan: projet?.business_plan ?? "",
-    etude_faisabilite: projet?.etude_faisabilite ?? "",
   };
 }
 
 /**
  * Panneau latéral de création / modification d'un projet. Il glisse depuis
  * la droite (pleine largeur sur mobile) par-dessus un voile ; Échap ou le
- * voile le ferment. Seul l'intitulé est obligatoire : business plan et étude
- * de faisabilité sont de simples zones de texte que l'entrepreneur pourra
- * affiner plus tard.
+ * voile le ferment. Seul l'intitulé est obligatoire. L'étude de faisabilité
+ * ne se saisit pas ici : elle a son propre parcours par étapes
+ * (/Projets/[id]/etude).
  */
 export default function ProjetForm({ ouvert, projet, onFermer, onEnregistrer }: Props) {
   const reduceMotion = useReducedMotion();
@@ -106,8 +103,6 @@ export default function ProjetForm({ ouvert, projet, onFermer, onEnregistrer }: 
         intitule,
         statut: valeurs.statut,
         description: valeurs.description.trim() || null,
-        business_plan: valeurs.business_plan.trim() || null,
-        etude_faisabilite: valeurs.etude_faisabilite.trim() || null,
       });
     } catch (err) {
       setErreur((err as Error).message);
@@ -143,7 +138,7 @@ export default function ProjetForm({ ouvert, projet, onFermer, onEnregistrer }: 
             transition={
               reduceMotion ? { duration: 0.15 } : { type: "spring", stiffness: 380, damping: 38 }
             }
-            className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[520px] flex-col bg-surface-container-lowest shadow-[-24px_0_48px_-24px_rgba(35,37,120,0.45)]"
+            className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[520px] flex-col bg-surface-container-lowest shadow-[-24px_0_48px_-24px_rgba(20,50,30,0.45)]"
           >
             <header className="flex items-start justify-between gap-4 border-b border-outline-variant px-5 py-4 sm:px-6">
               <div>
@@ -225,42 +220,6 @@ export default function ProjetForm({ ouvert, projet, onFermer, onEnregistrer }: 
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor={`${id}-bp`} className={LIBELLE}>
-                  Business plan
-                </label>
-                <textarea
-                  id={`${id}-bp`}
-                  value={valeurs.business_plan}
-                  onChange={(e) => modifier("business_plan", e.target.value)}
-                  placeholder="Offre, clients visés, coûts, revenus attendus…"
-                  rows={5}
-                  aria-describedby={`${id}-bp-aide`}
-                  className={cn(CHAMP, "resize-y py-3")}
-                />
-                <p id={`${id}-bp-aide`} className={AIDE}>
-                  Notez vos premières idées. Vous pourrez affiner plus tard.
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor={`${id}-ef`} className={LIBELLE}>
-                  Étude de faisabilité
-                </label>
-                <textarea
-                  id={`${id}-ef`}
-                  value={valeurs.etude_faisabilite}
-                  onChange={(e) => modifier("etude_faisabilite", e.target.value)}
-                  placeholder="Moyens nécessaires, contraintes, risques, délais…"
-                  rows={5}
-                  aria-describedby={`${id}-ef-aide`}
-                  className={cn(CHAMP, "resize-y py-3")}
-                />
-                <p id={`${id}-ef-aide`} className={AIDE}>
-                  Même principe : une première version suffit. Vous pourrez affiner plus tard.
-                </p>
               </div>
 
               {erreur && <FormError>{erreur}</FormError>}
