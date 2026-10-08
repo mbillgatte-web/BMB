@@ -28,6 +28,11 @@ const ATTENTES_MS = [2000, 5000];
 // longue : avec la valeur par défaut de Google, elle peut être coupée net.
 const MAX_TOKENS_REPONSE = 65536;
 
+// Dernier recours : un modèle de texte chez OpenRouter (autre fournisseur,
+// autre quota). Utilisé seulement si OPENROUTER_API_KEY est renseignée et
+// si toute la chaîne Gemini a échoué. Réglable via OPENROUTER_TEXT_MODEL.
+const OPENROUTER_TEXT_MODEL = process.env.OPENROUTER_TEXT_MODEL || "google/gemini-3.6-flash";
+
 /** Erreur Gemini avec le code HTTP à renvoyer au navigateur. */
 export class GeminiError extends Error {
   constructor(message: string, readonly status: number) {
@@ -60,6 +65,45 @@ async function appeler(modele: string, apiKey: string, instructions: string, opt
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data: any = await res.json().catch(() => ({}));
   return { res, data };
+}
+
+/**
+ * Même demande, adressée à OpenRouter (API compatible OpenAI). Renvoie le
+ * texte, ou null si OpenRouter n'est pas configuré ou a échoué : l'appelant
+ * garde alors l'erreur Gemini d'origine.
+ */
+async function appelerOpenRouter(
+  instructions: string,
+  etiquetteLog: string,
+  options: Options
+): Promise<string | null> {
+  const cle = process.env.OPENROUTER_API_KEY;
+  if (!cle) return null;
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${cle}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: OPENROUTER_TEXT_MODEL,
+        messages: [{ role: "user", content: instructions }],
+        max_tokens: MAX_TOKENS_REPONSE,
+        ...(options.json ? { response_format: { type: "json_object" } } : {}),
+      }),
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: any = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.error(`[${etiquetteLog}] Secours OpenRouter refusé (${res.status}) :`, JSON.stringify(data?.error ?? data));
+      return null;
+    }
+    const texte: string | undefined = data?.choices?.[0]?.message?.content;
+    if (!texte) return null;
+    console.warn(`[${etiquetteLog}] Réponse fournie par le secours OpenRouter (${OPENROUTER_TEXT_MODEL}).`);
+    return texte;
+  } catch (err) {
+    console.error(`[${etiquetteLog}] Secours OpenRouter injoignable :`, (err as Error).message);
+    return null;
+  }
 }
 
 /**
@@ -110,6 +154,11 @@ export async function genererTexte(
   const { res, data } = dernier!;
 
   if (!res.ok) {
+    // Toute la chaîne Gemini a échoué : on tente l'autre fournisseur avant
+    // de renvoyer une erreur à l'utilisateur.
+    const secours = await appelerOpenRouter(instructions, etiquetteLog, options);
+    if (secours) return secours;
+
     if (quotaAtteint) {
       throw new GeminiError(
         "Le quota de l'API Gemini est atteint pour le moment (limite de requêtes par minute ou par jour de la clé). Réessayez dans quelques minutes ; si cela persiste, vérifiez le quota de la clé dans Google AI Studio.",
@@ -144,6 +193,8 @@ export async function genererTexte(
   if (!texte) {
     // "finishReason" (ex: "SAFETY") explique pourquoi il n'y a pas de texte.
     console.error(`[${etiquetteLog}] Gemini n'a renvoyé aucun texte :`, JSON.stringify(data, null, 2));
+    const secours = await appelerOpenRouter(instructions, etiquetteLog, options);
+    if (secours) return secours;
     throw new GeminiError(
       "L'IA n'a renvoyé aucun contenu pour cette demande (contenu peut-être filtré). Reformulez et réessayez.",
       502
