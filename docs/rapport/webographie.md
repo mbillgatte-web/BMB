@@ -1,0 +1,22 @@
+# WEBOGRAPHIE
+
+- Vercel Inc., Next.js Documentation, disponible sur : https://nextjs.org/docs , consulté le 12 septembre 2026 à 10h00.
+- Meta Open Source, React Documentation, disponible sur : https://react.dev/ , consulté le 12 septembre 2026 à 15h00.
+- Microsoft, TypeScript Documentation, disponible sur : https://www.typescriptlang.org/docs/ , consulté le 14 septembre 2026 à 9h00.
+- OpenJS Foundation, Node.js Documentation, disponible sur : https://nodejs.org/docs/ , consulté le 14 septembre 2026 à 11h00.
+- Tailwind Labs, Tailwind CSS Documentation, disponible sur : https://tailwindcss.com/docs , consulté le 16 septembre 2026 à 14h00.
+- Framer, Motion Documentation, disponible sur : https://motion.dev/docs , consulté le 17 septembre 2026 à 16h00.
+- Supabase Inc., Supabase Documentation, disponible sur : https://supabase.com/docs , consulté le 19 septembre 2026 à 8h00.
+- PostgreSQL Global Development Group, PostgreSQL Documentation, disponible sur : https://www.postgresql.org/docs/ , consulté le 19 septembre 2026 à 10h00.
+- Google, Gemini API Documentation, disponible sur : https://ai.google.dev/gemini-api/docs , consulté le 22 septembre 2026 à 20h00.
+- OpenRouter, OpenRouter Documentation, disponible sur : https://openrouter.ai/docs , consulté le 24 septembre 2026 à 18h00.
+- Vercel Inc., Vercel Documentation, disponible sur : https://vercel.com/docs , consulté le 26 septembre 2026 à 14h00.
+- Git, Git Documentation, disponible sur : https://git-scm.com/doc , consulté le 27 septembre 2026 à 16h00.
+- GitHub, GitHub Documentation, disponible sur : https://docs.github.com/ , consulté le 27 septembre 2026 à 17h00.
+- Object Management Group (OMG), Unified Modeling Language (UML) Specification, disponible sur : https://www.omg.org/spec/UML/ , consulté le 29 septembre 2026 à 21h00.
+- Mozilla Developer Network (MDN), JavaScript Documentation, disponible sur : https://developer.mozilla.org/fr/docs/Web/JavaScript , consulté le 30 septembre 2026 à 20h00.
+- World Wide Web Consortium (W3C), Web Content Accessibility Guidelines (WCAG) 2.2, disponible sur : https://www.w3.org/TR/WCAG22/ , consulté le 2 octobre 2026 à 15h00.
+- Google, Lighthouse Documentation, disponible sur : https://developer.chrome.com/docs/lighthouse , consulté le 5 octobre 2026 à 13h00.
+- Vitest, Vitest Documentation, disponible sur : https://vitest.dev/guide/ , consulté le 5 octobre 2026 à 12h00.
+- Google Fonts, disponible sur : https://fonts.google.com/ , consulté le 3 octobre 2026 à 11h00.
+- Lucide, Lucide Icons Documentation, disponible sur : https://lucide.dev/guide/ , consulté le 3 octobre 2026 à 11h30.

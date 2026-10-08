@@ -61,7 +61,20 @@ const SAFE_TEMPLATE_ID = /^[a-zA-Z0-9_-]+$/;
  * le reconstruit depuis le gabarit et le contenu enregistré.
  */
 export async function POST(request: NextRequest) {
-  const { entrepriseId, templateId } = await request.json();
+  // L'authentification est vérifiée AVANT de lire le corps : une requête
+  // anonyme reçoit toujours 401, même si son JSON est illisible.
+  const authHeader = request.headers.get("Authorization");
+  if (!authHeader) {
+    return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
+  }
+
+  let corps: { entrepriseId?: string; templateId?: string };
+  try {
+    corps = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Corps de requête invalide (JSON attendu)" }, { status: 400 });
+  }
+  const { entrepriseId, templateId } = corps;
 
   if (!entrepriseId || !templateId) {
     return NextResponse.json({ error: "entrepriseId et templateId requis" }, { status: 400 });
@@ -70,10 +83,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Identifiant de template invalide" }, { status: 400 });
   }
 
-  const authHeader = request.headers.get("Authorization");
-  if (!authHeader) {
-    return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
-  }
   const supabase = createServerSupabase(authHeader);
 
   try {

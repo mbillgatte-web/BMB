@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="520" viewBox="0 0 1400 520" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1F3A6E"/>
+    </marker>
+  </defs>
+  <rect width="1400" height="520" fill="#ffffff"/>
+
+  <text x="700" y="40" text-anchor="middle" font-size="22" font-weight="700" fill="#1F3A6E">Architecture 4 tiers de Build My Business</text>
+
+  <!-- Tier 1 -->
+  <text x="180" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#2F6DB5">TIER 1 · PRÉSENTATION</text>
+  <rect x="40" y="130" width="280" height="260" rx="10" fill="#EEF4FB" stroke="#2F6DB5" stroke-width="2"/>
+  <text x="180" y="170" text-anchor="middle" font-size="18" font-weight="700" fill="#1F3A6E">Client</text>
+  <rect x="130" y="195" width="100" height="62" rx="6" fill="#ffffff" stroke="#1F3A6E" stroke-width="2"/>
+  <rect x="165" y="257" width="30" height="8" fill="#1F3A6E"/>
+  <rect x="150" y="265" width="60" height="4" fill="#1F3A6E"/>
+  <rect x="245" y="205" width="34" height="60" rx="6" fill="#ffffff" stroke="#1F3A6E" stroke-width="2"/>
+  <circle cx="262" cy="256" r="3" fill="#1F3A6E"/>
+  <text x="180" y="315" text-anchor="middle" font-size="15" fill="#1b1b23">Navigateur web</text>
+  <text x="180" y="340" text-anchor="middle" font-size="14" fill="#414942">Interface React / Next.js</text>
+
+  <!-- Tier 2 -->
+  <text x="570" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#2F6DB5">TIER 2 · TRAITEMENT MÉTIER</text>
+  <rect x="420" y="130" width="300" height="260" rx="10" fill="#EEF4FB" stroke="#2F6DB5" stroke-width="2"/>
+  <text x="570" y="170" text-anchor="middle" font-size="18" font-weight="700" fill="#1F3A6E">Serveur d'application</text>
+  <rect x="530" y="195" width="80" height="22" rx="4" fill="#ffffff" stroke="#1F3A6E" stroke-width="2"/>
+  <rect x="530" y="222" width="80" height="22" rx="4" fill="#ffffff" stroke="#1F3A6E" stroke-width="2"/>
+  <rect x="530" y="249" width="80" height="22" rx="4" fill="#ffffff" stroke="#1F3A6E" stroke-width="2"/>
+  <circle cx="600" cy="206" r="3" fill="#2F6DB5"/><circle cx="600" cy="233" r="3" fill="#2F6DB5"/><circle cx="600" cy="260" r="3" fill="#2F6DB5"/>
+  <text x="570" y="315" text-anchor="middle" font-size="15" fill="#1b1b23">Next.js (routes API)</text>
+  <text x="570" y="340" text-anchor="middle" font-size="14" fill="#414942">Hébergé sur Vercel</text>
+
+  <!-- Tier 3 -->
+  <text x="950" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#2F6DB5">TIER 3 · SERVICES EXTERNES</text>
+  <rect x="820" y="130" width="260" height="260" rx="10" fill="#EEF4FB" stroke="#2F6DB5" stroke-width="2"/>
+  <text x="950" y="170" text-anchor="middle" font-size="18" font-weight="700" fill="#1F3A6E">Services d'IA</text>
+  <path d="M905 245 a25 25 0 0 1 48 -10 a20 20 0 0 1 40 10 a18 18 0 0 1 -5 35 h-80 a18 18 0 0 1 -3 -35 z" fill="#ffffff" stroke="#1F3A6E" stroke-width="2"/>
+  <text x="950" y="315" text-anchor="middle" font-size="15" fill="#1b1b23">Google Gemini</text>
+  <text x="950" y="340" text-anchor="middle" font-size="15" fill="#1b1b23">OpenRouter</text>
+
+  <!-- Tier 4 -->
+  <text x="1230" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#2F6DB5">TIER 4 · DONNÉES</text>
+  <rect x="1100" y="130" width="260" height="260" rx="10" fill="#EEF4FB" stroke="#2F6DB5" stroke-width="2"/>
+  <text x="1230" y="170" text-anchor="middle" font-size="18" font-weight="700" fill="#1F3A6E">Serveur de données</text>
+  <ellipse cx="1230" cy="210" rx="40" ry="12" fill="#ffffff" stroke="#1F3A6E" stroke-width="2"/>
+  <path d="M1190 210 v50 a40 12 0 0 0 80 0 v-50" fill="#ffffff" stroke="#1F3A6E" stroke-width="2"/>
+  <path d="M1190 235 a40 12 0 0 0 80 0" fill="none" stroke="#1F3A6E" stroke-width="2"/>
+  <text x="1230" y="315" text-anchor="middle" font-size="15" fill="#1b1b23">Supabase</text>
+  <text x="1230" y="340" text-anchor="middle" font-size="14" fill="#414942">PostgreSQL · Auth · Storage</text>
+
+  <!-- Flèches -->
+  <line x1="320" y1="260" x2="420" y2="260" stroke="#1F3A6E" stroke-width="2.5" marker-start="url(#fleche)" marker-end="url(#fleche)"/>
+  <text x="370" y="248" text-anchor="middle" font-size="12" fill="#1F3A6E">HTTPS / JSON</text>
+
+  <line x1="720" y1="260" x2="820" y2="260" stroke="#1F3A6E" stroke-width="2.5" marker-end="url(#fleche)"/>
+  <text x="770" y="248" text-anchor="middle" font-size="12" fill="#1F3A6E">HTTPS / clé API</text>
+
+  <path d="M570 130 V75 H1230 V130" fill="none" stroke="#1F3A6E" stroke-width="2.5" marker-start="url(#fleche)" marker-end="url(#fleche)"/>
+  <text x="900" y="67" text-anchor="middle" font-size="12" fill="#1F3A6E">HTTPS / jeton de session</text>
+
+  <path d="M180 390 V450 H1230 V390" fill="none" stroke="#2F6DB5" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#fleche)"/>
+  <text x="705" y="470" text-anchor="middle" font-size="12" fill="#2F6DB5">Lecture directe des données de l'utilisateur, protégée par les règles RLS</text>
+</svg>
